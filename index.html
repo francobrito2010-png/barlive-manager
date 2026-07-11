@@ -2,381 +2,1756 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#0A0A0B">
-<title>FORJA</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0D0B0B">
+<title>B'LIVE Bar OS — Stock · Escáner · Recetario · Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600&family=Inter:wght@400;500;600&display=swap');
-
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-.forja-root{
-  --obsidian:#0A0A0B; --carbon:#161618; --carbon2:#1d1d20;
-  --oxblood:#6E1114; --ember:#C1121F; --brass:#C9A24B; --bone:#EDE8DF; --ash:#8A857C;
-  font-family:'Inter',sans-serif; color:var(--bone);
-  background:radial-gradient(120% 80% at 50% -10%, #1a0d0e 0%, var(--obsidian) 55%);
-  min-height:100vh; max-width:480px; margin:0 auto; position:relative;
-  display:flex; flex-direction:column; padding-bottom:78px;
+:root{
+  --bg:#0D0B0B; --surface:#171314; --surface2:#211B1C; --line:#332A2C; --line-hi:rgba(255,255,255,.22);
+  --red:#E5392B; --red-deep:#B02418; --red-soft:rgba(229,57,43,.14);
+  --amber:#E8A33D; --amber-soft:rgba(232,163,61,.14);
+  --green:#4FAE7F; --green-soft:rgba(79,174,127,.15);
+  --text:#FFFFFF; --muted:#9B9298;
+  --radius:16px;
+  --sans:'Archivo',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
-.topbar{display:flex;justify-content:space-between;align-items:center;
-  padding:18px 20px 10px; position:sticky; top:0; z-index:5;
-  background:linear-gradient(180deg, var(--obsidian) 60%, transparent);}
-.brand{font-family:'Bebas Neue';font-size:30px;letter-spacing:6px;color:var(--bone);}
-.rankchip{display:flex;flex-direction:column;align-items:flex-end;line-height:1;}
-.rank-eyebrow{font-family:'Oswald';font-size:9px;letter-spacing:3px;color:var(--ash);text-transform:uppercase;}
-.rank-name{font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;color:var(--brass);}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.4;overflow-x:hidden}
+button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--red)}
+textarea{resize:vertical;min-height:90px;line-height:1.5}
+::placeholder{color:var(--muted)}
 
-.screen{flex:1;padding:8px 20px 28px;overflow-y:auto;}
-.fade{animation:fade .35s ease;}
-@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* ---------- LOGIN ---------- */
+#loginScreen{position:fixed;inset:0;background:radial-gradient(120% 55% at 50% 0%,rgba(150,22,10,.42),transparent 60%),var(--bg);z-index:100;display:flex;flex-direction:column;padding:calc(30px + env(safe-area-inset-top)) 22px 30px;overflow-y:auto}
+.lang-switch{display:flex;justify-content:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.lang-switch button{font-weight:800;font-size:12px;letter-spacing:.04em;padding:8px 14px;border:1px solid var(--line-hi);border-radius:99px;background:rgba(0,0,0,.25);color:var(--muted)}
+.lang-switch button.sel{border-color:var(--red);color:#fff;background:var(--red-soft)}
+.login-brand{font-weight:900;font-size:26px;letter-spacing:.02em;text-transform:uppercase;text-align:center}
+.login-brand span{color:var(--red)}
+.login-sub{font-size:10px;font-weight:700;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;text-align:center;margin-top:4px;margin-bottom:26px}
+.who{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:16px}
+.users-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:440px;width:100%;margin:0 auto}
+.user-tile{position:relative;border:1px solid var(--line-hi);border-radius:18px;background:linear-gradient(160deg,var(--surface2),var(--surface) 70%);padding:22px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;overflow:hidden}
+.user-tile:active{filter:brightness(1.18)}
+.user-tile.admin-tile{border-color:rgba(232,163,61,.5);background:linear-gradient(160deg,rgba(232,163,61,.12),var(--surface) 70%)}
+.avatar{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+.user-tile .uname{font-size:15px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;text-align:center;line-height:1.2}
+.user-tile .urole{font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.user-tile.admin-tile .urole{color:var(--amber)}
+.add-tile{border-style:dashed;justify-content:center;min-height:150px;color:var(--muted)}
+.add-tile .plus{font-size:34px;font-weight:300;line-height:1}
+.add-tile span{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
 
-.eyebrow{font-family:'Oswald';font-size:11px;letter-spacing:4px;color:var(--ash);text-transform:uppercase;margin-bottom:6px;}
-.hero{font-family:'Bebas Neue';font-size:64px;line-height:.86;letter-spacing:1px;color:var(--bone);margin-bottom:14px;}
-.hero-sm{font-family:'Bebas Neue';font-size:46px;letter-spacing:2px;margin-bottom:18px;}
+/* PIN entry over login */
+.pin-panel{max-width:340px;width:100%;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:22px}
+.pin-avatar-big{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:#fff}
+.pin-who{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;text-align:center}
+.pin-dots{display:flex;gap:14px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--muted);transition:all .15s}
+.pin-dot.full{background:var(--red);border-color:var(--red)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
+.pin-key{height:64px;border-radius:18px;background:var(--surface);border:1px solid var(--line-hi);font-size:22px;font-weight:800}
+.pin-key:active{background:var(--surface2)}
+.pin-error{color:var(--red);font-size:13px;min-height:18px;font-weight:600}
+.link-btn{font-size:13px;font-weight:700;color:var(--muted);padding:8px;text-decoration:underline}
 
-.forge-wrap{display:flex;flex-direction:column;align-items:center;margin:6px 0 18px;}
-.ember-outer{width:196px;height:196px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  position:relative;transition:box-shadow .6s ease;}
-.ember{position:absolute;inset:0;border-radius:50%;transition:all .6s ease;}
-.ember-core{position:relative;z-index:2;text-align:center;}
-.ember-count{font-family:'Bebas Neue';font-size:52px;line-height:1;color:var(--bone);text-shadow:0 2px 12px rgba(0,0,0,.6);}
-.ember-label{font-family:'Oswald';font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(237,232,223,.8);}
-.forge-caption{font-family:'Oswald';font-size:12px;letter-spacing:1px;color:var(--ash);margin-top:16px;text-align:center;}
+/* ---------- Frame ---------- */
+.app{display:none;flex-direction:column;min-height:100dvh}
+.hero{background:radial-gradient(130% 70% at 50% -10%,rgba(160,24,10,.48),transparent 62%);padding:16px 18px 10px}
+.hero-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.back-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-hi);display:none;align-items:center;justify-content:center;font-size:17px;background:rgba(0,0,0,.25);flex-shrink:0}
+.logo{font-weight:900;font-size:20px;letter-spacing:.02em;text-transform:uppercase;flex:1;min-width:0}
+.logo .fire{margin-right:5px}
+.logo span{color:var(--red)}
+.logo small{display:block;font-weight:600;font-size:9px;letter-spacing:.3em;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-right{display:flex;gap:7px;align-items:center;flex-shrink:0}
+.pill{font-weight:800;font-size:12px;padding:8px 13px;border:1px solid var(--line-hi);border-radius:99px;background:rgba(0,0,0,.25)}
+.userchip{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border:1px solid var(--line);border-radius:99px;background:rgba(0,0,0,.28);font-weight:800;font-size:12px;text-transform:uppercase}
+.userchip .av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}
+.userchip.admin{border-color:rgba(232,163,61,.5)}
+.chip{font-family:var(--mono);font-size:10px;padding:7px 10px;border:1px solid var(--line);border-radius:99px;color:var(--muted);background:rgba(0,0,0,.25);text-transform:uppercase}
+.chip.on{color:var(--green);border-color:rgba(79,174,127,.4)}
+main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:600px;width:100%;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block}
 
-.stats{display:flex;gap:10px;margin:4px 0 10px;}
-.stat{flex:1;background:var(--carbon);border:1px solid rgba(201,162,75,.14);border-radius:12px;padding:12px 8px;text-align:center;}
-.stat-value{font-family:'Bebas Neue';font-size:28px;color:var(--brass);line-height:1;}
-.stat-label{font-family:'Oswald';font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-top:4px;}
-.xpbar{height:5px;background:var(--carbon2);border-radius:3px;overflow:hidden;margin-bottom:22px;}
-.xpbar-fill{height:100%;background:linear-gradient(90deg,var(--oxblood),var(--ember),var(--brass));transition:width .4s ease;}
+/* ---------- HUB ---------- */
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.tile{position:relative;border:1px solid var(--line-hi);border-radius:20px;background:linear-gradient(160deg,var(--surface2),var(--surface) 65%);padding:22px 16px 18px;min-height:150px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;overflow:hidden;text-align:left}
+.tile:active{filter:brightness(1.15)}
+.tile.locked{opacity:.5}
+.tile .glow{position:absolute;top:-30%;right:-20%;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(229,57,43,.35),transparent 70%)}
+.tile .ico{font-size:30px;line-height:1}
+.tile .ico svg{width:38px;height:38px;stroke:var(--red);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block}
+.tile .ico svg .fillw{fill:rgba(255,255,255,.06)}
+.tile.admin-only .ico svg{width:26px;height:26px}
+.tile h2{font-size:15px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+.tile p{font-size:11px;color:var(--muted);font-weight:600}
+.tile .badge{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--amber);border:1px solid rgba(232,163,61,.5);background:var(--amber-soft);border-radius:99px;padding:4px 9px}
+.tile .lock{position:absolute;top:12px;right:12px;font-size:13px;opacity:.6}
+.tile.admin-only{grid-column:1/-1;min-height:auto;flex-direction:row;align-items:center;justify-content:flex-start;gap:14px;padding:16px}
+.tile.admin-only .ico{font-size:24px}
+.tile.admin-only .txt h2{font-size:14px}
 
-.section-title{font-family:'Bebas Neue';font-size:24px;letter-spacing:2px;color:var(--bone);margin:18px 0 12px;border-left:3px solid var(--ember);padding-left:10px;}
+/* ---------- Stats / toolbar / stock ---------- */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.stat{border:1px solid var(--line-hi);border-radius:var(--radius);padding:13px 16px;background:rgba(0,0,0,.22)}
+.stat .num{font-size:28px;font-weight:900;line-height:1.1}
+.stat .lbl{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.stat.warn{border-color:rgba(232,163,61,.5);background:var(--amber-soft)}
+.stat.warn .num,.stat.warn .lbl{color:var(--amber)}
+.search-bar{position:relative;margin-bottom:12px}
+.search-bar input{padding-left:42px;font-family:var(--mono);font-size:14px}
+.search-bar .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tbtn{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase;padding:11px 14px;border:1px solid var(--line-hi);border-radius:12px;background:var(--surface)}
+.tbtn.red{background:linear-gradient(135deg,var(--red),var(--red-deep));border-color:transparent;color:#fff;box-shadow:0 4px 16px rgba(229,57,43,.3)}
+.tbtn.amber{color:var(--amber);border-color:rgba(232,163,61,.5);background:var(--amber-soft)}
+.tbtn.on{border-color:var(--red);color:var(--red)}
+.tbtn:active{filter:brightness(.9)}
+.spacer{flex:1}
 
-.pillars{display:flex;flex-direction:column;gap:9px;}
-.pill{display:flex;align-items:stretch;gap:12px;background:var(--carbon);border:1px solid rgba(255,255,255,.05);
-  border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;transition:.2s;color:var(--bone);}
-.pill:hover{border-color:rgba(201,162,75,.25);}
-.pill-bar{width:3px;border-radius:3px;background:var(--carbon2);flex:none;transition:.3s;}
-.pill-on{background:linear-gradient(90deg, rgba(110,17,20,.35), var(--carbon));border-color:rgba(193,18,31,.5);}
-.pill-on .pill-bar{background:linear-gradient(var(--ember),var(--brass));box-shadow:0 0 10px var(--ember);}
-.pill-text{flex:1;display:flex;flex-direction:column;gap:3px;}
-.pill-label{font-family:'Bebas Neue';font-size:20px;letter-spacing:1px;}
-.pill-hint{font-size:11.5px;color:var(--ash);line-height:1.35;}
-.pill-check{font-family:'Oswald';color:var(--brass);font-size:15px;align-self:center;width:16px;text-align:center;}
+.shop-card{border:1px solid rgba(232,163,61,.45);background:linear-gradient(180deg,rgba(232,163,61,.1),rgba(232,163,61,.03));border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}
+.shop-head{display:flex;align-items:center;justify-content:space-between;font-weight:900;letter-spacing:.06em;text-transform:uppercase;font-size:14px;color:var(--amber);cursor:pointer}
+.shop-head .cnt{font-family:var(--mono);font-size:13px}
+.shop-list{margin-top:10px;display:none}
+.shop-card.open .shop-list{display:block}
+.shop-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(232,163,61,.16);font-size:13px}
+.shop-item b{font-weight:700;flex:1;min-width:0}
+.shop-item span{color:var(--muted);font-family:var(--mono);font-size:11px;flex-shrink:0}
+.shop-item .rm{width:28px;height:28px;border-radius:8px;border:1px solid rgba(232,163,61,.4);font-size:13px;flex-shrink:0}
+.shop-add{display:flex;gap:8px;margin-top:12px}
+.shop-add input{padding:10px 12px;font-size:14px}
+.shop-add button{flex-shrink:0;width:46px;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-size:20px;font-weight:800}
 
-.habit-add{display:flex;gap:8px;margin-bottom:10px;}
-.field{flex:1;background:var(--carbon);border:1px solid rgba(255,255,255,.08);border-radius:10px;
-  padding:12px 14px;color:var(--bone);font-family:'Inter';font-size:14px;outline:none;}
-.field:focus{border-color:var(--brass);}
-.btn-add{width:46px;background:var(--ember);border:none;border-radius:10px;color:#fff;font-size:22px;cursor:pointer;}
-.empty{font-size:12px;color:var(--ash);font-style:italic;margin-bottom:8px;}
-.habit{display:flex;align-items:center;gap:12px;background:var(--carbon);border:1px solid rgba(255,255,255,.05);
-  border-radius:10px;padding:11px 12px;margin-bottom:8px;}
-.habit-on{border-color:rgba(193,18,31,.4);}
-.habit-on .habit-name{color:var(--ash);text-decoration:line-through;}
-.habit-tick{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--brass);background:transparent;
-  color:var(--brass);cursor:pointer;flex:none;font-size:13px;}
-.habit-on .habit-tick{background:var(--ember);border-color:var(--ember);color:#fff;}
-.habit-name{flex:1;font-size:14px;}
-.habit-del{background:none;border:none;color:var(--ash);cursor:pointer;font-size:13px;}
+.cat{border:1px solid var(--line-hi);background:var(--surface);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.cat-head{display:flex;align-items:center;justify-content:space-between;padding:16px;cursor:pointer}
+.cat-head h2{font-size:15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.cat-head .right{display:flex;align-items:center;gap:10px;color:var(--muted);font-family:var(--mono);font-size:12px}
+.cat-head .chev{transition:transform .18s;font-size:11px}
+.cat.open .cat-head .chev{transform:rotate(90deg)}
+.cat-body{display:none;padding:0 12px 12px}
+.cat.open .cat-body{display:block}
 
-.ritual{background:var(--carbon);border:1px solid rgba(201,162,75,.12);border-radius:14px;padding:16px;margin-bottom:16px;}
-.ritual-head-edit{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.ritual-title-btn{flex:1;display:flex;align-items:center;gap:8px;background:transparent;border:none;
-  font-family:'Bebas Neue';font-size:28px;letter-spacing:1px;color:var(--brass);cursor:pointer;
-  text-align:left;padding:2px 0;}
-.edit-pencil{font-size:13px;opacity:.35;}
-.ritual-title-btn:hover .edit-pencil{opacity:.7;}
-.ritual-title-input{flex:1;-webkit-appearance:none;appearance:none;background:transparent;
-  border:none;border-bottom:1px solid var(--brass);
-  font-family:'Bebas Neue';font-size:28px;letter-spacing:1px;color:var(--brass);outline:none;padding:2px 0;}
-.ritual-progress{font-family:'Oswald';font-size:12px;color:var(--ash);letter-spacing:1px;flex:none;}
-.block-del{background:none;border:none;font-size:15px;cursor:pointer;opacity:.5;flex:none;}
-.block-del:hover{opacity:1;}
-.ritual-item{display:flex;align-items:center;gap:12px;width:100%;
-  border-top:1px solid rgba(255,255,255,.05);padding:11px 2px;color:var(--bone);font-size:14px;}
-.ritual-item-label{flex:1;cursor:pointer;}
-.ritual-tick{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--ash);flex:none;color:var(--brass);
-  background:transparent;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:.2s;}
-.ritual-on .ritual-tick{background:var(--ember);border-color:var(--ember);color:#fff;}
-.ritual-on .ritual-item-label{color:var(--ash);text-decoration:line-through;}
-.item-del{background:none;border:none;color:var(--ash);cursor:pointer;font-size:12px;opacity:.6;flex:none;}
-.item-del:hover{opacity:1;color:var(--ember);}
-.ritual-add{display:flex;gap:8px;margin-top:12px;}
-.add-block{width:100%;background:transparent;border:1.5px dashed rgba(201,162,75,.4);color:var(--brass);
-  font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;padding:14px;border-radius:12px;cursor:pointer;transition:.2s;}
-.add-block:hover{background:rgba(201,162,75,.08);border-color:var(--brass);}
+.prod{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:8px}
+.prod.low{border-color:rgba(232,163,61,.55)}
+.prod-top{display:flex;align-items:center;gap:10px}
+.prod-name{flex:1;min-width:0;font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.low-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--amber);border:1px solid rgba(232,163,61,.5);background:var(--amber-soft);border-radius:99px;padding:3px 8px;margin-left:8px;vertical-align:2px}
+.qty-ctrl{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.qty-ctrl .qv{font-weight:900;font-size:22px;min-width:30px;text-align:center}
+.prod.low .qv{color:var(--amber)}
+.cbtn{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;flex-shrink:0}
+.cbtn.minus{border:1.5px solid var(--line-hi);background:rgba(0,0,0,.3)}
+.cbtn.plus{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;box-shadow:0 3px 12px rgba(229,57,43,.35)}
+.cbtn:active{filter:brightness(.85)}
+.prod-sub{display:flex;align-items:center;gap:8px;margin-top:9px;color:var(--muted);font-size:12px}
+.min-btn{font-family:var(--mono);font-size:11px;font-weight:600;padding:6px 11px;border:1px solid var(--line-hi);border-radius:99px;background:rgba(0,0,0,.25);color:var(--text)}
+.min-btn.plain{border-color:transparent;background:none;color:var(--muted)}
+.prod-sub .code{font-family:var(--mono);font-size:10px;margin-left:auto;opacity:.7;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:34px 20px}
 
-.save-btn{width:100%;background:linear-gradient(90deg,var(--oxblood),var(--ember));border:none;color:#fff;
-  font-family:'Bebas Neue';font-size:22px;letter-spacing:2px;padding:14px;border-radius:12px;cursor:pointer;
-  box-shadow:0 6px 20px rgba(193,18,31,.3);}
-.oro{color:var(--brass);}
-.hora{color:var(--ash);font-size:26px;}
-.principio{background:var(--carbon);border:1px solid rgba(255,255,255,.05);border-left:3px solid var(--ember);
-  border-radius:12px;padding:16px 18px;margin-bottom:18px;}
-.principio-tag{font-family:'Oswald';font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ash);margin-bottom:8px;}
-.principio-text{font-size:16px;line-height:1.45;font-weight:600;color:var(--bone);}
-.sub-tabs{display:flex;gap:8px;margin-bottom:16px;}
-.sub-tab{flex:1;padding:11px 0;border-radius:10px;border:1px solid rgba(201,162,75,.3);background:transparent;
-  color:var(--ash);font-family:'Oswald';font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;}
-.sub-on{background:var(--brass);border-color:var(--brass);color:#111;}
-.proto{background:var(--carbon);border:1px solid rgba(255,255,255,.06);border-radius:14px;margin-bottom:11px;overflow:hidden;transition:border-color .2s;}
-.proto-open{border-color:rgba(201,162,75,.5);}
-.proto-head{width:100%;display:flex;align-items:center;gap:14px;padding:15px 16px;background:transparent;border:none;cursor:pointer;text-align:left;}
-.proto-n{font-family:'Bebas Neue';font-size:26px;color:var(--ash);min-width:32px;}
-.proto-open .proto-n{color:var(--brass);}
-.proto-titles{flex:1;display:flex;flex-direction:column;gap:2px;}
-.proto-title{font-family:'Bebas Neue';font-size:21px;letter-spacing:1px;color:var(--bone);}
-.proto-sub{font-family:'Oswald';font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ash);}
-.proto-plus{color:var(--brass);font-size:20px;transition:transform .2s;}
-.proto-plus.rot{transform:rotate(45deg);}
-.proto-body{padding:0 16px 18px;}
-.proto-principio{font-size:15px;line-height:1.5;font-style:italic;color:var(--brass);
-  border-top:1px solid rgba(255,255,255,.06);padding-top:14px;margin-bottom:14px;}
-.proto-idea{display:flex;gap:10px;margin-bottom:11px;font-size:14.5px;line-height:1.45;color:var(--bone);}
-.proto-dash{color:var(--ember);font-weight:700;}
-.proto-accion{margin-top:14px;background:var(--carbon2);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:14px;}
-.proto-accion-tag{font-family:'Oswald';font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--brass);margin-bottom:7px;}
-.consulta{background:var(--carbon);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:18px;margin-bottom:11px;}
-.consulta-fecha{font-family:'Oswald';font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ash);margin-bottom:8px;}
-.consulta-p{font-family:'Bebas Neue';font-size:20px;letter-spacing:.5px;color:var(--brass);line-height:1.2;margin-bottom:10px;}
-.consulta-r{font-size:14.5px;line-height:1.55;color:var(--bone);}
-.consulta-vacia{text-align:center;padding:20px 16px;border:1px dashed rgba(201,162,75,.35);border-radius:14px;
-  color:var(--ash);font-size:13.5px;line-height:1.5;}
+/* ---------- Scanner ---------- */
+.mode-switch{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line-hi);border-radius:var(--radius);padding:5px;gap:5px;margin:14px 0}
+.mode-btn{padding:13px 8px;border-radius:12px;font-weight:900;font-size:14px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;transition:all .15s}
+.mode-btn.active-in{background:var(--green-soft);color:var(--green);box-shadow:inset 0 0 0 1px rgba(79,174,127,.45)}
+.mode-btn.active-out{background:var(--red-soft);color:var(--red);box-shadow:inset 0 0 0 1px rgba(229,57,43,.5)}
+.scan-wrap{position:relative;border-radius:var(--radius);overflow:hidden;background:#080606;border:1px solid var(--line-hi);aspect-ratio:4/3}
+#reader{width:100%;height:100%}
+#reader video{width:100%!important;height:100%!important;object-fit:cover}
+.scan-overlay{position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.scan-frame{position:relative;width:74%;height:44%}
+.corner{position:absolute;width:26px;height:26px;border-color:var(--red);border-style:solid;border-width:0}
+.corner.tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-top-left-radius:8px}
+.corner.tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-top-right-radius:8px}
+.corner.bl{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-bottom-left-radius:8px}
+.corner.br{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-bottom-right-radius:8px}
+.scan-line{position:absolute;left:6%;right:6%;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);animation:sweep 2.2s ease-in-out infinite}
+@keyframes sweep{0%,100%{top:8%}50%{top:88%}}
+@media (prefers-reduced-motion:reduce){.scan-line{animation:none;top:50%}}
+.scan-idle{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--surface);z-index:2}
+.scan-idle p{color:var(--muted);font-size:13px;text-align:center;max-width:270px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 22px;border-radius:14px;font-weight:900;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.btn-red{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;box-shadow:0 4px 16px rgba(229,57,43,.3)}
+.btn-green{background:var(--green);color:#08130D}
+.btn-ghost{border:1px solid var(--line-hi);color:var(--text)}
+.btn-danger{border:1px solid rgba(229,57,43,.55);color:var(--red);background:var(--red-soft)}
+.btn-block{width:100%}
+.btn:active{filter:brightness(.88)}
+.scan-status{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center;margin-top:10px;min-height:18px}
+.manual-row{display:flex;gap:8px;margin-top:14px}
+.manual-row input{font-family:var(--mono)}
+.manual-row .btn{padding:12px 16px;flex-shrink:0}
 
-.rank-hero{text-align:center;margin:6px 0 18px;}
-.mil-wrap{background:var(--carbon);border:1px solid rgba(201,162,75,.18);border-radius:14px;padding:16px;margin-bottom:16px;}
-.mil-head{display:flex;justify-content:space-between;font-family:'Oswald';font-size:12px;letter-spacing:1px;
-  text-transform:uppercase;color:var(--brass);margin-bottom:10px;}
-.mil-bar{height:10px;background:var(--obsidian);border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,.06);}
-.mil-fill{height:100%;background:linear-gradient(90deg,var(--oxblood),var(--ember) 55%,var(--brass));
-  box-shadow:0 0 14px rgba(193,18,31,.5);transition:width .5s ease;}
-.mil-next{font-size:12px;color:var(--ash);margin-top:10px;text-align:center;}
-.mil-next b{color:var(--bone);}
-.rankrow.current{border-color:var(--ember);box-shadow:0 0 0 1px var(--ember) inset;}
-.rankrow.current .rankrow-name{color:var(--bone);}
-.rank-big{font-family:'Bebas Neue';font-size:54px;letter-spacing:2px;color:var(--brass);display:block;line-height:1;
-  text-shadow:0 0 30px rgba(201,162,75,.3);}
-.rank-lvl{font-family:'Oswald';font-size:12px;letter-spacing:3px;color:var(--ash);text-transform:uppercase;}
-.ranklist{display:flex;flex-direction:column;gap:7px;}
-.rankrow{display:flex;justify-content:space-between;align-items:center;background:var(--carbon);
-  border:1px solid rgba(255,255,255,.05);border-radius:10px;padding:12px 14px;opacity:.4;}
-.rankrow.reached{opacity:1;border-color:rgba(201,162,75,.35);
-  background:linear-gradient(90deg,rgba(110,17,20,.25),var(--carbon));}
-.rankrow-name{font-family:'Bebas Neue';font-size:20px;letter-spacing:1px;}
-.rankrow.reached .rankrow-name{color:var(--brass);}
-.rankrow-lvl{font-family:'Oswald';font-size:11px;letter-spacing:2px;color:var(--ash);}
+/* ---------- Historial ---------- */
+.mv-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.mv-tag{font-family:var(--mono);font-size:12px;font-weight:600;padding:5px 9px;border-radius:8px;flex-shrink:0}
+.mv-tag.in{color:var(--green);background:var(--green-soft)}
+.mv-tag.out{color:var(--red);background:var(--red-soft)}
+.mv-card .info{flex:1;min-width:0}
+.mv-card .name{font-weight:800;font-size:13px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv-card .meta{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.mv-card .by{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-weight:800;color:#CFC7CC}
+.mv-card .by .av{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:900;color:#fff}
 
-.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;
-  justify-content:center;z-index:20;backdrop-filter:blur(3px);}
-.modal{width:100%;max-width:480px;background:var(--carbon);border-top:2px solid var(--ember);
-  border-radius:20px 20px 0 0;padding:22px 20px 28px;animation:slideup .3s ease;}
-@keyframes slideup{from{transform:translateY(100%)}to{transform:none}}
-.modal-title{font-family:'Bebas Neue';font-size:30px;letter-spacing:1px;margin-bottom:14px;}
-.journal-area{width:100%;min-height:150px;background:var(--obsidian);border:1px solid rgba(255,255,255,.1);
-  border-radius:12px;padding:14px;color:var(--bone);font-family:'Inter';font-size:14px;resize:vertical;outline:none;margin-bottom:14px;}
-.journal-area:focus{border-color:var(--brass);}
+/* ---------- Recetario ---------- */
+.rec-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.rec-card{border:1px solid var(--line-hi);border-radius:18px;background:linear-gradient(170deg,#1E1718,#121011 70%);padding:16px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.rec-card:active{filter:brightness(1.15)}
+.rec-card svg{width:86px;height:100px}
+.rec-card h3{font-size:13px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;line-height:1.25}
+.rec-detail-glass{display:flex;justify-content:center;margin:6px 0 14px}
+.rec-detail-glass svg{width:150px;height:172px}
+/* Detalle de cóctel: texto 30% más grande para lectura cómoda */
+#recViewName{font-size:22px}
+.rec-sec{font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin:20px 0 10px}
+.rec-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:18px;line-height:1.45}
+.rec-item .n{font-family:var(--mono);color:var(--red);font-weight:600;flex-shrink:0;font-size:18px}
+.swatches{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid transparent}
+.swatch.sel{border-color:#fff;box-shadow:0 0 0 2px var(--red)}
+.copa-opts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:4px}
+.copa-opt{border:1px solid var(--line);border-radius:12px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--surface2)}
+.copa-opt svg{width:34px;height:40px}
+.copa-opt span{font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.copa-opt.sel{border-color:var(--red);background:var(--red-soft)}
 
-.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;
-  display:flex;background:rgba(10,10,11,.94);backdrop-filter:blur(10px);border-top:1px solid rgba(201,162,75,.15);z-index:10;}
-.tab{flex:1;padding:16px 0;background:none;border:none;color:var(--ash);cursor:pointer;
-  font-family:'Oswald';font-size:12px;letter-spacing:2px;text-transform:uppercase;position:relative;}
-.tab-on{color:var(--brass);}
-.tab-on::after{content:'';position:absolute;top:0;left:25%;width:50%;height:2px;background:var(--ember);box-shadow:0 0 8px var(--ember);}
-html,body{background:#0A0A0B;}
+/* ---------- Manual ---------- */
+.man-sec{border:1px solid var(--line-hi);background:var(--surface);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.man-head{display:flex;align-items:center;justify-content:space-between;padding:16px;cursor:pointer}
+.man-head h2{font-size:14px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+.man-head .right{display:flex;align-items:center;gap:10px;color:var(--muted);font-family:var(--mono);font-size:12px}
+.man-head .chev{transition:transform .18s;font-size:11px}
+.man-sec.open .man-head .chev{transform:rotate(90deg)}
+.man-body{display:none;padding:0 16px 14px}
+.man-sec.open .man-body{display:block}
+.man-item{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;color:#E8E2E3}
+.man-item .dot{color:var(--red);flex-shrink:0}
+.man-edit{margin-top:10px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--amber);padding:9px 14px;border:1px solid rgba(232,163,61,.5);border-radius:10px;background:var(--amber-soft)}
+
+/* ---------- Empleados (gestión admin) ---------- */
+.emp-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line-hi);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.emp-row .info{flex:1;min-width:0}
+.emp-row .en{font-weight:800;font-size:15px;text-transform:uppercase}
+.emp-row .er{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.emp-row.admin .er{color:var(--amber)}
+.emp-actions{display:flex;gap:8px;flex-shrink:0}
+.emp-actions button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line-hi);font-size:15px;background:rgba(0,0,0,.25)}
+.color-opts{display:flex;flex-wrap:wrap;gap:9px;margin-top:4px}
+.color-opt{width:36px;height:36px;border-radius:50%;border:2px solid transparent}
+.color-opt.sel{border-color:#fff;box-shadow:0 0 0 2px var(--red)}
+
+/* ---------- FAB / Modals / toast ---------- */
+.fab{position:fixed;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-size:28px;font-weight:800;display:none;align-items:center;justify-content:center;box-shadow:0 6px 22px rgba(229,57,43,.45);z-index:49}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.74);z-index:80;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--line-hi);border-bottom:none;border-radius:22px 22px 0 0;width:100%;max-width:600px;padding:22px 20px calc(26px + env(safe-area-inset-bottom));max-height:90dvh;overflow-y:auto}
+.modal h3{font-size:17px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.modal .code{font-family:var(--mono);font-size:12px;color:var(--red);margin-bottom:16px;word-break:break-all}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stepper{display:grid;grid-template-columns:64px 1fr 64px;gap:10px;margin:14px 0 16px}
+.stepper button{height:60px;border-radius:14px;background:var(--surface2);border:1px solid var(--line-hi);font-size:26px;font-weight:800}
+.stepper input{text-align:center;font-family:var(--mono);font-size:26px;font-weight:600;height:60px}
+.stock-now{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:6px}
+.modal .cancel{width:100%;margin-top:10px;padding:12px;color:var(--muted);font-size:13px;font-weight:600}
+.warn{color:var(--red);font-size:13px;min-height:18px;margin-bottom:6px;font-weight:600}
+.modal-actions{display:flex;gap:10px;margin-top:6px}
+.modal-actions .btn{flex:1}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:40px;background:var(--surface2);border:1px solid var(--line-hi);border-radius:12px;padding:12px 18px;font-size:13px;font-weight:800;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;max-width:88%;text-align:center}
+.toast.show{opacity:1}
+.toast.ok{border-color:rgba(79,174,127,.5);color:var(--green)}
+.toast.err{border-color:rgba(229,57,43,.5);color:var(--red)}
 </style>
 </head>
 <body>
-<div id="app" class="forja-root"></div>
+
+<!-- ================== CONFIGURACIÓN ==================
+1) BRAND: nombre del bar del cliente.
+2) ADMIN_PIN: PIN del dueño. El admin crea al resto de empleados DENTRO de la app.
+3) FIREBASE: config del proyecto del cliente. null = MODO DEMO (memoria, se pierde al recargar).
+   Colecciones: gf_productos, gf_movimientos, gf_recetas, gf_manual, gf_compras, gf_empleados.
+==================================================== -->
 <script>
-/* ===================== DATOS ===================== */
-const PILLARS=[
-  {key:"disciplina",label:"Disciplina",hint:"Cumple tu palabra. Gana la mañana."},
-  {key:"estoicismo",label:"Estoicismo",hint:"Lee. Aplica una idea hoy."},
-  {key:"fisico",label:"Físico",hint:"Entrena. Sin negociar."},
-  {key:"imagen",label:"Imagen",hint:"Vístete con intención."},
-  {key:"finanzas",label:"Finanzas",hint:"Controla tu dinero hoy."},
-  {key:"journaling",label:"Journaling",hint:"Escribe. Ordena tu mente."},
-  {key:"mentalidad",label:"Mentalidad",hint:"Aplica el principio del día."}
-];
-const RITUAL_MANANA=["Sin snooze. Pies al piso.","Agua antes que el teléfono.","Movimiento: 5 min mínimo.","Ducha fría.","Define las 3 batallas del día."];
-const RITUAL_TARDE=["Entrenamiento hecho.","Vístete para el turno con intención.","Revisa tu dinero del día.","10 min de journaling.","Una intención antes de entrar a trabajar."];
-const STOIC=[
-  "No controlas lo que pasa. Controlas lo que haces con lo que pasa.",
-  "El obstáculo es el camino. Atraviésalo.",
-  "Hoy alguien te va a molestar. Tu calma es tu poder.",
-  "No te quejes. Actúa o acepta. No hay tercera opción.",
-  "Domínate a ti mismo antes de querer dominar tu día.",
-  "El placer fácil de hoy es la debilidad de mañana. Elige.",
-  "Nadie viene a salvarte. Y está bien: tú te bastas.",
-  "Haz lo difícil ahora para que tu futuro sea fácil."
-];
-const PROTOCOLOS=[
-  {n:"01",titulo:"La Mentalidad",subtitulo:"El sistema operativo",principio:"No vendes horas. Construyes una vez y cobras muchas veces.",ideas:["El que cobra 1000 €/h no trabaja más rápido: resuelve problemas más caros.","Calma, no necesidad. El que persigue aprobación la pierde.","Protege tu tiempo como tu activo más caro. Aprende a decir no sin culpa.","Eres interesante porque construyes, no al revés."],accion:"Hoy: di 'no' a una tarea o petición que no te acerque a tu objetivo. Una sola. Sin justificarte de más."},
-  {n:"02",titulo:"Dinero que trabaja sin ti",subtitulo:"Ingreso recurrente",principio:"Un cobro único te da un día. Un cobro mensual te da libertad.",ideas:["Productiza lo que ya validaste en vez de empezar de cero.","Busca 3 clientes que paguen poco cada mes, no 50 que paguen una vez.","El primer euro que ganas durmiendo te cambia la cabeza para siempre.","Sube el precio a los nuevos, respeta a los fundadores."],accion:"Esta semana: habla con 1 dueño de negocio al día sobre un problema que tu producto resuelve. 5 conversaciones."},
-  {n:"03",titulo:"Presencia y estilo",subtitulo:"El cuerpo habla primero",principio:"La presencia no se actúa: se construye con hábitos aburridos.",ideas:["Postura, sueño y entrenamiento hacen más por tu aura que cualquier ropa.","Menos prendas, mejores prendas, que te queden bien. El corte gana al logo.","Habla más lento. El que tiene prisa parece que necesita algo.","Cuida detalles: piel, manos, olor, zapatos. Se nota en silencio."],accion:"Elige 3 prendas neutras que te queden perfectas y conviértelas en tu uniforme. Deja de improvisar cada mañana."},
-  {n:"04",titulo:"Carisma real",subtitulo:"Sin máscara",principio:"El carisma es seguridad más atención genuina, no un truco.",ideas:["Escucha más de lo que hablas. La gente recuerda cómo la hiciste sentir.","Ten estándares. El que acepta todo no vale para nadie.","El humor nace de la calma, no de buscar aprobación.","Con gente inteligente: la curiosidad real gana a impresionar."],accion:"En tu próxima conversación importante: haz 3 preguntas antes de dar tu primera opinión."},
-  {n:"05",titulo:"Mente sin miedo",subtitulo:"Disciplina estoica",principio:"El miedo es una brújula: señala dónde está tu crecimiento.",ideas:["Separa lo que controlas de lo que no. Gasta energía solo en lo primero.","Decide rápido en lo reversible. Piensa despacio solo en lo irreversible.","La disciplina es libertad: menos decisiones, más dirección.","Haz reps de incomodidad. El valor se entrena, no se espera."],accion:"Hoy haz una cosa que te dé algo de miedo y sea reversible: envía el mensaje, haz la llamada, pide el precio."}
-];
-const CONSULTAS=[
-  {p:"¿Subo la app a Google Play o App Store para atraer más gente?",r:"Ahora no. Nadie descubre una app de stock buscando en las tiendas; tu canal real eres tú hablando con dueños de bares. Un link web funciona igual en iPhone y Android, coste 0, y lo actualizas al instante. Hazlo PWA instalable (icono en la pantalla de inicio) y guarda las tiendas para cuando tus apps de consumidor estén listas para escalar.",fecha:"Consulta guardada"},
-  {p:"¿Cómo consigo mi primer ingreso recurrente en 90 días?",r:"Productiza algo que ya construiste. Días 1–30: convertirlo en producto para cualquier cliente con un cobro mensual simple. Días 31–60: consigue 3 clientes fundadores pagando poco cada mes. Días 61–90: pule con su feedback, sube el precio a los nuevos, llega a 5–8. El objetivo no es hacerte rico: es tener gente pagándote cada mes por primera vez.",fecha:"Consulta guardada"}
-];
-const RANKS=[
-  {min:0,name:"Hierro Frío",note:"El comienzo"},{min:1,name:"Chispa",note:"Día 1 — encendiste"},{min:3,name:"Brasa",note:"3 días"},{min:7,name:"Llama",note:"1 semana"},{min:14,name:"Fragua",note:"2 semanas"},{min:30,name:"Forjado",note:"1 mes"},{min:60,name:"Yunque",note:"2 meses"},{min:90,name:"Acero",note:"3 meses"},{min:120,name:"Acero Templado",note:"4 meses"},{min:150,name:"Filo",note:"5 meses"},{min:180,name:"Espada",note:"medio año"},{min:210,name:"Guerrero",note:"7 meses"},{min:240,name:"Centurión",note:"8 meses"},{min:270,name:"Gladiador",note:"9 meses"},{min:300,name:"Indómito",note:"10 meses"},{min:330,name:"Coloso",note:"11 meses"},{min:365,name:"Titán",note:"1 año entero"},{min:450,name:"Leyenda",note:""},{min:550,name:"Inmortal",note:""},{min:650,name:"Monarca",note:""},{min:750,name:"Emperador",note:""},{min:850,name:"Semidiós",note:""},{min:950,name:"Mito",note:"casi imposible"},{min:1000,name:"La Cabra 🐐",note:"Nivel Messi — el GOAT"}
-];
+const BRAND = { emoji:"🔥", name:"B' LIVE", sub:"BAR OS · STOCK · RECETARIO" };
+const ADMIN_PIN = "123456"; /* admin: 6 dígitos. Los empleados pueden tener PIN de 4 a 6 dígitos */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDDKQXHtIHnE5Pu-fkcUeNj3iw_jylZ_0M",
+  authDomain: "barlive-manager.firebaseapp.com",
+  projectId: "barlive-manager",
+  storageBucket: "barlive-manager.firebasestorage.app",
+  messagingSenderId: "137408913639",
+  appId: "1:137408913639:web:8e2d90376fa0f509460242"
+}; /* Firebase conectado — la app guarda en tiempo real */
+const STOCK_MIN_DEFAULT = 2;
+const CATS = ["JARABES","LICORES","WHISKY","AGUARDENTE / COGNAC","GIN","VINOS & ESPUMANTES","VODKA","RON","TEQUILA","CERVEZA","REFRESCOS","OTROS"];
+const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA5","#2DB7A8","#C97B2D"];
+</script>
 
-/* ===================== HELPERS ===================== */
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-function dayKey(d){d=d||new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
-function todayStr(){return dayKey();}
-function yesterdayStr(){const d=new Date();d.setDate(d.getDate()-1);return dayKey(d);}
-function rankFor(streak){let r=RANKS[0];for(const rk of RANKS){if(streak>=rk.min)r=rk;}return r;}
-const stoicIdx=new Date().getDate()%STOIC.length;
-const principioIdx=new Date().getDate()%PROTOCOLOS.length;
+<!-- ---------- LOGIN ---------- -->
+<div id="loginScreen">
+  <div class="lang-switch" id="langSwitch"></div>
+  <div class="login-brand" id="loginBrand"></div>
+  <div class="login-sub" id="loginSub"></div>
 
-/* ===================== ESTADO ===================== */
-function freshPillars(){const o={};PILLARS.forEach(p=>o[p.key]=false);return o;}
-function defaultState(){return{
-  tab:"hoy",escuelaTab:"protocolos",abierto:0,editingBlock:null,journalOpen:false,
-  pillars:freshPillars(),habits:[],
-  rituals:[
-    {id:1,title:"Mañana",items:RITUAL_MANANA.map((l,i)=>({id:i+1,label:l,done:false}))},
-    {id:2,title:"Tarde",items:RITUAL_TARDE.map((l,i)=>({id:100+i,label:l,done:false}))}
-  ],
-  journal:"",xp:0,streak:0,lastComplete:"",lastDay:todayStr()
-};}
-let state;
-try{const s=localStorage.getItem("forja_state");state=s?Object.assign(defaultState(),JSON.parse(s)):defaultState();}catch(e){state=defaultState();}
-state.editingBlock=null;state.journalOpen=false;
-function save(){try{localStorage.setItem("forja_state",JSON.stringify(state));}catch(e){}}
+  <div id="loginSelect">
+    <div class="who" data-i18n="quienEres">¿Quién eres?</div>
+    <div class="users-grid" id="usersGrid"></div>
+  </div>
 
-/* Reseteo diario */
-(function(){const t=todayStr();if(state.lastDay!==t){if(state.lastComplete!==yesterdayStr()&&state.lastComplete!==t)state.streak=0;state.pillars=freshPillars();state.habits.forEach(h=>h.done=false);state.rituals.forEach(b=>b.items.forEach(it=>it.done=false));state.journal="";state.lastDay=t;save();}})();
+  <div class="pin-panel" id="loginPin" style="display:none">
+    <div class="pin-avatar-big" id="pinAvatar">A</div>
+    <div class="pin-who" id="pinWho">—</div>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="pin-pad" id="pinPad"></div>
+    <button class="link-btn" id="pinBack" data-i18n="volver">← Volver</button>
+  </div>
+</div>
 
-/* ===================== LÓGICA ===================== */
-function addXp(n){state.xp=Math.max(0,state.xp+n);}
-function checkStreak(){const done=PILLARS.filter(p=>state.pillars[p.key]).length;const t=todayStr();if(done===PILLARS.length&&state.lastComplete!==t){state.streak=(state.lastComplete===yesterdayStr()?state.streak+1:1);state.lastComplete=t;}}
-function togglePillar(key){if(key==="journaling"){state.journalOpen=true;renderAll();return;}const nv=!state.pillars[key];state.pillars[key]=nv;addXp(nv?10:-10);if(nv)checkStreak();save();renderAll();}
-function addHabit(){const inp=document.getElementById("habit-input");if(!inp)return;const v=inp.value.trim();if(!v)return;state.habits.push({id:Date.now(),name:v,done:false});focusId="habit-input";save();renderAll();}
-function toggleHabit(id){const h=state.habits.find(x=>x.id===id);if(!h)return;h.done=!h.done;addXp(h.done?8:-8);save();renderAll();}
-function toggleRitual(bid,iid){const b=state.rituals.find(x=>x.id===bid);if(!b)return;const it=b.items.find(x=>x.id===iid);if(!it)return;it.done=!it.done;addXp(it.done?5:-5);save();renderAll();}
-function delRitualItem(bid,iid){const b=state.rituals.find(x=>x.id===bid);if(!b)return;b.items=b.items.filter(x=>x.id!==iid);save();renderAll();}
-function addRitualItem(bid){const inp=document.getElementById("ritual-input-"+bid);if(!inp)return;const v=inp.value.trim();if(!v)return;const b=state.rituals.find(x=>x.id===bid);if(!b)return;b.items.push({id:Date.now(),label:v,done:false});focusId="ritual-input-"+bid;save();renderAll();}
-function saveJournal(){const ta=document.getElementById("journal-area");if(ta)state.journal=ta.value;if(state.journal.trim()&&!state.pillars.journaling){state.pillars.journaling=true;addXp(15);checkStreak();}state.journalOpen=false;save();renderAll();}
-function closeJournal(){const ta=document.getElementById("journal-area");if(ta)state.journal=ta.value;state.journalOpen=false;save();renderAll();}
+<!-- ---------- APP ---------- -->
+<div class="app" id="app">
+<div class="hero">
+  <div class="hero-top">
+    <button class="back-btn" id="backBtn">←</button>
+    <div class="logo" id="brandLogo"></div>
+    <div class="hdr-right">
+      <div class="userchip" id="userChip"><span class="av" id="userAv">A</span><span id="userName">—</span></div>
+      <button class="pill" id="langBtnApp">ES</button>
+      <div class="chip" id="syncChip">demo</div>
+    </div>
+  </div>
+  <div class="stats" id="statsRow">
+    <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl" data-i18n="productos">Productos</div></div>
+    <div class="stat warn"><div class="num" id="statLow">0</div><div class="lbl" data-i18n="areponer">A reponer</div></div>
+  </div>
+</div>
 
-/* ===================== RENDER ===================== */
-let focusId=null;
-function fecha(){return new Date().toLocaleDateString("es-ES",{weekday:"long",day:"numeric",month:"long"}).toUpperCase();}
-function stat(label,value){return '<div class="stat"><div class="stat-value">'+value+'</div><div class="stat-label">'+esc(label)+'</div></div>';}
+<main>
+  <!-- ===== HUB ===== -->
+  <div class="screen active" id="screen-hub">
+    <div class="hub-grid">
+      <button class="tile" data-go="stock">
+        <div class="glow"></div><div class="badge" id="tileLowBadge" style="display:none">0</div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/><path d="M7.5 5.5l9 5"/></svg></div>
+        <h2>Stock</h2><p data-i18n="tileStock">Inventario y compras</p>
+      </button>
+      <button class="tile" data-go="scan">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path class="fillw" d="M6 9h12v6H6z"/><path d="M6 12h12"/></svg></div>
+        <h2 data-i18n="tileScanT">Escáner</h2><p data-i18n="tileScan">Entradas y salidas por código</p>
+      </button>
+      <button class="tile" data-go="recipes">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M5 4h14l-7 8z"/><path d="M5 4h14l-7 8-7-8z"/><path d="M12 12v6M8.5 21h7"/></svg></div>
+        <h2 data-i18n="tileRecT">Recetario</h2><p data-i18n="tileRec">Cócteles de la casa</p>
+      </button>
+      <button class="tile" data-go="manual">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M4 4h7v16H4z"/><path d="M12 5a3 3 0 0 0-3-3H4v16h5a3 3 0 0 1 3 3"/><path d="M12 5a3 3 0 0 1 3-3h5v16h-5a3 3 0 0 0-3 3"/><path d="M12 5v16"/></svg></div>
+        <h2>Manual</h2><p data-i18n="tileMan">Herramientas, higiene y rutinas</p>
+      </button>
+      <button class="tile admin-only" data-go="team" id="teamTile">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0"/><path d="M16 6a3 3 0 0 1 0 6M17 15.5a5.5 5.5 0 0 1 3.5 4.5"/></svg></div>
+        <div class="txt"><h2 data-i18n="tileTeamT">Empleados</h2><p data-i18n="tileTeam">Crear y gestionar accesos</p></div>
+      </button>
+    </div>
+  </div>
 
-function screenHoy(){
-  const done=PILLARS.filter(p=>state.pillars[p.key]).length;
-  const intensity=done/PILLARS.length;
-  const emberOuter="box-shadow:0 0 "+(20+intensity*90)+"px "+(6+intensity*40)+"px rgba(193,18,31,"+(0.15+intensity*0.55).toFixed(3)+");";
-  const emberInner="background:radial-gradient(circle at 50% 42%, rgba(255,240,200,"+intensity+") 0%, rgba(201,162,75,"+(0.2+intensity*0.8)+") "+(8+intensity*22)+"%, rgba(193,18,31,"+(0.35+intensity*0.5)+") "+(30+intensity*25)+"%, rgba(110,17,20,0.5) 62%, #1b0c0d 78%, #0c0708 100%);transform:scale("+(0.94+intensity*0.1)+");";
-  const level=Math.floor(state.xp/100)+1;
-  return '<section class="fade"><p class="eyebrow">'+fecha()+'</p><h1 class="hero">LEVÁNTATE.<br>FÓRJATE.</h1>'
-    +'<div class="forge-wrap"><div class="ember-outer" style="'+emberOuter+'"><div class="ember" style="'+emberInner+'"></div><div class="ember-core"><div class="ember-count">'+done+'/7</div><div class="ember-label">pilares</div></div></div>'
-    +'<p class="forge-caption">'+(done===7?"Hierro al rojo vivo. Hoy te forjaste.":done===0?"Hierro frío. Enciéndete.":"La brasa crece. No pares.")+'</p></div>'
-    +'<div class="stats">'+stat("Nivel",level)+stat("Racha",state.streak+"🔥")+stat("XP",state.xp)+'</div>'
-    +'<div class="xpbar"><div class="xpbar-fill" style="width:'+(state.xp%100)+'%"></div></div>'
-    +'<h2 class="section-title">Pilares de hoy</h2><div class="pillars">'
-    +PILLARS.map(p=>{const on=state.pillars[p.key];const hint=p.key==="estoicismo"?STOIC[stoicIdx]:p.hint;return '<button class="pill '+(on?"pill-on":"")+'" data-action="pillar" data-key="'+p.key+'"><span class="pill-bar"></span><span class="pill-text"><span class="pill-label">'+esc(p.label)+'</span><span class="pill-hint">'+esc(hint)+'</span></span><span class="pill-check">'+(on?"✕":"")+'</span></button>';}).join("")
-    +'</div><h2 class="section-title">Tus objetivos</h2>'
-    +'<div class="habit-add"><input class="field" id="habit-input" placeholder="Añade un objetivo diario…"><button class="btn-add" data-action="add-habit">+</button></div>'
-    +(state.habits.length===0?'<p class="empty">Sin objetivos aún. Define uno y cúmplelo.</p>':"")
-    +state.habits.map(h=>'<div class="habit '+(h.done?"habit-on":"")+'"><button class="habit-tick" data-action="toggle-habit" data-id="'+h.id+'">'+(h.done?"✕":"")+'</button><span class="habit-name">'+esc(h.name)+'</span><button class="habit-del" data-action="del-habit" data-id="'+h.id+'">✕</button></div>').join("")
-    +'</section>';
+  <!-- ===== STOCK ===== -->
+  <div class="screen" id="screen-stock">
+    <div class="search-bar">
+      <span class="ico">🔍</span>
+      <input id="stockSearch" data-i18n-ph="buscar" placeholder="Buscar producto...">
+    </div>
+    <div class="toolbar">
+      <button class="tbtn red" id="waBtn">📋 WhatsApp</button>
+      <button class="tbtn amber" id="lowBtn">⚠️ Stock (<span id="lowCnt">0</span>)</button>
+      <button class="tbtn" id="histBtn">🕐 <span data-i18n="historico">Histórico</span></button>
+      <span class="spacer"></span>
+      <button class="tbtn" id="expBtn">↕ Exp.</button>
+      <button class="tbtn" id="colBtn">↕ Col.</button>
+    </div>
+
+    <div id="stockPanel">
+      <div class="shop-card" id="shopCard">
+        <div class="shop-head" id="shopHead">
+          <span>🛒 <span data-i18n="comprasPend">Compras pendientes</span></span>
+          <span class="cnt"><span id="shopCnt">0</span> ▸</span>
+        </div>
+        <div class="shop-list" id="shopList"></div>
+        <div class="shop-add">
+          <input id="shopInput" data-i18n-ph="shopPh" placeholder="Añadir: limón, azúcar, servilletas…">
+          <button id="shopAddBtn">＋</button>
+        </div>
+      </div>
+      <div id="catsList"></div>
+    </div>
+
+    <div id="histPanel" style="display:none">
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- ===== ESCÁNER ===== -->
+  <div class="screen" id="screen-scan">
+    <div class="mode-switch">
+      <button class="mode-btn active-in" id="modeIn">＋ <span data-i18n="entrada">Entrada</span></button>
+      <button class="mode-btn" id="modeOut">－ <span data-i18n="salida">Salida</span></button>
+    </div>
+    <div class="scan-wrap">
+      <div id="reader"></div>
+      <div class="scan-overlay" id="scanOverlay" style="display:none">
+        <div class="scan-frame">
+          <div class="corner tl"></div><div class="corner tr"></div>
+          <div class="corner bl"></div><div class="corner br"></div>
+          <div class="scan-line"></div>
+        </div>
+      </div>
+      <div class="scan-idle" id="scanIdle">
+        <button class="btn btn-red" id="startCamBtn" data-i18n="iniciarCam">Iniciar cámara</button>
+        <p data-i18n="camHint">Apunta al código de barras. Todo lo escaneado entra directo al stock.</p>
+      </div>
+    </div>
+    <div class="scan-status" id="scanStatus"></div>
+    <div class="manual-row">
+      <input id="manualCode" inputmode="numeric" data-i18n-ph="codigoManual" placeholder="Código manual (ej. 5601234567890)">
+      <button class="btn btn-ghost" id="manualBtn">OK</button>
+    </div>
+  </div>
+
+  <!-- ===== RECETARIO ===== -->
+  <div class="screen" id="screen-recipes">
+    <div class="rec-grid" id="recGrid"></div>
+  </div>
+
+  <!-- ===== MANUAL ===== -->
+  <div class="screen" id="screen-manual">
+    <div id="manList" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ===== EMPLEADOS ===== -->
+  <div class="screen" id="screen-team">
+    <div id="empList" style="margin-top:14px"></div>
+  </div>
+</main>
+
+<button class="fab" id="fab">＋</button>
+</div>
+
+<!-- ---------- MODAL MOVIMIENTO ---------- -->
+<div class="modal-bg" id="moveModalBg">
+  <div class="modal">
+    <h3 id="mvName">—</h3>
+    <div class="code" id="mvCode">—</div>
+    <div class="stock-now" id="mvStockNow"></div>
+    <div class="stepper">
+      <button id="qtyMinus">−</button>
+      <input id="qtyInput" inputmode="numeric" value="1">
+      <button id="qtyPlus">＋</button>
+    </div>
+    <div class="warn" id="mvWarn"></div>
+    <button class="btn btn-block" id="mvConfirm"></button>
+    <button class="cancel" id="mvCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
+<!-- ---------- MODAL PRODUCTO ---------- -->
+<div class="modal-bg" id="regModalBg">
+  <div class="modal">
+    <h3 data-i18n="nuevoProd">Producto nuevo</h3>
+    <div class="code" id="regCode" style="display:none">—</div>
+    <div class="field"><label data-i18n="nombre">Nombre</label><input id="regName" placeholder="Ej. JAMESON 700ML"></div>
+    <div class="field"><label data-i18n="categoria">Categoría</label><select id="regCat"></select></div>
+    <div class="field-row">
+      <div class="field"><label data-i18n="cantIni">Cantidad inicial</label><input id="regQty" inputmode="numeric" value="0"></div>
+      <div class="field"><label data-i18n="stockMin">Mínimo (alerta)</label><input id="regMin" inputmode="numeric" value="2"></div>
+    </div>
+    <button class="btn btn-red btn-block" id="regSave" data-i18n="guardar">Guardar</button>
+    <button class="cancel" id="regCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
+<!-- ---------- MODAL AJUSTES DE PRODUCTO (mínimo) ---------- -->
+<div class="modal-bg" id="minModalBg">
+  <div class="modal">
+    <h3 id="minTitle">—</h3>
+    <div class="code" id="minCode"></div>
+    <div class="field"><label data-i18n="stockMin">Mínimo (alerta)</label><input id="minInput" inputmode="numeric" value="2"></div>
+    <button class="btn btn-red btn-block" id="minSave" data-i18n="guardarCambios">Guardar cambios</button>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="minDelete" data-i18n="eliminarProd">Eliminar producto</button>
+    </div>
+    <button class="cancel" id="minCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
+<!-- ---------- MODAL RECETA ---------- -->
+<div class="modal-bg" id="recModalBg">
+  <div class="modal">
+    <h3 id="recFormTitle">Cóctel</h3>
+    <div class="field"><label data-i18n="nombre">Nombre</label><input id="recName" placeholder="Ej. MARGARITA"></div>
+    <div class="field"><label data-i18n="copa">Copa</label><div class="copa-opts" id="copaOpts"></div></div>
+    <div class="field"><label data-i18n="colorBebida">Color de la bebida</label><div class="swatches" id="swatches"></div></div>
+    <div class="field"><label data-i18n="garnish">Garnish (emoji, opcional)</label><input id="recGarnish" placeholder="🍋 🌿 🍒 🍊 ☕ 🍓"></div>
+    <div class="field"><label data-i18n="ingredientes">Ingredientes (uno por línea)</label><textarea id="recIng" placeholder="50ml tequila&#10;25ml triple sec&#10;25ml zumo de lima"></textarea></div>
+    <div class="field"><label data-i18n="pasos">Pasos (uno por línea)</label><textarea id="recSteps" placeholder="Escarchar el borde con sal&#10;Agitar con hielo 15s&#10;Colar en copa fría"></textarea></div>
+    <button class="btn btn-red btn-block" id="recSave" data-i18n="guardar">Guardar</button>
+    <button class="cancel" id="recCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
+<!-- ---------- MODAL DETALLE RECETA ---------- -->
+<div class="modal-bg" id="recViewBg">
+  <div class="modal">
+    <h3 id="recViewName">—</h3>
+    <div class="rec-detail-glass" id="recViewGlass"></div>
+    <div class="rec-sec" data-i18n="ingredientes">Ingredientes</div>
+    <div id="recViewIng"></div>
+    <div class="rec-sec" data-i18n="pasos">Pasos</div>
+    <div id="recViewSteps"></div>
+    <div class="modal-actions" id="recViewActions" style="margin-top:16px">
+      <button class="btn btn-ghost" id="recEditBtn" data-i18n="editar">Editar</button>
+      <button class="btn btn-danger" id="recDelBtn" data-i18n="eliminar">Eliminar</button>
+    </div>
+    <button class="cancel" id="recViewClose" data-i18n="cerrar">Cerrar</button>
+  </div>
+</div>
+
+<!-- ---------- MODAL SECCIÓN MANUAL ---------- -->
+<div class="modal-bg" id="manModalBg">
+  <div class="modal">
+    <h3 id="manFormTitle">Sección</h3>
+    <div class="field"><label data-i18n="titulo">Título</label><input id="manTitle" placeholder="Ej. HIGIENE Y LIMPIEZA"></div>
+    <div class="field"><label data-i18n="lineas">Contenido (una línea por punto)</label><textarea id="manItems" style="min-height:150px"></textarea></div>
+    <button class="btn btn-red btn-block" id="manSave" data-i18n="guardar">Guardar</button>
+    <div class="modal-actions"><button class="btn btn-danger" id="manDelete" data-i18n="eliminarSec">Eliminar sección</button></div>
+    <button class="cancel" id="manCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
+<!-- ---------- MODAL EMPLEADO ---------- -->
+<div class="modal-bg" id="empModalBg">
+  <div class="modal">
+    <h3 id="empFormTitle">Empleado</h3>
+    <div class="field"><label data-i18n="nombre">Nombre</label><input id="empName" placeholder="Ej. JUAN"></div>
+    <div class="field"><label data-i18n="pinEmp">PIN (4 a 6 dígitos)</label><input id="empPin" inputmode="numeric" maxlength="6" placeholder="0000"></div>
+    <div class="field"><label data-i18n="colorAvatar">Color del cuadrito</label><div class="color-opts" id="empColors"></div></div>
+    <button class="btn btn-red btn-block" id="empSave" data-i18n="guardar">Guardar</button>
+    <div class="modal-actions"><button class="btn btn-danger" id="empDelete" data-i18n="eliminarEmp">Eliminar empleado</button></div>
+    <button class="cancel" id="empCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================== i18n =================== */
+const I18N = {
+  es:{quienEres:"¿Quién eres?",volver:"← Volver",productos:"Productos",areponer:"A reponer",
+    buscar:"Buscar producto...",historico:"Histórico",comprasPend:"Compras pendientes",
+    shopPh:"Añadir: limón, azúcar, servilletas…",entrada:"Entrada",salida:"Salida",iniciarCam:"Iniciar cámara",
+    camHint:"Apunta al código de barras. Todo lo escaneado entra directo al stock.",
+    codigoManual:"Código manual (ej. 5601234567890)",
+    tileStock:"Inventario y compras",tileScanT:"Escáner",tileScan:"Entradas y salidas por código",
+    tileRecT:"Recetario",tileRec:"Cócteles de la casa",tileMan:"Herramientas, higiene y rutinas",
+    tileTeamT:"Empleados",tileTeam:"Crear y gestionar accesos",
+    nuevoProd:"Producto nuevo",nombre:"Nombre",categoria:"Categoría",cantIni:"Cantidad inicial",
+    stockMin:"Mínimo (alerta)",guardar:"Guardar",guardarCambios:"Guardar cambios",cancelar:"Cancelar",
+    eliminarProd:"Eliminar producto",confirmarIn:"Registrar entrada",confirmarOut:"Registrar salida",
+    stockActual:"Stock actual",buscando:"Buscando producto…",encontradoOFF:"Encontrado en base de datos global",
+    noEncontrado:"Producto no registrado — regístralo una vez",sinStock:"Stock insuficiente. Disponible:",
+    entradaOk:"Entrada registrada",salidaOk:"Salida registrada",prodGuardado:"Guardado",
+    prodBorrado:"Eliminado",nombreReq:"Escribe el nombre",
+    camErr:"No se pudo iniciar la cámara. Revisa permisos y usa HTTPS.",
+    vacioStock:"Sin productos todavía. Añade con ＋ o escanea tu primera botella.",
+    vacioHist:"Sin movimientos todavía.",vacioShop:"Nada pendiente de comprar. 💪",
+    vacioRec:"Sin cócteles todavía.",demoAviso:"Modo demo: los datos no se guardan (configura Firebase).",
+    unidades:"uds",escaneando:"Escaneando…",pocoStock:"POCO STOCK",min:"mín",
+    confirmDel:"¿Eliminar definitivamente?",waTitle:"LISTA DE COMPRAS",waFoot:"Enviado desde",
+    quedan:"quedan",manualItem:"añadido a mano",soloAdmin:"Solo el admin puede editar",
+    copa:"Copa",colorBebida:"Color de la bebida",garnish:"Garnish (emoji, opcional)",
+    ingredientes:"Ingredientes",pasos:"Pasos",editar:"Editar",eliminar:"Eliminar",cerrar:"Cerrar",
+    titulo:"Título",lineas:"Contenido (una línea por punto)",eliminarSec:"Eliminar sección",
+    editarSec:"✎ Editar sección",nuevoCoctel:"Cóctel nuevo",editarCoctel:"Editar cóctel",
+    nuevaSec:"Sección nueva",puntos:"puntos",admin:"Admin",empleado:"Empleado",
+    pinEmp:"PIN (4 a 6 dígitos)",colorAvatar:"Color del cuadrito",eliminarEmp:"Eliminar empleado",
+    nuevoEmp:"Empleado nuevo",editarEmp:"Editar empleado",addEmp:"Añadir",pinReq:"El PIN debe tener de 4 a 6 dígitos",
+    pinDup:"Ese PIN ya está en uso",salir:"Salir"},
+  pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
+    buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",
+    shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
+    camHint:"Aponta ao código de barras. Tudo o que digitalizares entra direto no stock.",
+    codigoManual:"Código manual (ex. 5601234567890)",
+    tileStock:"Inventário e compras",tileScanT:"Scanner",tileScan:"Entradas e saídas por código",
+    tileRecT:"Receituário",tileRec:"Cocktails da casa",tileMan:"Ferramentas, higiene e rotinas",
+    tileTeamT:"Funcionários",tileTeam:"Criar e gerir acessos",
+    nuevoProd:"Produto novo",nombre:"Nome",categoria:"Categoria",cantIni:"Quantidade inicial",
+    stockMin:"Mínimo (alerta)",guardar:"Guardar",guardarCambios:"Guardar alterações",cancelar:"Cancelar",
+    eliminarProd:"Eliminar produto",confirmarIn:"Registar entrada",confirmarOut:"Registar saída",
+    stockActual:"Stock atual",buscando:"A procurar produto…",encontradoOFF:"Encontrado na base de dados global",
+    noEncontrado:"Produto não registado — regista-o uma vez",sinStock:"Stock insuficiente. Disponível:",
+    entradaOk:"Entrada registada",salidaOk:"Saída registada",prodGuardado:"Guardado",
+    prodBorrado:"Eliminado",nombreReq:"Escreve o nome",
+    camErr:"Não foi possível iniciar a câmara. Verifica permissões e usa HTTPS.",
+    vacioStock:"Sem produtos ainda. Adiciona com ＋ ou digitaliza a primeira garrafa.",
+    vacioHist:"Sem movimentos ainda.",vacioShop:"Nada pendente para comprar. 💪",
+    vacioRec:"Sem cocktails ainda.",demoAviso:"Modo demo: os dados não são guardados (configura o Firebase).",
+    unidades:"uds",escaneando:"A digitalizar…",pocoStock:"POUCO STOCK",min:"mín",
+    confirmDel:"Eliminar definitivamente?",waTitle:"LISTA DE COMPRAS",waFoot:"Enviado de",
+    quedan:"restam",manualItem:"adicionado à mão",soloAdmin:"Só o admin pode editar",
+    copa:"Copo",colorBebida:"Cor da bebida",garnish:"Garnish (emoji, opcional)",
+    ingredientes:"Ingredientes",pasos:"Passos",editar:"Editar",eliminar:"Eliminar",cerrar:"Fechar",
+    titulo:"Título",lineas:"Conteúdo (uma linha por ponto)",eliminarSec:"Eliminar secção",
+    editarSec:"✎ Editar secção",nuevoCoctel:"Cocktail novo",editarCoctel:"Editar cocktail",
+    nuevaSec:"Secção nova",puntos:"pontos",admin:"Admin",empleado:"Funcionário",
+    pinEmp:"PIN (4 a 6 dígitos)",colorAvatar:"Cor do quadrado",eliminarEmp:"Eliminar funcionário",
+    nuevoEmp:"Funcionário novo",editarEmp:"Editar funcionário",addEmp:"Adicionar",pinReq:"O PIN deve ter de 4 a 6 dígitos",
+    pinDup:"Esse PIN já está em uso",salir:"Sair"},
+  en:{quienEres:"Who are you?",volver:"← Back",productos:"Products",areponer:"To restock",
+    buscar:"Search product...",historico:"History",comprasPend:"Shopping list",
+    shopPh:"Add: lemon, sugar, napkins…",entrada:"Stock in",salida:"Stock out",iniciarCam:"Start camera",
+    camHint:"Point at the barcode. Everything scanned goes straight to stock.",
+    codigoManual:"Manual code (e.g. 5601234567890)",
+    tileStock:"Inventory and shopping",tileScanT:"Scanner",tileScan:"Stock in/out by barcode",
+    tileRecT:"Recipes",tileRec:"House cocktails",tileMan:"Tools, hygiene and routines",
+    tileTeamT:"Staff",tileTeam:"Create and manage access",
+    nuevoProd:"New product",nombre:"Name",categoria:"Category",cantIni:"Initial quantity",
+    stockMin:"Minimum (alert)",guardar:"Save",guardarCambios:"Save changes",cancelar:"Cancel",
+    eliminarProd:"Delete product",confirmarIn:"Register stock in",confirmarOut:"Register stock out",
+    stockActual:"Current stock",buscando:"Looking up product…",encontradoOFF:"Found in global database",
+    noEncontrado:"Product not registered — register it once",sinStock:"Not enough stock. Available:",
+    entradaOk:"Stock in registered",salidaOk:"Stock out registered",prodGuardado:"Saved",
+    prodBorrado:"Deleted",nombreReq:"Enter the name",
+    camErr:"Could not start the camera. Check permissions and use HTTPS.",
+    vacioStock:"No products yet. Add with ＋ or scan your first bottle.",
+    vacioHist:"No movements yet.",vacioShop:"Nothing pending to buy. 💪",
+    vacioRec:"No cocktails yet.",demoAviso:"Demo mode: data is not saved (set up Firebase).",
+    unidades:"units",escaneando:"Scanning…",pocoStock:"LOW STOCK",min:"min",
+    confirmDel:"Delete permanently?",waTitle:"SHOPPING LIST",waFoot:"Sent from",
+    quedan:"left",manualItem:"added manually",soloAdmin:"Only the admin can edit",
+    copa:"Glass",colorBebida:"Drink color",garnish:"Garnish (emoji, optional)",
+    ingredientes:"Ingredients",pasos:"Steps",editar:"Edit",eliminar:"Delete",cerrar:"Close",
+    titulo:"Title",lineas:"Content (one line per point)",eliminarSec:"Delete section",
+    editarSec:"✎ Edit section",nuevoCoctel:"New cocktail",editarCoctel:"Edit cocktail",
+    nuevaSec:"New section",puntos:"points",admin:"Admin",empleado:"Staff",
+    pinEmp:"PIN (4 to 6 digits)",colorAvatar:"Tile color",eliminarEmp:"Delete staff member",
+    nuevoEmp:"New staff member",editarEmp:"Edit staff member",addEmp:"Add",pinReq:"PIN must be 4 to 6 digits",
+    pinDup:"That PIN is already in use",salir:"Log out"},
+  bn:{quienEres:"আপনি কে?",volver:"← ফিরে যান",productos:"পণ্য",areponer:"রিস্টক করতে হবে",
+    buscar:"পণ্য খুঁজুন...",historico:"ইতিহাস",comprasPend:"কেনাকাটার তালিকা",
+    shopPh:"যোগ করুন: লেবু, চিনি, ন্যাপকিন…",entrada:"স্টক ইন",salida:"স্টক আউট",iniciarCam:"ক্যামেরা চালু করুন",
+    camHint:"বারকোডে তাক করুন। স্ক্যান করা সবকিছু সরাসরি স্টকে যায়।",
+    codigoManual:"ম্যানুয়াল কোড (যেমন 5601234567890)",
+    tileStock:"ইনভেন্টরি ও কেনাকাটা",tileScanT:"স্ক্যানার",tileScan:"বারকোডে স্টক ইন/আউট",
+    tileRecT:"রেসিপি",tileRec:"বারের ককটেল",tileMan:"সরঞ্জাম, পরিচ্ছন্নতা ও রুটিন",
+    tileTeamT:"কর্মী",tileTeam:"অ্যাক্সেস তৈরি ও পরিচালনা",
+    nuevoProd:"নতুন পণ্য",nombre:"নাম",categoria:"বিভাগ",cantIni:"প্রাথমিক পরিমাণ",
+    stockMin:"সর্বনিম্ন (সতর্কতা)",guardar:"সংরক্ষণ",guardarCambios:"পরিবর্তন সংরক্ষণ",cancelar:"বাতিল",
+    eliminarProd:"পণ্য মুছুন",confirmarIn:"স্টক ইন নথিভুক্ত করুন",confirmarOut:"স্টক আউট নথিভুক্ত করুন",
+    stockActual:"বর্তমান স্টক",buscando:"পণ্য খোঁজা হচ্ছে…",encontradoOFF:"গ্লোবাল ডেটাবেসে পাওয়া গেছে",
+    noEncontrado:"পণ্য নিবন্ধিত নয় — একবার নিবন্ধন করুন",sinStock:"পর্যাপ্ত স্টক নেই। উপলব্ধ:",
+    entradaOk:"স্টক ইন নথিভুক্ত হয়েছে",salidaOk:"স্টক আউট নথিভুক্ত হয়েছে",prodGuardado:"সংরক্ষিত",
+    prodBorrado:"মোছা হয়েছে",nombreReq:"নাম লিখুন",
+    camErr:"ক্যামেরা চালু করা যায়নি। অনুমতি পরীক্ষা করুন এবং HTTPS ব্যবহার করুন।",
+    vacioStock:"এখনও কোনো পণ্য নেই। ＋ দিয়ে যোগ করুন বা প্রথম বোতল স্ক্যান করুন।",
+    vacioHist:"এখনও কোনো গতিবিধি নেই।",vacioShop:"কেনার কিছু বাকি নেই। 💪",
+    vacioRec:"এখনও কোনো ককটেল নেই।",demoAviso:"ডেমো মোড: ডেটা সংরক্ষিত হয় না (Firebase সেট আপ করুন)।",
+    unidades:"একক",escaneando:"স্ক্যান করা হচ্ছে…",pocoStock:"কম স্টক",min:"সর্বনিম্ন",
+    confirmDel:"স্থায়ীভাবে মুছবেন?",waTitle:"কেনাকাটার তালিকা",waFoot:"পাঠানো হয়েছে",
+    quedan:"বাকি",manualItem:"হাতে যোগ করা",soloAdmin:"শুধু অ্যাডমিন সম্পাদনা করতে পারে",
+    copa:"গ্লাস",colorBebida:"পানীয়ের রং",garnish:"গার্নিশ (ইমোজি, ঐচ্ছিক)",
+    ingredientes:"উপকরণ",pasos:"ধাপ",editar:"সম্পাদনা",eliminar:"মুছুন",cerrar:"বন্ধ",
+    titulo:"শিরোনাম",lineas:"বিষয়বস্তু (প্রতি লাইনে একটি পয়েন্ট)",eliminarSec:"বিভাগ মুছুন",
+    editarSec:"✎ বিভাগ সম্পাদনা",nuevoCoctel:"নতুন ককটেল",editarCoctel:"ককটেল সম্পাদনা",
+    nuevaSec:"নতুন বিভাগ",puntos:"পয়েন্ট",admin:"অ্যাডমিন",empleado:"কর্মী",
+    pinEmp:"পিন (৪ থেকে ৬ অঙ্ক)",colorAvatar:"টাইলের রং",eliminarEmp:"কর্মী মুছুন",
+    nuevoEmp:"নতুন কর্মী",editarEmp:"কর্মী সম্পাদনা",addEmp:"যোগ করুন",pinReq:"পিন ৪ থেকে ৬ অঙ্কের হতে হবে",
+    pinDup:"এই পিন ইতিমধ্যে ব্যবহৃত হচ্ছে",salir:"লগ আউট"}
+};
+const LANGS = [["es","ES"],["pt","PT"],["en","EN"],["bn","বাং"]];
+let lang = "es";
+const t = k => (I18N[lang][k] ?? k);
+function setLang(l){
+  lang = l;
+  // En modo demo, el recetario y el manual se regeneran en el nuevo idioma
+  if(!db && typeof seedDemoRecipes==="function"){ seedDemoRecipes(); seedDemoManual(); }
+  applyI18n();
 }
-function screenRituales(){
-  return '<section class="fade"><p class="eyebrow">Estructura · tú la defines</p><h1 class="hero-sm">RITUALES</h1>'
-    +state.rituals.map(b=>{
-      const done=b.items.filter(i=>i.done).length;
-      const titleHTML=state.editingBlock===b.id
-        ?'<input class="ritual-title-input" id="rename-'+b.id+'" data-action="rename-input" data-bid="'+b.id+'" value="'+esc(b.title)+'">'
-        :'<button class="ritual-title-btn" data-action="edit-title" data-bid="'+b.id+'">'+esc(b.title||"Sin nombre")+'<span class="edit-pencil">✎</span></button>';
-      return '<div class="ritual"><div class="ritual-head-edit">'+titleHTML+'<span class="ritual-progress">'+done+'/'+b.items.length+'</span><button class="block-del" data-action="del-block" data-bid="'+b.id+'">🗑</button></div>'
-        +b.items.map(it=>'<div class="ritual-item '+(it.done?"ritual-on":"")+'"><button class="ritual-tick" data-action="toggle-ritual" data-bid="'+b.id+'" data-iid="'+it.id+'">'+(it.done?"✕":"")+'</button><span class="ritual-item-label" data-action="toggle-ritual" data-bid="'+b.id+'" data-iid="'+it.id+'">'+esc(it.label)+'</span><button class="item-del" data-action="del-ritual-item" data-bid="'+b.id+'" data-iid="'+it.id+'">✕</button></div>').join("")
-        +'<div class="ritual-add"><input class="field" id="ritual-input-'+b.id+'" placeholder="Añade un paso…"><button class="btn-add" data-action="add-ritual-item" data-bid="'+b.id+'">+</button></div></div>';
-    }).join("")
-    +'<button class="add-block" data-action="add-block">+ Nuevo ritual</button></section>';
+function renderLangSwitch(){
+  const cur = LANGS.find(([c])=>c===lang);
+  $("langBtnApp").textContent = cur ? cur[1] : "ES";
+  $("langSwitch").innerHTML = LANGS.map(([c,lbl])=>`<button data-lang="${c}" class="${c===lang?"sel":""}">${lbl}</button>`).join("");
+  $("langSwitch").querySelectorAll("[data-lang]").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
 }
-function screenEscuela(){
-  let inner;
-  if(state.escuelaTab==="protocolos"){
-    inner=PROTOCOLOS.map((p,i)=>{const open=state.abierto===i;return '<div class="proto '+(open?"proto-open":"")+'"><button class="proto-head" data-action="proto" data-i="'+i+'"><span class="proto-n">'+p.n+'</span><span class="proto-titles"><span class="proto-title">'+esc(p.titulo)+'</span><span class="proto-sub">'+esc(p.subtitulo)+'</span></span><span class="proto-plus '+(open?"rot":"")+'">+</span></button>'+(open?'<div class="proto-body"><p class="proto-principio">“'+esc(p.principio)+'”</p>'+p.ideas.map(idea=>'<div class="proto-idea"><span class="proto-dash">—</span><span>'+esc(idea)+'</span></div>').join("")+'<div class="proto-accion"><div class="proto-accion-tag">Acción</div><div>'+esc(p.accion)+'</div></div></div>':"")+'</div>';}).join("");
-  }else{
-    inner=CONSULTAS.map(c=>'<div class="consulta"><div class="consulta-fecha">'+esc(c.fecha)+'</div><div class="consulta-p">'+esc(c.p)+'</div><div class="consulta-r">'+esc(c.r)+'</div></div>').join("")+'<div class="consulta-vacia">¿Nueva duda? Pregúntamela en el chat y te doy el texto listo para pegar aquí como una consulta más.</div>';
+function applyI18n(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent = t(el.dataset.i18n);});
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder = t(el.dataset.i18nPh);});
+  renderLangSwitch();
+  renderLogin();
+  if($("app").style.display==="flex") renderAll();
+}
+
+/* =================== Estado =================== */
+let db = null;
+let currentUser = null; // {id, nombre, role, color, pin}
+const products = new Map();
+let movements = [];
+let recipes = new Map();
+let manual = new Map();
+let shopExtra = new Map();
+let employees = new Map(); // id -> {nombre, pin, color, orden}
+let mode = "entrada";
+let currentScreen = "hub";
+let openCats = new Set(), openMans = new Set();
+let currentCode = null, mvProd = null, minTargetId = null, recEditId = null, manEditId = null, recViewId = null, empEditId = null;
+let scanner = null, scanning = false, busy = false, lastCode = "", lastCodeAt = 0;
+const isAdmin = () => currentUser && currentUser.role === "admin";
+const ADMIN_USER = { id:"__admin__", nombre:"ADMIN", role:"admin", color:"#E8A33D", pin:ADMIN_PIN };
+
+/* =================== Utilidades =================== */
+const $ = id => document.getElementById(id);
+function initial(name){ return (name||"?").trim().charAt(0).toUpperCase() || "?"; }
+let audioCtx = null;
+function beep(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.frequency.value = 1250;
+    g.gain.setValueAtTime(.14, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime+.15);
+    o.start(); o.stop(audioCtx.currentTime+.16);
+  }catch(e){}
+  if(navigator.vibrate) navigator.vibrate(60);
+}
+let toastTimer = null;
+function toast(msg, kind){
+  const el = $("toast");
+  el.textContent = msg; el.className = "toast show " + (kind||"");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{el.className="toast";}, 2400);
+}
+function fmtTs(ts){
+  const d = ts instanceof Date ? ts : new Date(ts);
+  const loc = lang==="pt" ? "pt-PT" : "es-ES";
+  return d.toLocaleDateString(loc,{day:"2-digit",month:"2-digit"}) + " " +
+         d.toLocaleTimeString(loc,{hour:"2-digit",minute:"2-digit"});
+}
+function esc(s){const d=document.createElement("div");d.textContent=String(s??"");return d.innerHTML;}
+function isLow(p){ return p.cantidad <= (p.min ?? STOCK_MIN_DEFAULT); }
+function lowItems(){ return [...products.entries()].filter(([,p])=>isLow(p)); }
+function newId(pre){ return (pre||"p") + "_" + Date.now() + "_" + Math.floor(Math.random()*1e4); }
+
+/* =================== Vasos SVG dinámicos =================== */
+const GLASS_COLORS = [
+  ["rojo","#E5392B"],["granate","#8E1E1E"],["coral","#FF6F5E"],["rosa","#F27FA5"],
+  ["fucsia","#D6336C"],["naranja","#F28C28"],["mandarina","#FF9F1C"],["amarillo","#F2C94C"],
+  ["dorado","#E3B505"],["lima","#B6D94C"],["verde","#5CBF6E"],["esmeralda","#1F9E6E"],
+  ["menta","#7FD8BE"],["turquesa","#2DB7A8"],["celeste","#7FC8F2"],["azul","#4F8FDE"],
+  ["indigo","#3F51B5"],["morado","#9B59B6"],["violeta","#7B4BC9"],["vino","#6E1B3A"],
+  ["ambar","#C97B2D"],["cafe","#5C4033"],["crema","#F2E8D5"],["hielo","#D7E2EA"],
+  ["negro","#2B2B2B"]
+];
+const COPAS = ["highball","rocks","martini","coupe","vino","flute","shot"];
+const GLASS_SHAPES = {
+  highball:{ outline:"M34 10 L39 106 Q39 110 44 110 L56 110 Q61 110 61 106 L66 10",
+             liquid:"M37.7 38 L40.6 104 Q40.7 106 44 106 L56 106 Q59.3 106 59.4 104 L62.3 38 Z", stem:false },
+  rocks:{ outline:"M28 48 L32 106 Q32 110 37 110 L63 110 Q68 110 68 106 L72 48",
+          liquid:"M31.2 62 L34.6 104 Q34.8 106 37 106 L63 106 Q65.2 106 65.4 104 L68.8 62 Z", stem:false },
+  martini:{ outline:"M20 18 L50 62 L80 18", liquid:"M27.5 27 L50 59 L72.5 27 Z", stem:true },
+  coupe:{ outline:"M22 24 Q23 52 50 56 Q77 52 78 24", liquid:"M26.5 31 Q28.5 49 50 52 Q71.5 49 73.5 31 Z", stem:true },
+  vino:{ outline:"M30 16 Q27 54 50 60 Q73 54 70 16", liquid:"M31.6 33 Q31 51 50 56 Q69 51 68.4 33 Z", stem:true },
+  flute:{ outline:"M40 12 Q37 58 50 62 Q63 58 60 12", liquid:"M41.4 26 Q40.4 55 50 58 Q59.6 55 58.6 26 Z", stem:true },
+  shot:{ outline:"M37 58 L41 106 Q41 110 45 110 L55 110 Q59 110 59 106 L63 58",
+         liquid:"M40.4 72 L43.6 104 Q43.7 106 45 106 L55 106 Q56.3 106 56.4 104 L59.6 72 Z", stem:false }
+};
+function lighten(hex, amt){
+  const n = parseInt(hex.slice(1),16);
+  const r = Math.min(255, ((n>>16)&255) + amt), g = Math.min(255, ((n>>8)&255) + amt), b = Math.min(255, (n&255) + amt);
+  return `rgb(${r},${g},${b})`;
+}
+let gidCounter = 0;
+function glassSVG(copa, color, garnish){
+  const s = GLASS_SHAPES[copa] || GLASS_SHAPES.highball;
+  const gid = "g" + (++gidCounter);
+  const stem = s.stem
+    ? `<line x1="50" y1="60" x2="50" y2="102" stroke="rgba(255,255,255,.85)" stroke-width="2.2"/>
+       <line x1="35" y1="106" x2="65" y2="106" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round"/>`
+    : "";
+  const garn = garnish ? `<text x="71" y="20" font-size="17" text-anchor="middle">${esc(garnish)}</text>` : "";
+  return `<svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${lighten(color,55)}" stop-opacity=".95"/>
+      <stop offset="1" stop-color="${color}"/>
+    </linearGradient></defs>
+    <path d="${s.liquid}" fill="url(#${gid})"/>
+    <path d="${s.outline}" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    ${stem}${garn}
+  </svg>`;
+}
+
+/* =================== Marca =================== */
+$("brandLogo").innerHTML = `<span class="fire">${esc(BRAND.emoji)}</span>${esc(BRAND.name).replace(/ (\S+)$/,' <span>$1</span>')}<small>${esc(BRAND.sub)}</small>`;
+$("loginBrand").innerHTML = `${esc(BRAND.emoji)} ${esc(BRAND.name).replace(/ (\S+)$/,' <span>$1</span>')}`;
+$("loginSub").textContent = BRAND.sub;
+
+/* =================== LOGIN =================== */
+let pinTarget = null, pinEntered = "";
+function renderLogin(){
+  const grid = $("usersGrid");
+  let html = `<button class="user-tile admin-tile" data-user="__admin__">
+      <div class="avatar" style="background:${ADMIN_USER.color}">${esc(initial(ADMIN_USER.nombre))}</div>
+      <div class="uname">${esc(ADMIN_USER.nombre)}</div>
+      <div class="urole">${esc(t("admin"))}</div>
+    </button>`;
+  [...employees.entries()].sort((a,b)=>(a[1].orden??99)-(b[1].orden??99)).forEach(([id,e])=>{
+    html += `<button class="user-tile" data-user="${esc(id)}">
+      <div class="avatar" style="background:${esc(e.color||"#E5392B")}">${esc(initial(e.nombre))}</div>
+      <div class="uname">${esc(e.nombre)}</div>
+      <div class="urole">${esc(t("empleado"))}</div>
+    </button>`;
+  });
+  grid.innerHTML = html;
+  grid.querySelectorAll("[data-user]").forEach(b=>b.addEventListener("click",()=>openPin(b.dataset.user)));
+}
+function openPin(userId){
+  const u = userId==="__admin__" ? ADMIN_USER : employees.get(userId);
+  if(!u) return;
+  pinTarget = userId==="__admin__" ? ADMIN_USER : { id:userId, ...u, role:"empleado" };
+  pinEntered = "";
+  $("pinAvatar").style.background = pinTarget.color || "#E5392B";
+  $("pinAvatar").textContent = initial(pinTarget.nombre);
+  $("pinWho").textContent = pinTarget.nombre;
+  $("pinError").textContent = "";
+  // Dots según el largo real del PIN de este usuario (4, 5 o 6)
+  const len = (pinTarget.pin||"").length || 4;
+  $("pinDots").innerHTML = Array.from({length:len}, ()=>'<div class="pin-dot"></div>').join("");
+  $("loginSelect").style.display = "none";
+  $("loginPin").style.display = "flex";
+}
+$("pinBack").addEventListener("click", ()=>{
+  $("loginPin").style.display = "none";
+  $("loginSelect").style.display = "block";
+});
+(function buildPinPad(){
+  const keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
+  keys.forEach(k=>{
+    const b = document.createElement("button");
+    b.className = "pin-key"; b.textContent = k;
+    if(k==="") b.style.visibility="hidden";
+    b.addEventListener("click",()=>{
+      const targetLen = (pinTarget.pin||"").length || 4;
+      if(k==="⌫") pinEntered = pinEntered.slice(0,-1);
+      else if(pinEntered.length<targetLen) pinEntered += k;
+      [...$("pinDots").children].forEach((d,i)=>d.classList.toggle("full", i<pinEntered.length));
+      $("pinError").textContent = "";
+      if(pinEntered.length===targetLen){
+        if(pinEntered===pinTarget.pin){
+          currentUser = pinTarget;
+          enterApp();
+        }else{
+          $("pinError").textContent = lang==="pt" ? "PIN incorreto" : "PIN incorrecto";
+          pinEntered = "";
+          setTimeout(()=>[...$("pinDots").children].forEach(d=>d.classList.remove("full")),250);
+        }
+      }
+    });
+    $("pinPad").appendChild(b);
+  });
+})();
+function enterApp(){
+  $("loginScreen").style.display = "none";
+  $("app").style.display = "flex";
+  const chip = $("userChip");
+  $("userAv").style.background = currentUser.color;
+  $("userAv").textContent = initial(currentUser.nombre);
+  $("userName").textContent = currentUser.nombre;
+  chip.classList.toggle("admin", isAdmin());
+  $("teamTile").style.display = isAdmin() ? "flex" : "none";
+  showScreen("hub");
+  renderAll();
+}
+$("langBtnApp").addEventListener("click", ()=>{
+  const idx = LANGS.findIndex(([c])=>c===lang);
+  setLang(LANGS[(idx+1)%LANGS.length][0]);
+});
+$("userChip").addEventListener("click", ()=>{
+  // logout
+  stopScanner();
+  currentUser = null;
+  $("app").style.display = "none";
+  $("loginScreen").style.display = "flex";
+  $("loginPin").style.display = "none";
+  $("loginSelect").style.display = "block";
+  renderLogin();
+});
+
+/* =================== Navegación =================== */
+function showScreen(name){
+  currentScreen = name;
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $("screen-"+name).classList.add("active");
+  $("backBtn").style.display = name==="hub" ? "none" : "flex";
+  $("statsRow").style.display = (name==="hub"||name==="stock") ? "grid" : "none";
+  const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
+  $("fab").style.display = fabScreens[name] ? "flex" : "none";
+  if(name!=="scan") stopScanner();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll(".tile").forEach(tl=>tl.addEventListener("click",()=>{
+  const go = tl.dataset.go;
+  if(go==="team" && !isAdmin()) return;
+  showScreen(go);
+}));
+$("backBtn").addEventListener("click",()=>showScreen("hub"));
+$("fab").addEventListener("click",()=>{
+  if(currentScreen==="stock") openRegModal(null,null);
+  else if(currentScreen==="recipes") openRecForm(null);
+  else if(currentScreen==="manual") openManForm(null);
+  else if(currentScreen==="team") openEmpForm(null);
+});
+
+/* =================== Firebase / Demo =================== */
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+async function initData(){
+  if(FIREBASE_CONFIG){
+    try{
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
+      firebase.initializeApp(FIREBASE_CONFIG);
+      db = firebase.firestore();
+      db.collection("gf_empleados").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+        if(ch.type==="removed") employees.delete(ch.doc.id); else employees.set(ch.doc.id, ch.doc.data());
+      }); renderLogin(); if($("app").style.display==="flex") renderEmployees();});
+      db.collection("gf_productos").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+        if(ch.type==="removed") products.delete(ch.doc.id); else products.set(ch.doc.id, ch.doc.data());
+      }); if($("app").style.display==="flex") renderAll();});
+      db.collection("gf_movimientos").orderBy("ts","desc").limit(150).onSnapshot(s=>{
+        movements = s.docs.map(d=>{const x=d.data(); return {...x, ts:x.ts&&x.ts.toDate?x.ts.toDate():new Date()};});
+        renderHistory();
+      });
+      db.collection("gf_recetas").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+        if(ch.type==="removed") recipes.delete(ch.doc.id); else recipes.set(ch.doc.id, ch.doc.data());
+      }); renderRecipes();});
+      db.collection("gf_manual").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+        if(ch.type==="removed") manual.delete(ch.doc.id); else manual.set(ch.doc.id, ch.doc.data());
+      }); renderManual();});
+      db.collection("gf_compras").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+        if(ch.type==="removed") shopExtra.delete(ch.doc.id); else shopExtra.set(ch.doc.id, ch.doc.data());
+      }); renderShopping(); renderStats();});
+      const chip = $("syncChip"); chip.textContent="sync"; chip.classList.add("on");
+      return;
+    }catch(e){ console.error("Firebase falló, usando demo:", e); }
   }
-  return '<section class="fade"><p class="eyebrow">La escuela</p><h1 class="hero-sm">HOMBRE DE <span class="oro">1000&nbsp;€</span><span class="hora"> / hora</span></h1>'
-    +'<div class="principio"><div class="principio-tag">Principio del día</div><div class="principio-text">'+esc(PROTOCOLOS[principioIdx].principio)+'</div></div>'
-    +'<div class="sub-tabs"><button class="sub-tab '+(state.escuelaTab==="protocolos"?"sub-on":"")+'" data-action="escuela-tab" data-id="protocolos">Protocolos</button><button class="sub-tab '+(state.escuelaTab==="consultas"?"sub-on":"")+'" data-action="escuela-tab" data-id="consultas">Consultas</button></div>'
-    +inner+'</section>';
+  /* ---- demo ---- */
+  [["e1","CARLOS","1111","#4F8FDE",1],["e2","SOFÍA","2222","#F27FA5",2],
+   ["e3","MATEO","3333","#4FAE7F",3],["e4","LARISSA","4444","#9B59B6",4],
+   ["e5","RAVI","5555","#E8A33D",5],["e6","JOÃO","6666","#2DB7A8",6],
+   ["e7","NINA","7777","#FF6F5E",7],["e8","OMAR","8888","#7FC8F2",8]
+  ].forEach(([id,nombre,pin,color,orden])=>{ employees.set(id, {nombre,pin,color,orden}); });
+
+  [ // ---- STOCK típico de bar ----
+   ["5011007003005","JAMESON 700ML","WHISKY",6,2],
+   ["5000267024400","JOHNNIE WALKER RED 700ML","WHISKY",2,2],
+   ["5000267014067","JOHNNIE WALKER BLACK 700ML","WHISKY",3,2],
+   ["5010103915564","GLENFIDDICH 12 700ML","WHISKY",1,1],
+   ["081128100016","JACK DANIEL'S 700ML","WHISKY",4,2],
+   ["5010196091916","CHIVAS REGAL 12 700ML","WHISKY",2,1],
+   ["7312040017072","ABSOLUT VODKA 700ML","VODKA",5,3],
+   ["5010677850408","GREY GOOSE 700ML","VODKA",2,1],
+   ["4750021000508","STOLICHNAYA 700ML","VODKA",3,2],
+   ["5010677714006","BOMBAY SAPPHIRE 700ML","GIN",4,2],
+   ["5000289020504","TANQUERAY 700ML","GIN",3,2],
+   ["8410023001236","HENDRICK'S 700ML","GIN",1,1],
+   ["8000040001007","BEEFEATER 700ML","GIN",2,2],
+   ["7891050000109","BACARDÍ CARTA BLANCA 700ML","RON",5,2],
+   ["087000005273","HAVANA CLUB 7 AÑOS 700ML","RON",2,1],
+   ["5449000000439","CAPTAIN MORGAN SPICED 700ML","RON",3,2],
+   ["7501035042009","JOSÉ CUERVO ESPECIAL 700ML","TEQUILA",4,2],
+   ["7501064191114","DON JULIO BLANCO 700ML","TEQUILA",1,1],
+   [null,"PATRÓN SILVER 700ML","TEQUILA",2,1],
+   ["3035540027009","HENNESSY VS 700ML","AGUARDENTE / COGNAC",3,1],
+   [null,"RÉMY MARTIN VSOP 700ML","AGUARDENTE / COGNAC",1,1],
+   ["8410054010207","LICOR 43 700ML","LICORES",4,2],
+   ["089540010007","BAILEYS 700ML","LICORES",5,2],
+   ["8710705020105","COINTREAU 700ML","LICORES",3,2],
+   ["5010494130010","APEROL 700ML","LICORES",4,2],
+   ["8000570000600","CAMPARI 700ML","LICORES",2,2],
+   ["5010327000109","MARTINI ROSSO 1L","LICORES",3,2],
+   [null,"TRIPLE SEC 700ML","LICORES",4,2],
+   [null,"MONIN FRESA 700ML","JARABES",2,2],
+   [null,"MONIN MARACUYÁ 700ML","JARABES",1,2],
+   [null,"SIROPE SIMPLE 1L","JARABES",5,3],
+   [null,"GRENADINE 700ML","JARABES",2,2],
+   [null,"VINHO VERDE CASAL GARCIA","VINOS & ESPUMANTES",8,4],
+   [null,"PROSECCO LA MARCA 750ML","VINOS & ESPUMANTES",6,3],
+   [null,"MOËT & CHANDON 750ML","VINOS & ESPUMANTES",2,1],
+   [null,"SUPER BOCK 33CL (CAJA)","CERVEZA",3,4],
+   [null,"HEINEKEN 33CL (CAJA)","CERVEZA",5,4],
+   [null,"CORONA 35CL (CAJA)","CERVEZA",2,3],
+   [null,"COCA-COLA 20CL (CAJA)","REFRESCOS",6,4],
+   [null,"TÓNICA SCHWEPPES (CAJA)","REFRESCOS",4,4],
+   [null,"SODA / AGUA CON GAS (CAJA)","REFRESCOS",5,4],
+   [null,"ZUMO DE LIMA 1L","REFRESCOS",3,3],
+   [null,"RED BULL 25CL (CAJA)","REFRESCOS",2,3]
+  ].forEach(([code,nombre,categoria,cantidad,min])=>{
+    products.set(code || newId(), {nombre,categoria,cantidad,min,code:code||null});
+  });
+
+  seedDemoRecipes();
+  seedDemoManual();
+  renderLogin();
+  setTimeout(()=>toast(t("demoAviso")), 400);
 }
-function screenForja(){
-  const level=Math.floor(state.xp/100)+1;
-  const rank=rankFor(state.streak);
-  const nextRank=RANKS.find(r=>r.min>state.streak);
-  const toNext=nextRank?nextRank.min-state.streak:0;
-  const milPct=Math.min(100,(state.streak/1000)*100);
-  return '<section class="fade"><p class="eyebrow">Tu progreso</p><h1 class="hero-sm">LA FORJA</h1>'
-    +'<div class="rank-hero"><span class="rank-big">'+esc(rank.name)+'</span><span class="rank-lvl">Día '+state.streak+' de 1000'+(rank.note?" · "+esc(rank.note):"")+'</span></div>'
-    +'<div class="mil-wrap"><div class="mil-head"><span>Camino a La Cabra 🐐</span><span>'+milPct.toFixed(1)+'%</span></div><div class="mil-bar"><div class="mil-fill" style="width:'+milPct+'%"></div></div>'
-    +(nextRank?'<p class="mil-next">'+toNext+' '+(toNext===1?"día":"días")+' para <b>'+esc(nextRank.name)+'</b></p>':'<p class="mil-next">Eres el GOAT. Nadie te alcanza. 🐐</p>')+'</div>'
-    +'<div class="stats">'+stat("Racha",state.streak+"🔥")+stat("XP total",state.xp)+stat("Nivel",level)+'</div>'
-    +'<h2 class="section-title">Escalafón</h2><div class="ranklist">'
-    +RANKS.map(r=>'<div class="rankrow '+(state.streak>=r.min?"reached ":"")+(rank.name===r.name?"current":"")+'"><span class="rankrow-name">'+esc(r.name)+'</span><span class="rankrow-lvl">Día '+r.min+'</span></div>').join("")
-    +'</div></section>';
+
+/* =================== Datos demo multiidioma (recetario + manual) ===================
+   Solo se usan en MODO DEMO (sin Firebase). Cambian de idioma con la app.
+   Cuando conectes Firebase, el bar crea su propio contenido en su idioma. */
+const DEMO_RECIPES = [
+  {id:"dr_mojito", nombre:"MOJITO", copa:"highball", color:"#7FD8BE", garnish:"🌿",
+   ing:{es:["50ml ron blanco","6 hojas de hierbabuena","25ml zumo de lima","2 cdtas de azúcar","Soda"],
+        pt:["50ml rum branco","6 folhas de hortelã","25ml sumo de lima","2 c. chá de açúcar","Soda"],
+        en:["50ml white rum","6 mint leaves","25ml lime juice","2 tsp sugar","Soda water"],
+        bn:["৫০ মি.লি. সাদা রাম","৬টি পুদিনা পাতা","২৫ মি.লি. লেবুর রস","২ চা চামচ চিনি","সোডা"]},
+   pasos:{es:["Macerar hierbabuena con azúcar y lima","Llenar de hielo picado","Añadir ron y completar con soda","Remover de abajo hacia arriba"],
+          pt:["Macerar hortelã com açúcar e lima","Encher com gelo picado","Adicionar rum e completar com soda","Mexer de baixo para cima"],
+          en:["Muddle mint with sugar and lime","Fill with crushed ice","Add rum and top with soda","Stir from the bottom up"],
+          bn:["পুদিনা, চিনি ও লেবু ম্যাশ করুন","ভাঙা বরফ দিয়ে ভরুন","রাম দিন ও সোডা দিয়ে পূর্ণ করুন","নিচ থেকে উপরে নাড়ুন"]}},
+  {id:"dr_caipirinha", nombre:"CAIPIRINHA", copa:"rocks", color:"#B6D94C", garnish:"🍋",
+   ing:{es:["50ml cachaça","1 lima en trozos","2 cdtas de azúcar","Hielo"],
+        pt:["50ml cachaça","1 lima aos pedaços","2 c. chá de açúcar","Gelo"],
+        en:["50ml cachaça","1 lime, cut in chunks","2 tsp sugar","Ice"],
+        bn:["৫০ মি.লি. কাশাসা","১টি লেবু টুকরো করা","২ চা চামচ চিনি","বরফ"]},
+   pasos:{es:["Macerar la lima con el azúcar","Añadir la cachaça","Llenar de hielo","Remover bien"],
+          pt:["Macerar a lima com o açúcar","Adicionar a cachaça","Encher de gelo","Mexer bem"],
+          en:["Muddle lime with sugar","Add the cachaça","Fill with ice","Stir well"],
+          bn:["লেবু ও চিনি ম্যাশ করুন","কাশাসা যোগ করুন","বরফ দিয়ে ভরুন","ভালোভাবে নাড়ুন"]}},
+  {id:"dr_margarita", nombre:"MARGARITA", copa:"coupe", color:"#5CBF6E", garnish:"🍋",
+   ing:{es:["50ml tequila","25ml triple sec","25ml zumo de lima","Sal para el borde"],
+        pt:["50ml tequila","25ml triple sec","25ml sumo de lima","Sal para o rebordo"],
+        en:["50ml tequila","25ml triple sec","25ml lime juice","Salt for the rim"],
+        bn:["৫০ মি.লি. টাকিলা","২৫ মি.লি. ট্রিপল সেক","২৫ মি.লি. লেবুর রস","কিনারায় লবণ"]},
+   pasos:{es:["Escarchar el borde con sal","Agitar todo con hielo 15s","Colar en la copa fría"],
+          pt:["Escarchar o rebordo com sal","Agitar tudo com gelo 15s","Coar na taça fria"],
+          en:["Rim the glass with salt","Shake with ice for 15s","Strain into a chilled glass"],
+          bn:["গ্লাসের কিনারা লবণ দিয়ে সাজান","বরফসহ ১৫ সে. ঝাঁকান","ঠান্ডা গ্লাসে ছেঁকে ঢালুন"]}},
+  {id:"dr_daiquiri", nombre:"DAIQUIRI", copa:"coupe", color:"#D7E2EA", garnish:"🍈",
+   ing:{es:["50ml ron blanco","25ml zumo de lima","15ml sirope simple"],
+        pt:["50ml rum branco","25ml sumo de lima","15ml xarope simples"],
+        en:["50ml white rum","25ml lime juice","15ml simple syrup"],
+        bn:["৫০ মি.লি. সাদা রাম","২৫ মি.লি. লেবুর রস","১৫ মি.লি. সিম্পল সিরাপ"]},
+   pasos:{es:["Agitar todo con hielo","Doble colado en copa fría","Servir sin hielo"],
+          pt:["Agitar tudo com gelo","Duplo coado em taça fria","Servir sem gelo"],
+          en:["Shake all with ice","Double strain into a chilled glass","Serve straight up"],
+          bn:["সব বরফসহ ঝাঁকান","ঠান্ডা গ্লাসে ডাবল ছেঁকে ঢালুন","বরফ ছাড়া পরিবেশন করুন"]}},
+  {id:"dr_negroni", nombre:"NEGRONI", copa:"rocks", color:"#8E1E1E", garnish:"🍊",
+   ing:{es:["30ml gin","30ml Campari","30ml vermut rojo","Piel de naranja"],
+        pt:["30ml gin","30ml Campari","30ml vermute tinto","Casca de laranja"],
+        en:["30ml gin","30ml Campari","30ml sweet vermouth","Orange peel"],
+        bn:["৩০ মি.লি. জিন","৩০ মি.লি. ক্যাম্পারি","৩০ মি.লি. সুইট ভার্মুথ","কমলার খোসা"]},
+   pasos:{es:["Verter todo sobre hielo","Remover 20 segundos","Perfumar con piel de naranja"],
+          pt:["Verter tudo sobre gelo","Mexer 20 segundos","Perfumar com casca de laranja"],
+          en:["Build over ice","Stir for 20 seconds","Express the orange peel"],
+          bn:["বরফের উপর সব ঢালুন","২০ সেকেন্ড নাড়ুন","কমলার খোসার সুগন্ধ দিন"]}},
+  {id:"dr_oldfashioned", nombre:"OLD FASHIONED", copa:"rocks", color:"#C97B2D", garnish:"🍊",
+   ing:{es:["60ml bourbon","1 terrón de azúcar","3 dashes de Angostura","Piel de naranja"],
+        pt:["60ml bourbon","1 cubo de açúcar","3 gotas de Angostura","Casca de laranja"],
+        en:["60ml bourbon","1 sugar cube","3 dashes Angostura","Orange peel"],
+        bn:["৬০ মি.লি. বারবন","১ কিউব চিনি","৩ ফোঁটা অ্যাঙ্গোস্তুরা","কমলার খোসা"]},
+   pasos:{es:["Disolver azúcar con los bitters","Añadir bourbon y hielo grande","Remover 20 segundos","Perfumar con naranja"],
+          pt:["Dissolver açúcar com os bitters","Adicionar bourbon e gelo grande","Mexer 20 segundos","Perfumar com laranja"],
+          en:["Dissolve sugar with the bitters","Add bourbon and a large ice cube","Stir for 20 seconds","Express orange peel"],
+          bn:["বিটার দিয়ে চিনি গলান","বারবন ও বড় বরফ দিন","২০ সেকেন্ড নাড়ুন","কমলার সুগন্ধ দিন"]}},
+  {id:"dr_cosmo", nombre:"COSMOPOLITAN", copa:"martini", color:"#D6336C", garnish:"🍋",
+   ing:{es:["40ml vodka","15ml triple sec","15ml zumo de arándano","10ml zumo de lima"],
+        pt:["40ml vodka","15ml triple sec","15ml sumo de arando","10ml sumo de lima"],
+        en:["40ml vodka","15ml triple sec","15ml cranberry juice","10ml lime juice"],
+        bn:["৪০ মি.লি. ভদকা","১৫ মি.লি. ট্রিপল সেক","১৫ মি.লি. ক্র্যানবেরি রস","১০ মি.লি. লেবুর রস"]},
+   pasos:{es:["Agitar todo con hielo","Colar en copa fría","Decorar con piel de lima"],
+          pt:["Agitar tudo com gelo","Coar em taça fria","Decorar com casca de lima"],
+          en:["Shake all with ice","Strain into a chilled glass","Garnish with lime peel"],
+          bn:["সব বরফসহ ঝাঁকান","ঠান্ডা গ্লাসে ছেঁকে ঢালুন","লেবুর খোসা দিয়ে সাজান"]}},
+  {id:"dr_espresso", nombre:"ESPRESSO MARTINI", copa:"martini", color:"#5C4033", garnish:"☕",
+   ing:{es:["50ml vodka","30ml espresso","20ml licor de café","10ml sirope simple"],
+        pt:["50ml vodka","30ml espresso","20ml licor de café","10ml xarope simples"],
+        en:["50ml vodka","30ml espresso","20ml coffee liqueur","10ml simple syrup"],
+        bn:["৫০ মি.লি. ভদকা","৩০ মি.লি. এসপ্রেসো","২০ মি.লি. কফি লিকার","১০ মি.লি. সিম্পল সিরাপ"]},
+   pasos:{es:["Agitar con hielo con fuerza","Doble colado en copa fría","Decorar con 3 granos de café"],
+          pt:["Agitar com gelo com força","Duplo coado em taça fria","Decorar com 3 grãos de café"],
+          en:["Shake hard with ice","Double strain into a chilled glass","Garnish with 3 coffee beans"],
+          bn:["বরফসহ জোরে ঝাঁকান","ঠান্ডা গ্লাসে ডাবল ছেঁকে ঢালুন","৩টি কফি বিন দিয়ে সাজান"]}},
+  {id:"dr_aperol", nombre:"APEROL SPRITZ", copa:"vino", color:"#FF9F1C", garnish:"🍊",
+   ing:{es:["60ml Aperol","90ml prosecco","Splash de soda","Rodaja de naranja"],
+        pt:["60ml Aperol","90ml prosecco","Toque de soda","Rodela de laranja"],
+        en:["60ml Aperol","90ml prosecco","Splash of soda","Orange slice"],
+        bn:["৬০ মি.লি. অ্যাপেরল","৯০ মি.লি. প্রসেকো","একটু সোডা","কমলার টুকরো"]},
+   pasos:{es:["Llenar la copa de hielo","Verter prosecco y Aperol","Splash de soda","Decorar con naranja"],
+          pt:["Encher a taça de gelo","Verter prosecco e Aperol","Toque de soda","Decorar com laranja"],
+          en:["Fill the glass with ice","Pour prosecco and Aperol","Splash of soda","Garnish with orange"],
+          bn:["গ্লাস বরফ দিয়ে ভরুন","প্রসেকো ও অ্যাপেরল ঢালুন","একটু সোডা দিন","কমলা দিয়ে সাজান"]}},
+  {id:"dr_pinacolada", nombre:"PIÑA COLADA", copa:"highball", color:"#F2E8D5", garnish:"🍍",
+   ing:{es:["50ml ron","30ml crema de coco","90ml zumo de piña","Hielo"],
+        pt:["50ml rum","30ml creme de coco","90ml sumo de ananás","Gelo"],
+        en:["50ml rum","30ml coconut cream","90ml pineapple juice","Ice"],
+        bn:["৫০ মি.লি. রাম","৩০ মি.লি. নারকেল ক্রিম","৯০ মি.লি. আনারসের রস","বরফ"]},
+   pasos:{es:["Batir todo con hielo","Servir en vaso alto","Decorar con piña"],
+          pt:["Bater tudo com gelo","Servir em copo alto","Decorar com ananás"],
+          en:["Blend all with ice","Serve in a tall glass","Garnish with pineapple"],
+          bn:["সব বরফসহ ব্লেন্ড করুন","লম্বা গ্লাসে পরিবেশন করুন","আনারস দিয়ে সাজান"]}},
+  {id:"dr_ginfizz", nombre:"GIN FIZZ", copa:"highball", color:"#F2C94C", garnish:"🍋",
+   ing:{es:["50ml gin","25ml zumo de limón","15ml sirope simple","Soda"],
+        pt:["50ml gin","25ml sumo de limão","15ml xarope simples","Soda"],
+        en:["50ml gin","25ml lemon juice","15ml simple syrup","Soda water"],
+        bn:["৫০ মি.লি. জিন","২৫ মি.লি. লেবুর রস","১৫ মি.লি. সিম্পল সিরাপ","সোডা"]},
+   pasos:{es:["Agitar gin, limón y sirope","Colar sobre hielo","Completar con soda"],
+          pt:["Agitar gin, limão e xarope","Coar sobre gelo","Completar com soda"],
+          en:["Shake gin, lemon and syrup","Strain over ice","Top with soda"],
+          bn:["জিন, লেবু ও সিরাপ ঝাঁকান","বরফের উপর ছেঁকে ঢালুন","সোডা দিয়ে পূর্ণ করুন"]}},
+  {id:"dr_cubalibre", nombre:"CUBA LIBRE", copa:"highball", color:"#5C4033", garnish:"🍋",
+   ing:{es:["50ml ron","Coca-Cola","10ml zumo de lima","Hielo"],
+        pt:["50ml rum","Coca-Cola","10ml sumo de lima","Gelo"],
+        en:["50ml rum","Cola","10ml lime juice","Ice"],
+        bn:["৫০ মি.লি. রাম","কোলা","১০ মি.লি. লেবুর রস","বরফ"]},
+   pasos:{es:["Llenar el vaso de hielo","Añadir ron y lima","Completar con Coca-Cola"],
+          pt:["Encher o copo de gelo","Adicionar rum e lima","Completar com Coca-Cola"],
+          en:["Fill the glass with ice","Add rum and lime","Top with cola"],
+          bn:["গ্লাস বরফ দিয়ে ভরুন","রাম ও লেবু দিন","কোলা দিয়ে পূর্ণ করুন"]}}
+];
+const DEMO_MANUAL = [
+  {id:"dm_tools", orden:1,
+   titulo:{es:"HERRAMIENTAS DEL BAR",pt:"FERRAMENTAS DO BAR",en:"BAR TOOLS",bn:"বারের সরঞ্জাম"},
+   items:{es:["Coctelera Boston: para agitar cócteles con cítricos","Vaso mezclador y cuchara: para cócteles removidos","Jigger: medir SIEMPRE — 25/50ml, nada a ojo","Colador Hawthorne y colador fino para doble colado","Macerador: presionar, no triturar la hierbabuena","Pinza y pala de hielo: NUNCA usar el vaso como pala"],
+          pt:["Coqueteleira Boston: para agitar cocktails com citrinos","Copo de mistura e colher: para cocktails mexidos","Jigger: medir SEMPRE — 25/50ml, nada a olho","Coador Hawthorne e coador fino para duplo coado","Macerador: pressionar, não triturar a hortelã","Pinça e pá de gelo: NUNCA usar o copo como pá"],
+          en:["Boston shaker: for shaking citrus cocktails","Mixing glass and spoon: for stirred cocktails","Jigger: ALWAYS measure — 25/50ml, never by eye","Hawthorne and fine strainer for double straining","Muddler: press, don't shred the mint","Ice tongs and scoop: NEVER use the glass as a scoop"],
+          bn:["বোস্টন শেকার: সাইট্রাস ককটেল ঝাঁকাতে","মিক্সিং গ্লাস ও চামচ: নাড়ানো ককটেলের জন্য","জিগার: সবসময় মাপুন — ২৫/৫০ মি.লি., চোখে নয়","হথর্ন ও ফাইন স্ট্রেইনার ডাবল ছাঁকার জন্য","মাডলার: চাপ দিন, পুদিনা থেঁতলাবেন না","বরফ চিমটা ও স্কুপ: গ্লাস কখনো স্কুপ হিসেবে নয়"]}},
+  {id:"dm_hygiene", orden:2,
+   titulo:{es:"HIGIENE Y LIMPIEZA",pt:"HIGIENE E LIMPEZA",en:"HYGIENE & CLEANING",bn:"স্বাস্থ্যবিধি ও পরিচ্ছন্নতা"},
+   items:{es:["Lavarse las manos al entrar y tras tocar dinero","Paños separados: uno para barra, otro para cristalería","Limpiar la estación y los picos dosificadores cada cierre","Etiquetar con fecha jarabes y zumos abiertos (máx. 5 días)","El hielo se toca solo con pala o pinza","Repasar la cristalería con marcas de agua antes de servir"],
+          pt:["Lavar as mãos ao entrar e após tocar dinheiro","Panos separados: um para o balcão, outro para copos","Limpar a estação e os bicos doseadores a cada fecho","Etiquetar com data xaropes e sumos abertos (máx. 5 dias)","O gelo toca-se só com pá ou pinça","Repassar copos com marcas de água antes de servir"],
+          en:["Wash hands on arrival and after handling cash","Separate cloths: one for the bar, one for glassware","Clean the station and pour spouts at every close","Date-label opened syrups and juices (max 5 days)","Ice is only touched with a scoop or tongs","Polish glassware with water marks before serving"],
+          bn:["আসার সময় ও টাকা ধরার পর হাত ধুন","আলাদা কাপড়: একটি বারের, একটি গ্লাসের","প্রতি বন্ধের সময় স্টেশন ও পোরার মুখ পরিষ্কার করুন","খোলা সিরাপ ও রসে তারিখ লিখুন (সর্বোচ্চ ৫ দিন)","বরফ শুধু স্কুপ বা চিমটা দিয়ে ধরুন","পরিবেশনের আগে দাগযুক্ত গ্লাস মুছুন"]}},
+  {id:"dm_open", orden:3,
+   titulo:{es:"APERTURA DEL TURNO",pt:"ABERTURA DO TURNO",en:"OPENING SHIFT",bn:"শিফট শুরু"},
+   items:{es:["Encender neveras y verificar temperaturas","Reponer estación: fruta cortada, jarabes, servilletas","Llenar los recipientes de hielo","Revisar la lista de compras pendientes en la app","Repasar cristalería y montar la barra"],
+          pt:["Ligar frigoríficos e verificar temperaturas","Repor estação: fruta cortada, xaropes, guardanapos","Encher os recipientes de gelo","Rever a lista de compras pendentes na app","Repassar copos e montar o balcão"],
+          en:["Turn on fridges and check temperatures","Restock station: cut fruit, syrups, napkins","Fill the ice bins","Check the shopping list in the app","Polish glassware and set up the bar"],
+          bn:["ফ্রিজ চালু করুন ও তাপমাত্রা পরীক্ষা করুন","স্টেশন পূরণ: কাটা ফল, সিরাপ, ন্যাপকিন","বরফের পাত্র ভরুন","অ্যাপে বাকি কেনাকাটার তালিকা দেখুন","গ্লাস মুছুন ও বার সাজান"]}},
+  {id:"dm_close", orden:4,
+   titulo:{es:"CIERRE DEL TURNO",pt:"FECHO DO TURNO",en:"CLOSING SHIFT",bn:"শিফট শেষ"},
+   items:{es:["Registrar las salidas del día en la app (escáner)","Vaciar y limpiar los recipientes de hielo","Tapar y refrigerar jarabes y zumos abiertos","Limpiar picos, coladores y coctelera con agua caliente","Dejar la estación montada para la apertura"],
+          pt:["Registar as saídas do dia na app (scanner)","Esvaziar e limpar os recipientes de gelo","Tapar e refrigerar xaropes e sumos abertos","Limpar bicos, coadores e coqueteleira com água quente","Deixar a estação montada para a abertura"],
+          en:["Log the day's stock-outs in the app (scanner)","Empty and clean the ice bins","Cover and refrigerate opened syrups and juices","Clean spouts, strainers and shaker with hot water","Leave the station set up for opening"],
+          bn:["দিনের স্টক আউট অ্যাপে নথিভুক্ত করুন (স্ক্যানার)","বরফের পাত্র খালি করে পরিষ্কার করুন","খোলা সিরাপ ও রস ঢেকে ফ্রিজে রাখুন","গরম পানিতে মুখ, স্ট্রেইনার ও শেকার পরিষ্কার করুন","শিফট শুরুর জন্য স্টেশন সাজিয়ে রাখুন"]}},
+  {id:"dm_service", orden:5,
+   titulo:{es:"SERVICIO Y ATENCIÓN",pt:"SERVIÇO E ATENDIMENTO",en:"SERVICE & CARE",bn:"সেবা ও যত্ন"},
+   items:{es:["Saludar al cliente en menos de 1 minuto","Confirmar la comanda repitiéndola","Servir primero bebidas sin alcohol y de mujeres","Nunca llenar de más: respetar las medidas","Retirar vasos vacíos y mantener la barra limpia"],
+          pt:["Cumprimentar o cliente em menos de 1 minuto","Confirmar o pedido repetindo-o","Servir primeiro bebidas sem álcool e de senhoras","Nunca encher demais: respeitar as medidas","Retirar copos vazios e manter o balcão limpo"],
+          en:["Greet the guest within 1 minute","Confirm the order by repeating it","Serve non-alcoholic and ladies' drinks first","Never overpour: respect the measures","Clear empty glasses and keep the bar clean"],
+          bn:["১ মিনিটের মধ্যে অতিথিকে অভ্যর্থনা জানান","অর্ডার পুনরাবৃত্তি করে নিশ্চিত করুন","আগে নন-অ্যালকোহলিক ও নারীদের পানীয় দিন","কখনো বেশি ঢালবেন না: পরিমাপ মানুন","খালি গ্লাস সরান ও বার পরিষ্কার রাখুন"]}}
+];
+function seedDemoRecipes(){
+  recipes.clear();
+  DEMO_RECIPES.forEach(r=>{
+    recipes.set(r.id, {nombre:r.nombre, copa:r.copa, color:r.color, garnish:r.garnish,
+      ing:(r.ing[lang]||r.ing.es), pasos:(r.pasos[lang]||r.pasos.es)});
+  });
 }
-function topbar(){const rank=rankFor(state.streak);return '<header class="topbar"><div class="brand">FORJA</div><div class="rankchip"><span class="rank-eyebrow">Rango</span><span class="rank-name">'+esc(rank.name)+'</span></div></header>';}
-function nav(){return '<nav class="tabbar">'+[["hoy","Hoy"],["rituales","Rituales"],["escuela","Escuela"],["forja","Forja"]].map(t=>'<button class="tab '+(state.tab===t[0]?"tab-on":"")+'" data-action="tab" data-tab="'+t[0]+'">'+t[1]+'</button>').join("")+'</nav>';}
-function modal(){if(!state.journalOpen)return "";return '<div class="modal-back"><div class="modal"><p class="eyebrow">Journaling</p><h3 class="modal-title">Ordena tu mente</h3><textarea class="journal-area" id="journal-area" placeholder="¿Qué pasó hoy? ¿Qué controlaste? ¿Qué vas a mejorar mañana?">'+esc(state.journal)+'</textarea><button class="save-btn" data-action="save-journal">Guardar y marcar</button></div></div>';}
-function screen(){if(state.tab==="hoy")return screenHoy();if(state.tab==="rituales")return screenRituales();if(state.tab==="escuela")return screenEscuela();return screenForja();}
+function seedDemoManual(){
+  manual.clear();
+  DEMO_MANUAL.forEach(m=>{
+    manual.set(m.id, {titulo:(m.titulo[lang]||m.titulo.es), items:(m.items[lang]||m.items.es), orden:m.orden});
+  });
+}
+async function persist(col, id, data){ if(db) await db.collection(col).doc(id).set(data,{merge:true}); }
+async function persistDel(col, id){ if(db) await db.collection(col).doc(id).delete(); }
+function logMovement(id, prod, tipo, cantidad){
+  const mv = {code:id, nombre:prod.nombre, tipo, cantidad, ts:new Date(),
+    byName: currentUser?currentUser.nombre:"—", byColor: currentUser?currentUser.color:"#999"};
+  movements.unshift(mv); movements = movements.slice(0,150);
+  if(db) db.collection("gf_movimientos").add({...mv, ts: firebase.firestore.FieldValue.serverTimestamp()});
+  renderHistory();
+}
+
+/* =================== Stock =================== */
+async function applyDelta(id, delta){
+  const p = products.get(id); if(!p) return;
+  if(delta<0 && p.cantidad + delta < 0){ toast(`${t("sinStock")} ${p.cantidad}`,"err"); return; }
+  p.cantidad += delta;
+  products.set(id,p);
+  logMovement(id, p, delta>0?"entrada":"salida", Math.abs(delta));
+  await persist("gf_productos", id, p);
+  renderAll();
+}
+async function applyMovement(id, prod, qty, tipo){
+  let p = products.get(id);
+  if(!p){ p = {...prod, cantidad:0, code:id}; products.set(id,p); }
+  if(tipo==="salida" && p.cantidad < qty) return {ok:false, available:p.cantidad};
+  p.cantidad += (tipo==="entrada" ? qty : -qty);
+  products.set(id,p);
+  logMovement(id, p, tipo, qty);
+  await persist("gf_productos", id, p);
+  renderAll();
+  return {ok:true};
+}
+
+/* =================== Open Food Facts =================== */
+function guessCategory(tags){
+  const s = (tags||[]).join(" ");
+  if(/whisk/i.test(s)) return "WHISKY";
+  if(/\bgin\b|gins/i.test(s)) return "GIN";
+  if(/vodka/i.test(s)) return "VODKA";
+  if(/\brum\b|rhum|rons?\b/i.test(s)) return "RON";
+  if(/tequila|mezcal/i.test(s)) return "TEQUILA";
+  if(/liqueur|licor/i.test(s)) return "LICORES";
+  if(/syrup|sirope|xarope/i.test(s)) return "JARABES";
+  if(/cognac|brandy|aguardente/i.test(s)) return "AGUARDENTE / COGNAC";
+  if(/wine|vinho|vino|sparkling|champagne|cava|prosecco/i.test(s)) return "VINOS & ESPUMANTES";
+  if(/beer|cerveja|cerveza/i.test(s)) return "CERVEZA";
+  if(/soda|soft-drink|refresco|juice|water/i.test(s)) return "REFRESCOS";
+  return "OTROS";
+}
+async function lookupOFF(code){
+  try{
+    const ctrl = new AbortController();
+    const to = setTimeout(()=>ctrl.abort(), 6000);
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,brands,quantity,categories_tags`,{signal:ctrl.signal});
+    clearTimeout(to);
+    if(!r.ok) return null;
+    const j = await r.json();
+    if(j.status!==1 || !j.product || !j.product.product_name) return null;
+    const p = j.product;
+    const nombre = [p.brands, p.product_name, p.quantity].filter(Boolean).join(" ").trim().toUpperCase();
+    return {nombre, categoria:guessCategory(p.categories_tags), min:STOCK_MIN_DEFAULT};
+  }catch(e){ return null; }
+}
+
+/* =================== Escáner =================== */
+async function startScanner(){
+  if(scanning) return;
+  try{
+    $("scanIdle").style.display="none";
+    $("scanOverlay").style.display="flex";
+    scanner = scanner || new Html5Qrcode("reader",{formatsToSupport:[
+      Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+      Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+      Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE
+    ]});
+    await scanner.start({facingMode:"environment"},
+      {fps:10, qrbox:(w,h)=>({width:Math.floor(w*.74), height:Math.floor(h*.44)})},
+      onScan, ()=>{});
+    scanning = true;
+    $("scanStatus").textContent = t("escaneando");
+  }catch(e){
+    console.error(e);
+    $("scanIdle").style.display="flex";
+    $("scanOverlay").style.display="none";
+    toast(t("camErr"),"err");
+  }
+}
+async function stopScanner(){
+  if(scanner && scanning){ try{ await scanner.stop(); }catch(e){} scanning=false; }
+  $("scanIdle").style.display="flex";
+  $("scanOverlay").style.display="none";
+  $("scanStatus").textContent = "";
+}
+function pauseScan(){ if(scanner && scanning){ try{scanner.pause(true);}catch(e){} } }
+function resumeScan(){ if(scanner && scanning){ try{scanner.resume();}catch(e){} $("scanStatus").textContent=t("escaneando"); } }
+async function onScan(code){
+  const now = Date.now();
+  if(busy) return;
+  if(code===lastCode && now-lastCodeAt<2500) return;
+  lastCode = code; lastCodeAt = now;
+  await handleCode(code.trim());
+}
+async function handleCode(code){
+  if(!code || busy) return;
+  busy = true; beep(); pauseScan();
+  let prod = products.get(code);
+  if(!prod){
+    $("scanStatus").textContent = t("buscando");
+    const off = await lookupOFF(code);
+    toast(off ? t("encontradoOFF") : t("noEncontrado"), off ? "ok" : "");
+    openRegModal(code, off);
+    busy = false; return;
+  }
+  openMoveModal(code, prod);
+  busy = false;
+}
+$("startCamBtn").addEventListener("click", startScanner);
+$("manualBtn").addEventListener("click", ()=>{
+  const code = $("manualCode").value.trim();
+  if(code){ $("manualCode").value=""; handleCode(code); }
+});
+$("manualCode").addEventListener("keydown", e=>{ if(e.key==="Enter") $("manualBtn").click(); });
+function setMode(m){
+  mode = m;
+  $("modeIn").className = "mode-btn" + (m==="entrada" ? " active-in" : "");
+  $("modeOut").className = "mode-btn" + (m==="salida" ? " active-out" : "");
+}
+$("modeIn").addEventListener("click",()=>setMode("entrada"));
+$("modeOut").addEventListener("click",()=>setMode("salida"));
+
+/* =================== Modal movimiento =================== */
+function openMoveModal(id, prod){
+  currentCode = id; mvProd = prod;
+  $("mvName").textContent = prod.nombre;
+  $("mvCode").textContent = prod.code || id;
+  $("mvStockNow").textContent = `${t("stockActual")}: ${prod.cantidad ?? 0} ${t("unidades")}`;
+  $("qtyInput").value = 1;
+  $("mvWarn").textContent = "";
+  const btn = $("mvConfirm");
+  btn.textContent = mode==="entrada" ? t("confirmarIn") : t("confirmarOut");
+  btn.className = "btn btn-block " + (mode==="entrada" ? "btn-green" : "btn-red");
+  $("moveModalBg").classList.add("open");
+}
+function closeMoveModal(){ $("moveModalBg").classList.remove("open"); resumeScan(); }
+$("qtyMinus").addEventListener("click",()=>{$("qtyInput").value=Math.max(1,(parseInt($("qtyInput").value)||1)-1);});
+$("qtyPlus").addEventListener("click",()=>{$("qtyInput").value=Math.min(999,(parseInt($("qtyInput").value)||0)+1);});
+$("mvCancel").addEventListener("click", closeMoveModal);
+$("mvConfirm").addEventListener("click", async ()=>{
+  const qty = parseInt($("qtyInput").value);
+  if(!qty || qty<1){ $("qtyInput").value=1; return; }
+  const res = await applyMovement(currentCode, mvProd, qty, mode);
+  if(!res.ok){ $("mvWarn").textContent = `${t("sinStock")} ${res.available}`; return; }
+  closeMoveModal();
+  toast(mode==="entrada" ? `✓ ${t("entradaOk")} (+${qty})` : `✓ ${t("salidaOk")} (−${qty})`, "ok");
+});
+
+/* =================== Modal producto nuevo =================== */
+CATS.forEach(c=>{const o=document.createElement("option");o.textContent=c;$("regCat").appendChild(o);});
+function openRegModal(code, prefill){
+  currentCode = code;
+  $("regCode").style.display = code ? "block" : "none";
+  $("regCode").textContent = code || "";
+  $("regName").value = prefill ? prefill.nombre : "";
+  $("regCat").value = prefill ? prefill.categoria : "OTROS";
+  $("regQty").value = 0;
+  $("regMin").value = prefill ? (prefill.min ?? STOCK_MIN_DEFAULT) : STOCK_MIN_DEFAULT;
+  $("regModalBg").classList.add("open");
+  if(!prefill) setTimeout(()=>$("regName").focus(),150);
+}
+$("regCancel").addEventListener("click", ()=>{ $("regModalBg").classList.remove("open"); resumeScan(); });
+$("regSave").addEventListener("click", async ()=>{
+  const nombre = $("regName").value.trim().toUpperCase();
+  if(!nombre){ toast(t("nombreReq"),"err"); return; }
+  const id = currentCode || newId();
+  const qty = Math.max(0, parseInt($("regQty").value)||0);
+  const prod = {nombre, categoria:$("regCat").value, cantidad:qty,
+    min:Math.max(0, parseInt($("regMin").value)||STOCK_MIN_DEFAULT), code:currentCode||null};
+  products.set(id, prod);
+  if(qty>0) logMovement(id, prod, "entrada", qty);
+  await persist("gf_productos", id, prod);
+  $("regModalBg").classList.remove("open");
+  toast(`✓ ${t("prodGuardado")}`,"ok");
+  renderAll();
+  if(currentCode){ openMoveModal(id, prod); } else { resumeScan(); }
+});
+
+/* =================== Modal ajustes de producto (mínimo) =================== */
+function openMinModal(id){
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  const p = products.get(id); if(!p) return;
+  minTargetId = id;
+  $("minTitle").textContent = p.nombre;
+  $("minCode").textContent = p.code || "";
+  $("minInput").value = p.min ?? STOCK_MIN_DEFAULT;
+  $("minModalBg").classList.add("open");
+}
+$("minCancel").addEventListener("click", ()=>$("minModalBg").classList.remove("open"));
+$("minSave").addEventListener("click", async ()=>{
+  const p = products.get(minTargetId); if(!p) return;
+  p.min = Math.max(0, parseInt($("minInput").value)||0);
+  products.set(minTargetId, p);
+  await persist("gf_productos", minTargetId, p);
+  $("minModalBg").classList.remove("open");
+  toast(`✓ ${t("prodGuardado")}`,"ok");
+  renderAll();
+});
+$("minDelete").addEventListener("click", async ()=>{
+  if(!confirm(t("confirmDel"))) return;
+  products.delete(minTargetId);
+  await persistDel("gf_productos", minTargetId);
+  $("minModalBg").classList.remove("open");
+  toast(t("prodBorrado"));
+  renderAll();
+});
+
+/* =================== Compras manuales =================== */
+$("shopAddBtn").addEventListener("click", async ()=>{
+  const nombre = $("shopInput").value.trim();
+  if(!nombre) return;
+  const id = newId("c");
+  shopExtra.set(id, {nombre});
+  await persist("gf_compras", id, {nombre});
+  $("shopInput").value = "";
+  $("shopCard").classList.add("open");
+  renderShopping(); renderStats();
+});
+$("shopInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("shopAddBtn").click(); });
+async function removeShopItem(id){
+  shopExtra.delete(id);
+  await persistDel("gf_compras", id);
+  renderShopping(); renderStats();
+}
+
+/* =================== WhatsApp =================== */
+$("waBtn").addEventListener("click", ()=>{
+  const items = lowItems();
+  const d = new Date();
+  const loc = lang==="pt"?"pt-PT":"es-ES";
+  let msg = `🛒 *${t("waTitle")}* — ${d.toLocaleDateString(loc,{weekday:"long",day:"numeric",month:"long"})}\n\n`;
+  if(!items.length && !shopExtra.size) msg += t("vacioShop");
+  items.forEach(([,p])=>{ msg += `• ${p.nombre} — ${t("quedan")} ${p.cantidad} (${t("min")} ${p.min ?? STOCK_MIN_DEFAULT})\n`; });
+  shopExtra.forEach(it=>{ msg += `• ${it.nombre}\n`; });
+  msg += `\n${t("waFoot")} ${BRAND.emoji} ${BRAND.name}`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+});
+$("lowBtn").addEventListener("click", ()=>{
+  showStockPanel(true);
+  $("shopCard").classList.add("open");
+  $("shopCard").scrollIntoView({behavior:"smooth", block:"start"});
+});
+$("shopHead").addEventListener("click", ()=>$("shopCard").classList.toggle("open"));
+
+/* =================== Histórico toggle =================== */
+function showStockPanel(stock){
+  $("stockPanel").style.display = stock ? "block" : "none";
+  $("histPanel").style.display = stock ? "none" : "block";
+  $("histBtn").classList.toggle("on", !stock);
+}
+$("histBtn").addEventListener("click", ()=>{
+  const showingHist = $("histPanel").style.display !== "none";
+  showStockPanel(showingHist);
+});
+
+/* =================== Render: stock =================== */
+function renderStats(){
+  $("statTotal").textContent = products.size;
+  const low = lowItems().length;
+  const pend = low + shopExtra.size;
+  $("statLow").textContent = low;
+  $("lowCnt").textContent = low;
+  const b = $("tileLowBadge");
+  b.style.display = pend ? "block" : "none";
+  b.textContent = pend;
+}
+function renderShopping(){
+  const items = lowItems();
+  $("shopCnt").textContent = items.length + shopExtra.size;
+  let html = items.map(([,p])=>`<div class="shop-item"><b>${esc(p.nombre)}</b><span>${t("quedan")} ${p.cantidad} · ${t("min")} ${p.min ?? STOCK_MIN_DEFAULT}</span></div>`).join("");
+  shopExtra.forEach((it,id)=>{
+    html += `<div class="shop-item"><b>${esc(it.nombre)}</b><span>${esc(t("manualItem"))}</span><button class="rm" data-shop="${esc(id)}">✕</button></div>`;
+  });
+  if(!html) html = `<div class="shop-item"><b>${esc(t("vacioShop"))}</b></div>`;
+  $("shopList").innerHTML = html;
+  $("shopList").querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
+}
+function renderCats(){
+  const q = ($("stockSearch").value||"").toLowerCase().trim();
+  const byCat = new Map();
+  [...products.entries()].forEach(([id,p])=>{
+    if(q && !(p.nombre||"").toLowerCase().includes(q) && !(p.code||"").includes(q)) return;
+    const c = CATS.includes(p.categoria) ? p.categoria : "OTROS";
+    if(!byCat.has(c)) byCat.set(c,[]);
+    byCat.get(c).push([id,p]);
+  });
+  const el = $("catsList");
+  if(!byCat.size){ el.innerHTML = `<div class="empty">${esc(q ? "—" : t("vacioStock"))}</div>`; return; }
+  el.innerHTML = CATS.filter(c=>byCat.has(c)).map(c=>{
+    const items = byCat.get(c).sort((a,b)=>(a[1].nombre||"").localeCompare(b[1].nombre||""));
+    const open = q || openCats.has(c);
+    return `<div class="cat${open?" open":""}" data-cat="${esc(c)}">
+      <div class="cat-head">
+        <h2>${esc(c)}</h2>
+        <div class="right"><span>${items.length} prod.</span><span class="chev">▶</span></div>
+      </div>
+      <div class="cat-body">
+        ${items.map(([id,p])=>{
+          const low = isLow(p);
+          const minLabel = `${t("min")} ${p.min ?? STOCK_MIN_DEFAULT}`;
+          return `<div class="prod${low?" low":""}" data-id="${esc(id)}">
+            <div class="prod-top">
+              <div class="prod-name">${esc(p.nombre)}${low?`<span class="low-badge">${esc(t("pocoStock"))}</span>`:""}</div>
+              <div class="qty-ctrl">
+                <button class="cbtn minus" data-act="dec">−</button>
+                <span class="qv">${p.cantidad}</span>
+                <button class="cbtn plus" data-act="inc">＋</button>
+              </div>
+            </div>
+            <div class="prod-sub">
+              ${isAdmin()
+                ? `<button class="min-btn" data-act="cfg">⚙ ${esc(minLabel)}</button>`
+                : `<span class="min-btn plain">${esc(minLabel)}</span>`}
+              ${p.code?`<span class="code">${esc(p.code)}</span>`:""}
+            </div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }).join("");
+  el.querySelectorAll(".cat-head").forEach(h=>h.addEventListener("click",()=>{
+    const cat = h.parentElement.dataset.cat;
+    if(openCats.has(cat)) openCats.delete(cat); else openCats.add(cat);
+    h.parentElement.classList.toggle("open");
+  }));
+  el.querySelectorAll("[data-act]").forEach(b=>b.addEventListener("click",e=>{
+    e.stopPropagation();
+    const id = b.closest(".prod").dataset.id;
+    const act = b.dataset.act;
+    if(act==="inc") applyDelta(id, +1);
+    else if(act==="dec") applyDelta(id, -1);
+    else if(act==="cfg") openMinModal(id);
+  }));
+}
+function renderHistory(){
+  const el = $("historyList");
+  if(!movements.length){ el.innerHTML = `<div class="empty">${esc(t("vacioHist"))}</div>`; return; }
+  el.innerHTML = movements.map(m=>{
+    const by = m.byName ? `<span class="by"><span class="av" style="background:${esc(m.byColor||"#999")}">${esc(initial(m.byName))}</span>${esc(m.byName)}</span> · ` : "";
+    return `<div class="mv-card">
+      <span class="mv-tag ${m.tipo==="entrada"?"in":"out"}">${m.tipo==="entrada"?"+":"−"}${m.cantidad}</span>
+      <div class="info">
+        <div class="name">${esc(m.nombre)}</div>
+        <div class="meta">${by}${esc(fmtTs(m.ts))}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+$("stockSearch").addEventListener("input", renderCats);
+$("expBtn").addEventListener("click", ()=>{ CATS.forEach(c=>openCats.add(c)); renderCats(); });
+$("colBtn").addEventListener("click", ()=>{ openCats.clear(); renderCats(); });
+
+/* =================== Recetario =================== */
+let recFormCopa = "highball", recFormColor = GLASS_COLORS[0][1];
+function buildRecFormPickers(){
+  $("copaOpts").innerHTML = COPAS.map(c=>`
+    <button type="button" class="copa-opt${c===recFormCopa?" sel":""}" data-copa="${c}">
+      ${glassSVG(c, recFormColor, "")}
+      <span>${c}</span>
+    </button>`).join("");
+  $("swatches").innerHTML = GLASS_COLORS.map(([n,hex])=>`
+    <button type="button" class="swatch${hex===recFormColor?" sel":""}" data-color="${hex}" title="${n}" style="background:${hex}"></button>`).join("");
+  $("copaOpts").querySelectorAll("[data-copa]").forEach(b=>b.addEventListener("click",()=>{
+    recFormCopa = b.dataset.copa; buildRecFormPickers();
+  }));
+  $("swatches").querySelectorAll("[data-color]").forEach(b=>b.addEventListener("click",()=>{
+    recFormColor = b.dataset.color; buildRecFormPickers();
+  }));
+}
+function openRecForm(id){
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  recEditId = id;
+  const r = id ? recipes.get(id) : null;
+  $("recFormTitle").textContent = r ? t("editarCoctel") : t("nuevoCoctel");
+  $("recName").value = r ? r.nombre : "";
+  recFormCopa = r ? r.copa : "highball";
+  recFormColor = r ? r.color : GLASS_COLORS[0][1];
+  $("recGarnish").value = r ? (r.garnish||"") : "";
+  $("recIng").value = r ? (r.ing||[]).join("\n") : "";
+  $("recSteps").value = r ? (r.pasos||[]).join("\n") : "";
+  buildRecFormPickers();
+  $("recModalBg").classList.add("open");
+}
+$("recCancel").addEventListener("click", ()=>$("recModalBg").classList.remove("open"));
+$("recSave").addEventListener("click", async ()=>{
+  const nombre = $("recName").value.trim().toUpperCase();
+  if(!nombre){ toast(t("nombreReq"),"err"); return; }
+  const rec = {
+    nombre, copa:recFormCopa, color:recFormColor,
+    garnish: $("recGarnish").value.trim().slice(0,4),
+    ing: $("recIng").value.split("\n").map(s=>s.trim()).filter(Boolean),
+    pasos: $("recSteps").value.split("\n").map(s=>s.trim()).filter(Boolean)
+  };
+  const id = recEditId || newId("r");
+  recipes.set(id, rec);
+  await persist("gf_recetas", id, rec);
+  $("recModalBg").classList.remove("open");
+  toast(`✓ ${t("prodGuardado")}`,"ok");
+  renderRecipes();
+});
+function renderRecipes(){
+  const el = $("recGrid");
+  if(!recipes.size){ el.innerHTML = `<div class="empty" style="grid-column:1/-1">${esc(t("vacioRec"))}</div>`; return; }
+  const arr = [...recipes.entries()].sort((a,b)=>(a[1].nombre||"").localeCompare(b[1].nombre||""));
+  el.innerHTML = arr.map(([id,r])=>`
+    <button class="rec-card" data-rec="${esc(id)}">
+      ${glassSVG(r.copa, r.color, r.garnish)}
+      <h3>${esc(r.nombre)}</h3>
+    </button>`).join("");
+  el.querySelectorAll("[data-rec]").forEach(c=>c.addEventListener("click",()=>openRecView(c.dataset.rec)));
+}
+function openRecView(id){
+  const r = recipes.get(id); if(!r) return;
+  recViewId = id;
+  $("recViewName").textContent = r.nombre;
+  $("recViewGlass").innerHTML = glassSVG(r.copa, r.color, r.garnish);
+  $("recViewIng").innerHTML = (r.ing||[]).map(i=>`<div class="rec-item"><span class="n">•</span><span>${esc(i)}</span></div>`).join("") || `<div class="empty">—</div>`;
+  $("recViewSteps").innerHTML = (r.pasos||[]).map((s,i)=>`<div class="rec-item"><span class="n">${i+1}.</span><span>${esc(s)}</span></div>`).join("") || `<div class="empty">—</div>`;
+  $("recViewActions").style.display = isAdmin() ? "flex" : "none";
+  $("recViewBg").classList.add("open");
+}
+$("recViewClose").addEventListener("click", ()=>$("recViewBg").classList.remove("open"));
+$("recEditBtn").addEventListener("click", ()=>{ $("recViewBg").classList.remove("open"); openRecForm(recViewId); });
+$("recDelBtn").addEventListener("click", async ()=>{
+  if(!confirm(t("confirmDel"))) return;
+  recipes.delete(recViewId);
+  await persistDel("gf_recetas", recViewId);
+  $("recViewBg").classList.remove("open");
+  toast(t("prodBorrado"));
+  renderRecipes();
+});
+
+/* =================== Manual =================== */
+function openManForm(id){
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  manEditId = id;
+  const m = id ? manual.get(id) : null;
+  $("manFormTitle").textContent = m ? m.titulo : t("nuevaSec");
+  $("manTitle").value = m ? m.titulo : "";
+  $("manItems").value = m ? (m.items||[]).join("\n") : "";
+  $("manDelete").style.display = id ? "inline-flex" : "none";
+  $("manModalBg").classList.add("open");
+}
+$("manCancel").addEventListener("click", ()=>$("manModalBg").classList.remove("open"));
+$("manSave").addEventListener("click", async ()=>{
+  const titulo = $("manTitle").value.trim().toUpperCase();
+  if(!titulo){ toast(t("nombreReq"),"err"); return; }
+  const items = $("manItems").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  const id = manEditId || newId("m");
+  const orden = manEditId ? (manual.get(manEditId)?.orden ?? 99) : (manual.size + 1);
+  const sec = {titulo, items, orden};
+  manual.set(id, sec);
+  await persist("gf_manual", id, sec);
+  $("manModalBg").classList.remove("open");
+  toast(`✓ ${t("prodGuardado")}`,"ok");
+  renderManual();
+});
+$("manDelete").addEventListener("click", async ()=>{
+  if(!confirm(t("confirmDel"))) return;
+  manual.delete(manEditId);
+  await persistDel("gf_manual", manEditId);
+  $("manModalBg").classList.remove("open");
+  toast(t("prodBorrado"));
+  renderManual();
+});
+function renderManual(){
+  const el = $("manList");
+  if(!manual.size){ el.innerHTML = `<div class="empty">—</div>`; return; }
+  const arr = [...manual.entries()].sort((a,b)=>(a[1].orden??99)-(b[1].orden??99));
+  el.innerHTML = arr.map(([id,m])=>{
+    const open = openMans.has(id);
+    return `<div class="man-sec${open?" open":""}" data-man="${esc(id)}">
+      <div class="man-head">
+        <h2>${esc(m.titulo)}</h2>
+        <div class="right"><span>${(m.items||[]).length} ${esc(t("puntos"))}</span><span class="chev">▶</span></div>
+      </div>
+      <div class="man-body">
+        ${(m.items||[]).map(i=>`<div class="man-item"><span class="dot">›</span><span>${esc(i)}</span></div>`).join("")}
+        ${isAdmin()?`<button class="man-edit" data-edit="${esc(id)}">${esc(t("editarSec"))}</button>`:""}
+      </div>
+    </div>`;
+  }).join("");
+  el.querySelectorAll(".man-head").forEach(h=>h.addEventListener("click",()=>{
+    const id = h.parentElement.dataset.man;
+    if(openMans.has(id)) openMans.delete(id); else openMans.add(id);
+    h.parentElement.classList.toggle("open");
+  }));
+  el.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",e=>{
+    e.stopPropagation();
+    openManForm(b.dataset.edit);
+  }));
+}
+
+/* =================== Empleados =================== */
+let empFormColor = AVATAR_COLORS[0];
+function buildEmpColors(){
+  $("empColors").innerHTML = AVATAR_COLORS.map(c=>`<button type="button" class="color-opt${c===empFormColor?" sel":""}" data-c="${c}" style="background:${c}"></button>`).join("");
+  $("empColors").querySelectorAll("[data-c]").forEach(b=>b.addEventListener("click",()=>{ empFormColor = b.dataset.c; buildEmpColors(); }));
+}
+function openEmpForm(id){
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  empEditId = id;
+  const e = id ? employees.get(id) : null;
+  $("empFormTitle").textContent = e ? t("editarEmp") : t("nuevoEmp");
+  $("empName").value = e ? e.nombre : "";
+  $("empPin").value = e ? e.pin : "";
+  empFormColor = e ? (e.color||AVATAR_COLORS[0]) : AVATAR_COLORS[employees.size % AVATAR_COLORS.length];
+  $("empDelete").style.display = id ? "inline-flex" : "none";
+  buildEmpColors();
+  $("empModalBg").classList.add("open");
+}
+$("empCancel").addEventListener("click", ()=>$("empModalBg").classList.remove("open"));
+$("empSave").addEventListener("click", async ()=>{
+  const nombre = $("empName").value.trim().toUpperCase();
+  const pin = $("empPin").value.trim();
+  if(!nombre){ toast(t("nombreReq"),"err"); return; }
+  if(!/^\d{4,6}$/.test(pin)){ toast(t("pinReq"),"err"); return; }
+  // PIN único (admin + otros empleados)
+  if(pin===ADMIN_PIN){ toast(t("pinDup"),"err"); return; }
+  for(const [eid,e] of employees){ if(eid!==empEditId && e.pin===pin){ toast(t("pinDup"),"err"); return; } }
+  const id = empEditId || newId("e");
+  const orden = empEditId ? (employees.get(empEditId)?.orden ?? 99) : (employees.size + 1);
+  const emp = {nombre, pin, color:empFormColor, orden};
+  employees.set(id, emp);
+  await persist("gf_empleados", id, emp);
+  $("empModalBg").classList.remove("open");
+  toast(`✓ ${t("prodGuardado")}`,"ok");
+  renderEmployees(); renderLogin();
+});
+$("empDelete").addEventListener("click", async ()=>{
+  if(!confirm(t("confirmDel"))) return;
+  employees.delete(empEditId);
+  await persistDel("gf_empleados", empEditId);
+  $("empModalBg").classList.remove("open");
+  toast(t("prodBorrado"));
+  renderEmployees(); renderLogin();
+});
+function renderEmployees(){
+  const el = $("empList");
+  let html = `<div class="emp-row admin">
+    <div class="avatar" style="width:44px;height:44px;font-size:18px;background:${ADMIN_USER.color}">${esc(initial(ADMIN_USER.nombre))}</div>
+    <div class="info"><div class="en">${esc(ADMIN_USER.nombre)}</div><div class="er">${esc(t("admin"))} · PIN ${esc(ADMIN_PIN)}</div></div>
+  </div>`;
+  const arr = [...employees.entries()].sort((a,b)=>(a[1].orden??99)-(b[1].orden??99));
+  html += arr.map(([id,e])=>`
+    <div class="emp-row">
+      <div class="avatar" style="width:44px;height:44px;font-size:18px;background:${esc(e.color||"#E5392B")}">${esc(initial(e.nombre))}</div>
+      <div class="info"><div class="en">${esc(e.nombre)}</div><div class="er">${esc(t("empleado"))} · PIN ${esc(e.pin)}</div></div>
+      <div class="emp-actions">
+        <button data-edit="${esc(id)}">✎</button>
+      </div>
+    </div>`).join("");
+  el.innerHTML = html;
+  el.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEmpForm(b.dataset.edit)));
+}
+
+/* =================== Render all / init =================== */
 function renderAll(){
-  document.getElementById("app").innerHTML=topbar()+'<main class="screen">'+screen()+'</main>'+nav()+modal();
-  if(focusId){const el=document.getElementById(focusId);if(el){el.focus();try{const v=el.value;el.value="";el.value=v;}catch(e){}}focusId=null;}
-}
-
-/* ===================== EVENTOS ===================== */
-document.addEventListener("click",function(e){
-  if(e.target.classList&&e.target.classList.contains("modal-back")){closeJournal();return;}
-  const el=e.target.closest("[data-action]");if(!el)return;
-  const a=el.dataset.action;
-  if(a==="tab"){state.tab=el.dataset.tab;renderAll();}
-  else if(a==="pillar"){togglePillar(el.dataset.key);}
-  else if(a==="add-habit"){addHabit();}
-  else if(a==="toggle-habit"){toggleHabit(+el.dataset.id);}
-  else if(a==="del-habit"){state.habits=state.habits.filter(h=>String(h.id)!==el.dataset.id);save();renderAll();}
-  else if(a==="edit-title"){state.editingBlock=+el.dataset.bid;focusId="rename-"+el.dataset.bid;renderAll();}
-  else if(a==="toggle-ritual"){toggleRitual(+el.dataset.bid,+el.dataset.iid);}
-  else if(a==="del-ritual-item"){delRitualItem(+el.dataset.bid,+el.dataset.iid);}
-  else if(a==="add-ritual-item"){addRitualItem(+el.dataset.bid);}
-  else if(a==="del-block"){state.rituals=state.rituals.filter(b=>String(b.id)!==el.dataset.bid);save();renderAll();}
-  else if(a==="add-block"){state.rituals.push({id:Date.now(),title:"Nuevo ritual",items:[]});save();renderAll();}
-  else if(a==="escuela-tab"){state.escuelaTab=el.dataset.id;renderAll();}
-  else if(a==="proto"){const i=+el.dataset.i;state.abierto=state.abierto===i?-1:i;renderAll();}
-  else if(a==="save-journal"){saveJournal();}
-});
-document.addEventListener("keydown",function(e){
-  if(e.key!=="Enter")return;
-  const id=e.target.id||"";
-  if(id==="habit-input"){e.preventDefault();addHabit();}
-  else if(id.indexOf("ritual-input-")===0){e.preventDefault();addRitualItem(+id.replace("ritual-input-",""));}
-  else if(id.indexOf("rename-")===0){e.preventDefault();e.target.blur();}
-});
-document.addEventListener("focusout",function(e){
-  if(e.target&&e.target.dataset&&e.target.dataset.action==="rename-input"){
-    const bid=+e.target.dataset.bid;const val=e.target.value.trim()||"Sin nombre";
-    const b=state.rituals.find(x=>x.id===bid);if(b)b.title=val;
-    state.editingBlock=null;save();renderAll();
+  renderStats(); renderShopping(); renderCats(); renderHistory(); renderRecipes(); renderManual(); renderEmployees();
+  const chip = $("userChip");
+  if(currentUser){
+    $("userAv").style.background = currentUser.color;
+    $("userAv").textContent = initial(currentUser.nombre);
+    $("userName").textContent = currentUser.nombre;
+    chip.classList.toggle("admin", isAdmin());
   }
-});
-
-renderAll();
-
+  $("teamTile").style.display = isAdmin() ? "flex" : "none";
+  const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
+  $("fab").style.display = fabScreens[currentScreen] ? "flex" : "none";
+}
+applyI18n();
+initData();
 </script>
 </body>
 </html>
