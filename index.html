@@ -178,6 +178,9 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 @media (prefers-reduced-motion:reduce){.scan-line{animation:none;top:50%}}
 .scan-idle{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--surface);z-index:2}
 .scan-idle p{color:var(--muted);font-size:13px;text-align:center;max-width:270px}
+.scan-torch{position:absolute;bottom:12px;right:12px;z-index:3;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid var(--line-hi);display:flex;align-items:center;justify-content:center;font-size:19px;backdrop-filter:blur(4px)}
+.scan-torch.on{background:var(--amber);color:#0D0B0B}
+.scan-torch:active{transform:scale(.92)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:15px 22px;border-radius:14px;font-weight:900;font-size:14px;letter-spacing:.06em;text-transform:uppercase}
 .btn-red{background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;box-shadow:0 4px 16px rgba(229,57,43,.3)}
 .btn-green{background:var(--green);color:#08130D}
@@ -421,6 +424,7 @@ const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA
         <button class="btn btn-red" id="startCamBtn" data-i18n="iniciarCam">Iniciar cámara</button>
         <p data-i18n="camHint">Apunta al código de barras. Todo lo escaneado entra directo al stock.</p>
       </div>
+      <button class="scan-torch" id="torchBtn" title="Linterna" style="display:none">🔦</button>
     </div>
     <div class="scan-status" id="scanStatus"></div>
     <div class="manual-row">
@@ -715,7 +719,7 @@ let mode = "entrada";
 let currentScreen = "hub";
 let openCats = new Set(), openMans = new Set();
 let currentCode = null, mvProd = null, minTargetId = null, recEditId = null, manEditId = null, recViewId = null, empEditId = null;
-let scanner = null, scanning = false, busy = false, lastCode = "", lastCodeAt = 0;
+let scanner = null, scanning = false, busy = false, lastCode = "", lastCodeAt = 0, videoTrack = null, torchOn = false;
 const isAdmin = () => currentUser && currentUser.role === "admin";
 const ADMIN_USER = { id:"__admin__", nombre:"ADMIN", role:"admin", color:"#E8A33D", pin:ADMIN_PIN };
 
@@ -1242,16 +1246,22 @@ async function startScanner(){
   try{
     $("scanIdle").style.display="none";
     $("scanOverlay").style.display="flex";
-    scanner = scanner || new Html5Qrcode("reader",{formatsToSupport:[
-      Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
-      Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
-      Html5QrcodeSupportedFormats.CODE_128, Html5QrcodeSupportedFormats.QR_CODE
-    ]});
+    scanner = scanner || new Html5Qrcode("reader",{
+      formatsToSupport:[
+        Html5QrcodeSupportedFormats.EAN_13, Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A, Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128
+      ],
+      experimentalFeatures:{ useBarCodeDetectorIfSupported:true },
+      verbose:false
+    });
     await scanner.start({facingMode:"environment"},
-      {fps:10, qrbox:(w,h)=>({width:Math.floor(w*.74), height:Math.floor(h*.44)})},
+      {fps:15, disableFlip:true,
+       qrbox:(w,h)=>({width:Math.floor(w*.78), height:Math.floor(h*.5)})},
       onScan, ()=>{});
     scanning = true;
     $("scanStatus").textContent = t("escaneando");
+    setTimeout(tuneCamera, 600);
   }catch(e){
     console.error(e);
     $("scanIdle").style.display="flex";
@@ -1261,9 +1271,33 @@ async function startScanner(){
 }
 async function stopScanner(){
   if(scanner && scanning){ try{ await scanner.stop(); }catch(e){} scanning=false; }
+  videoTrack = null; torchOn = false;
+  const tb = $("torchBtn"); if(tb){ tb.classList.remove("on"); tb.style.display="none"; }
   $("scanIdle").style.display="flex";
   $("scanOverlay").style.display="none";
   $("scanStatus").textContent = "";
+}
+/* Enfoque continuo + linterna (se ejecuta al arrancar la cámara) */
+async function tuneCamera(){
+  try{
+    const v = document.querySelector("#reader video");
+    videoTrack = (v && v.srcObject) ? v.srcObject.getVideoTracks()[0] : null;
+    const tb = $("torchBtn");
+    if(!videoTrack){ if(tb) tb.style.display="none"; return; }
+    const caps = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
+    if(caps.focusMode && caps.focusMode.includes("continuous")){
+      try{ await videoTrack.applyConstraints({advanced:[{focusMode:"continuous"}]}); }catch(e){}
+    }
+    if(tb) tb.style.display = caps.torch ? "flex" : "none";
+  }catch(e){}
+}
+async function toggleTorch(){
+  if(!videoTrack) return;
+  try{
+    torchOn = !torchOn;
+    await videoTrack.applyConstraints({advanced:[{torch:torchOn}]});
+    const tb = $("torchBtn"); if(tb) tb.classList.toggle("on", torchOn);
+  }catch(e){ torchOn = false; }
 }
 function pauseScan(){ if(scanner && scanning){ try{scanner.pause(true);}catch(e){} } }
 function resumeScan(){ if(scanner && scanning){ try{scanner.resume();}catch(e){} $("scanStatus").textContent=t("escaneando"); } }
@@ -1289,6 +1323,7 @@ async function handleCode(code){
   busy = false;
 }
 $("startCamBtn").addEventListener("click", startScanner);
+$("torchBtn").addEventListener("click", toggleTorch);
 $("manualBtn").addEventListener("click", ()=>{
   const code = $("manualCode").value.trim();
   if(code){ $("manualCode").value=""; handleCode(code); }
