@@ -273,6 +273,47 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .toast.show{opacity:1}
 .toast.ok{border-color:rgba(79,174,127,.5);color:var(--green)}
 .toast.err{border-color:rgba(229,57,43,.5);color:var(--red)}
+
+/* ---------- Conexión / offline ---------- */
+.chip.warn{color:var(--amber);border-color:rgba(232,163,61,.5)}
+.chip.off{color:var(--red);border-color:rgba(229,57,43,.55);background:var(--red-soft)}
+.offline-banner{display:none;align-items:center;gap:8px;background:var(--red-soft);border:1px solid rgba(229,57,43,.5);color:#F3C0BB;
+  font-size:12.5px;font-weight:700;padding:9px 14px;border-radius:12px;margin:0 18px 8px}
+.offline-banner.show{display:flex}
+.offline-banner .d{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ---------- Precios ---------- */
+.sec-title{display:flex;align-items:center;justify-content:space-between;margin:10px 0}
+.sec-title h3{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.value-card{border:1px solid rgba(79,174,127,.5);background:linear-gradient(160deg,rgba(79,174,127,.14),var(--surface) 75%);
+  border-radius:var(--radius);padding:18px;margin-top:16px}
+.value-card .vc-label{font-size:10px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+.value-card .vc-num{font-size:34px;font-weight:900;color:var(--green);margin-top:4px;line-height:1.1}
+.value-card .vc-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px}
+.price-hint{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.pc-row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.pc-row .nm{flex:1;min-width:0;font-weight:700;font-size:13px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc-row .cur{font-family:var(--mono);font-size:12px;color:var(--muted);flex-shrink:0}
+.pc-row input{width:92px;flex-shrink:0;text-align:right;padding:9px 10px;font-family:var(--mono);font-size:14px}
+.cc-card{border:1px solid var(--line-hi);background:var(--surface);border-radius:14px;padding:14px;margin-bottom:10px}
+.cc-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cc-head .gl{width:34px;height:40px;flex-shrink:0}
+.cc-head .nm{flex:1;font-weight:900;font-size:15px;text-transform:uppercase}
+.cc-line{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:3px 0;font-family:var(--mono)}
+.cc-line.match{color:var(--text)}
+.cc-line.miss{color:var(--amber)}
+.cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.cc-fld label{display:block;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.cc-fld input{padding:9px 10px;font-family:var(--mono);font-size:14px}
+.cc-fld .ro{padding:9px 10px;background:var(--surface2);border:1px solid var(--line);border-radius:12px;font-family:var(--mono);font-size:14px;font-weight:700}
+.cc-metrics{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.cc-chip{font-family:var(--mono);font-size:11px;font-weight:600;padding:6px 10px;border-radius:99px;border:1px solid var(--line-hi)}
+.cc-chip.cost{color:var(--red)}
+.cc-chip.price{color:var(--green)}
+.cc-chip.margin{color:var(--amber)}
+.cc-chip.pour{color:var(--muted)}
+.cc-save{margin-top:10px;width:100%;padding:11px;border-radius:11px;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.05em;background:var(--amber-soft);border:1px solid rgba(232,163,61,.5);color:var(--amber)}
 </style>
 </head>
 <body>
@@ -297,6 +338,16 @@ const FIREBASE_CONFIG = {
 const STOCK_MIN_DEFAULT = 2;
 const CATS = ["JARABES","LICORES","WHISKY","AGUARDENTE / COGNAC","GIN","VINOS & ESPUMANTES","VODKA","RON","TEQUILA","CERVEZA","REFRESCOS","OTROS"];
 const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA5","#2DB7A8","#C97B2D"];
+
+/* ============ AJUSTES DE ESTA ACTUALIZACIÓN ============
+   DATA_NS: espacio de datos. Déjalo en "test_" para PROBAR en paralelo sin
+   tocar los datos reales del bar. Cuando valides todo, ponlo en "" (vacío)
+   para usar la base de producción (gf_productos, etc.).                     */
+const DATA_NS = "test_";
+const CURRENCY = "€";          /* símbolo de moneda para precios y valor de stock */
+const HISTORY_DAYS = 45;       /* el historial guarda ~mes y medio y se limpia solo */
+const PIN_SALT = "blive.barlive-manager.v2"; /* sal para cifrar los PIN (no la cambies tras crear PINs) */
+const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos de unidad */
 </script>
 
 <!-- ---------- LOGIN ---------- -->
@@ -338,6 +389,8 @@ const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA
   </div>
 </div>
 
+<div class="offline-banner" id="offlineBanner"><span class="d"></span><span data-i18n="sinConexion">Sin conexión — los cambios se guardan y se enviarán al reconectar.</span></div>
+
 <main>
   <!-- ===== HUB ===== -->
   <div class="screen active" id="screen-hub">
@@ -361,6 +414,11 @@ const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA
         <div class="glow"></div>
         <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M4 4h7v16H4z"/><path d="M12 5a3 3 0 0 0-3-3H4v16h5a3 3 0 0 1 3 3"/><path d="M12 5a3 3 0 0 1 3-3h5v16h-5a3 3 0 0 0-3 3"/><path d="M12 5v16"/></svg></div>
         <h2>Manual</h2><p data-i18n="tileMan">Herramientas, higiene y rutinas</p>
+      </button>
+      <button class="tile admin-only" data-go="prices" id="pricesTile">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+        <div class="txt"><h2 data-i18n="tilePriceT">Precios</h2><p data-i18n="tilePrice">Valor en stock y costo de cócteles</p></div>
       </button>
       <button class="tile admin-only" data-go="team" id="teamTile">
         <div class="glow"></div>
@@ -447,6 +505,20 @@ const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA
   <div class="screen" id="screen-team">
     <div id="empList" style="margin-top:14px"></div>
   </div>
+
+  <!-- ===== PRECIOS (solo admin) ===== -->
+  <div class="screen" id="screen-prices">
+    <div class="value-card" id="valueCard">
+      <div class="vc-label" data-i18n="valorStock">Dinero en stock</div>
+      <div class="vc-num" id="stockValue">—</div>
+      <div class="vc-sub" id="valueSub"></div>
+    </div>
+    <div class="sec-title" style="margin-top:6px"><h3 data-i18n="costoCoctel">Costo y precio de cócteles</h3></div>
+    <div id="cocktailCosts"></div>
+    <div class="sec-title" style="margin-top:18px"><h3 data-i18n="costoProductos">Costo por producto</h3></div>
+    <div class="price-hint" data-i18n="costoHint">Escribe el precio de costo de cada botella para calcular el valor del stock y el costo de los cócteles.</div>
+    <div id="prodCosts"></div>
+  </div>
 </main>
 
 <button class="fab" id="fab">＋</button>
@@ -475,10 +547,17 @@ const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA
     <h3 data-i18n="nuevoProd">Producto nuevo</h3>
     <div class="code" id="regCode" style="display:none">—</div>
     <div class="field"><label data-i18n="nombre">Nombre</label><input id="regName" placeholder="Ej. JAMESON 700ML"></div>
-    <div class="field"><label data-i18n="categoria">Categoría</label><select id="regCat"></select></div>
+    <div class="field-row">
+      <div class="field"><label data-i18n="categoria">Categoría</label><select id="regCat"></select></div>
+      <div class="field"><label data-i18n="tipoUnidad">Se cuenta por</label><select id="regUnidad"></select></div>
+    </div>
     <div class="field-row">
       <div class="field"><label data-i18n="cantIni">Cantidad inicial</label><input id="regQty" inputmode="numeric" value="0"></div>
       <div class="field"><label data-i18n="stockMin">Mínimo (alerta)</label><input id="regMin" inputmode="numeric" value="2"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label data-i18n="precioCompra">Precio de costo</label><input id="regCosto" inputmode="decimal" placeholder="0.00"></div>
+      <div class="field"><label data-i18n="volumenMl">Volumen (ml)</label><input id="regVol" inputmode="numeric" placeholder="700"></div>
     </div>
     <button class="btn btn-red btn-block" id="regSave" data-i18n="guardar">Guardar</button>
     <button class="cancel" id="regCancel" data-i18n="cancelar">Cancelar</button>
@@ -590,7 +669,16 @@ const I18N = {
     nuevaSec:"Sección nueva",puntos:"puntos",admin:"Admin",empleado:"Empleado",
     pinEmp:"PIN (4 a 6 dígitos)",colorAvatar:"Color del cuadrito",eliminarEmp:"Eliminar empleado",
     nuevoEmp:"Empleado nuevo",editarEmp:"Editar empleado",addEmp:"Añadir",pinReq:"El PIN debe tener de 4 a 6 dígitos",
-    pinDup:"Ese PIN ya está en uso",salir:"Salir"},
+    pinDup:"Ese PIN ya está en uso",salir:"Salir",
+    tilePriceT:"Precios",tilePrice:"Valor en stock y costo de cócteles",
+    tipoUnidad:"Se cuenta por",precioCompra:"Precio de costo",volumenMl:"Volumen (ml)",
+    valorStock:"Dinero en stock",costoCoctel:"Costo y precio de cócteles",costoProductos:"Costo por producto",
+    costoHint:"Escribe el precio de costo de cada botella para calcular el valor del stock y el costo de los cócteles.",
+    conCosto:"con costo",sinCosto:"sin costo",costoAuto:"Costo automático",costoManual:"Costo manual",
+    auto:"auto",precioVenta:"Precio de venta",margenObj:"Margen objetivo %",costo:"Costo",venta:"Venta",
+    margen:"Margen",faltaVol:"falta volumen",sinLigar:"sin ligar",sugerirPrecio:"Sugerir precio de venta",
+    encontradoCat:"Encontrado en tu catálogo",sinConexion:"Sin conexión — los cambios se guardan y se enviarán al reconectar.",
+    u_unidad:"uds",u_botella:"botellas",u_caja:"cajas",u_garrafa:"garrafas",u_lata:"latas",u_pack:"packs"},
   pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
     buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",
     shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
@@ -684,7 +772,7 @@ const I18N = {
 };
 const LANGS = [["es","ES"],["pt","PT"],["en","EN"],["bn","বাং"]];
 let lang = "es";
-const t = k => (I18N[lang][k] ?? k);
+const t = k => (I18N[lang][k] ?? I18N.es[k] ?? k);
 function setLang(l){
   lang = l;
   // En modo demo, el recetario y el manual se regeneran en el nuevo idioma
@@ -829,18 +917,30 @@ function renderLogin(){
   grid.innerHTML = html;
   grid.querySelectorAll("[data-user]").forEach(b=>b.addEventListener("click",()=>openPin(b.dataset.user)));
 }
+let pinMode = "verify", pinLen = 4, setupFirstPin = "";
+function drawPinDots(n){ $("pinDots").innerHTML = Array.from({length:n}, ()=>'<div class="pin-dot"></div>').join(""); }
+function pinHint(){
+  if(pinMode==="setup") return lang==="pt"?"CRIAR PIN ADMIN (6)":lang==="en"?"CREATE ADMIN PIN (6)":"CREAR PIN ADMIN (6)";
+  if(pinMode==="setup-confirm") return lang==="pt"?"REPETE O PIN":lang==="en"?"REPEAT PIN":"REPITE EL PIN";
+  return pinTarget.nombre;
+}
 function openPin(userId){
   const u = userId==="__admin__" ? ADMIN_USER : employees.get(userId);
   if(!u) return;
   pinTarget = userId==="__admin__" ? ADMIN_USER : { id:userId, ...u, role:"empleado" };
-  pinEntered = "";
+  pinEntered = ""; setupFirstPin = "";
+  if(userId==="__admin__"){
+    pinMode = adminSec ? "verify" : "setup";     // primera vez: crear PIN admin
+    pinLen  = adminSec ? (adminSec.len||6) : 6;
+  }else{
+    pinMode = "verify";
+    pinLen  = pinTarget.pinLen || (pinTarget.pin ? pinTarget.pin.length : 4);
+  }
   $("pinAvatar").style.background = pinTarget.color || "#E5392B";
   $("pinAvatar").textContent = initial(pinTarget.nombre);
-  $("pinWho").textContent = pinTarget.nombre;
+  $("pinWho").textContent = pinHint();
   $("pinError").textContent = "";
-  // Dots según el largo real del PIN de este usuario (4, 5 o 6)
-  const len = (pinTarget.pin||"").length || 4;
-  $("pinDots").innerHTML = Array.from({length:len}, ()=>'<div class="pin-dot"></div>').join("");
+  drawPinDots(pinLen);
   $("loginSelect").style.display = "none";
   $("loginPin").style.display = "flex";
 }
@@ -848,28 +948,59 @@ $("pinBack").addEventListener("click", ()=>{
   $("loginPin").style.display = "none";
   $("loginSelect").style.display = "block";
 });
+function badPin(msg){
+  $("pinError").textContent = msg;
+  pinEntered = "";
+  setTimeout(()=>[...$("pinDots").children].forEach(d=>d.classList.remove("full")),250);
+}
+async function submitPin(){
+  // --- crear PIN admin (primera vez) ---
+  if(pinMode==="setup"){
+    setupFirstPin = pinEntered; pinMode = "setup-confirm"; pinEntered = "";
+    $("pinWho").textContent = pinHint(); drawPinDots(pinLen);
+    [...$("pinDots").children].forEach(d=>d.classList.remove("full"));
+    return;
+  }
+  if(pinMode==="setup-confirm"){
+    if(pinEntered===setupFirstPin){
+      const hash = await pinHash(pinEntered);
+      adminSec = {hash, len:pinLen};
+      try{ if(db) await db.collection(COL("gf_config")).doc("security").set(adminSec); }catch(e){}
+      currentUser = ADMIN_USER; enterApp();
+    }else{
+      pinMode = "setup"; setupFirstPin = "";
+      $("pinWho").textContent = pinHint();
+      badPin(lang==="pt"?"Não coincide, tenta outra vez":"No coincide, intenta de nuevo");
+    }
+    return;
+  }
+  // --- verificar ---
+  const h = await pinHash(pinEntered);
+  let ok = false;
+  if(pinTarget.id==="__admin__"){
+    ok = adminSec ? (h===adminSec.hash) : (pinEntered===ADMIN_PIN); // legacy si no hay config
+  }else if(pinTarget.pinHash){
+    ok = (h===pinTarget.pinHash);
+  }else if(pinTarget.pin){                                          // empleado antiguo en texto plano
+    ok = (pinEntered===pinTarget.pin);
+    if(ok && db){ try{ await db.collection(COL("gf_empleados")).doc(pinTarget.id)
+      .set({pinHash:h, pinLen:pinEntered.length, pin:firebase.firestore.FieldValue.delete()},{merge:true}); }catch(e){} }
+  }
+  if(ok){ currentUser = pinTarget; enterApp(); }
+  else{ badPin(lang==="pt" ? "PIN incorreto" : (lang==="en"?"Wrong PIN":"PIN incorrecto")); }
+}
 (function buildPinPad(){
   const keys = ["1","2","3","4","5","6","7","8","9","","0","⌫"];
   keys.forEach(k=>{
     const b = document.createElement("button");
     b.className = "pin-key"; b.textContent = k;
     if(k==="") b.style.visibility="hidden";
-    b.addEventListener("click",()=>{
-      const targetLen = (pinTarget.pin||"").length || 4;
+    b.addEventListener("click", async ()=>{
       if(k==="⌫") pinEntered = pinEntered.slice(0,-1);
-      else if(pinEntered.length<targetLen) pinEntered += k;
+      else if(pinEntered.length<pinLen) pinEntered += k;
       [...$("pinDots").children].forEach((d,i)=>d.classList.toggle("full", i<pinEntered.length));
       $("pinError").textContent = "";
-      if(pinEntered.length===targetLen){
-        if(pinEntered===pinTarget.pin){
-          currentUser = pinTarget;
-          enterApp();
-        }else{
-          $("pinError").textContent = lang==="pt" ? "PIN incorreto" : "PIN incorrecto";
-          pinEntered = "";
-          setTimeout(()=>[...$("pinDots").children].forEach(d=>d.classList.remove("full")),250);
-        }
-      }
+      if(pinEntered.length===pinLen) await submitPin();
     });
     $("pinPad").appendChild(b);
   });
@@ -883,6 +1014,8 @@ function enterApp(){
   $("userName").textContent = currentUser.nombre;
   chip.classList.toggle("admin", isAdmin());
   $("teamTile").style.display = isAdmin() ? "flex" : "none";
+  $("pricesTile").style.display = isAdmin() ? "flex" : "none";
+  if(isAdmin()) purgeOldMovements();
   showScreen("hub");
   renderAll();
 }
@@ -910,12 +1043,13 @@ function showScreen(name){
   $("statsRow").style.display = (name==="hub"||name==="stock") ? "grid" : "none";
   const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
   $("fab").style.display = fabScreens[name] ? "flex" : "none";
+  if(name==="prices") renderPrices();
   if(name!=="scan") stopScanner();
   window.scrollTo(0,0);
 }
 document.querySelectorAll(".tile").forEach(tl=>tl.addEventListener("click",()=>{
   const go = tl.dataset.go;
-  if(go==="team" && !isAdmin()) return;
+  if((go==="team"||go==="prices") && !isAdmin()) return;
   showScreen(go);
 }));
 $("backBtn").addEventListener("click",()=>showScreen("hub"));
@@ -927,6 +1061,66 @@ $("fab").addEventListener("click",()=>{
 });
 
 /* =================== Firebase / Demo =================== */
+/* Namespace de colecciones: en modo prueba antepone "test_" a todo */
+const COL = name => DATA_NS + name;
+let adminSec = null;        // {hash, len} del PIN admin (Firestore gf_config/security)
+let catalog = new Map();    // code -> {nombre, categoria} (base compartida de licores)
+
+/* ---- Dinero ---- */
+function fmtMoney(n){
+  const v = Number(n)||0;
+  return CURRENCY + " " + v.toLocaleString(lang==="pt"?"pt-PT":"es-ES",{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function parseNum(v){ const n = parseFloat(String(v).replace(",",".")); return isNaN(n)?0:n; }
+
+/* ---- Cifrado de PIN (Web Crypto, SHA-256) ---- */
+async function pinHash(pin){
+  try{
+    const data = new TextEncoder().encode(PIN_SALT + "|" + pin);
+    const buf = await crypto.subtle.digest("SHA-256", data);
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  }catch(e){ return "plain:" + pin; } // fallback extremo si no hay Web Crypto
+}
+
+/* ---- Estado de conexión visible ---- */
+function setConn(state){ // 'sync' | 'pending' | 'offline'
+  const chip = $("syncChip"), banner = $("offlineBanner");
+  chip.classList.remove("on","warn","off");
+  if(state==="offline"){
+    chip.textContent="offline"; chip.classList.add("off");
+    if(banner) banner.classList.add("show");
+  }else if(state==="pending"){
+    chip.textContent="guardando…"; chip.classList.add("warn");
+    if(banner) banner.classList.remove("show");
+  }else{
+    chip.textContent="sync"; chip.classList.add("on");
+    if(banner) banner.classList.remove("show");
+  }
+}
+function wireConnEvents(){
+  window.addEventListener("offline", ()=>{ if(db) setConn("offline"); });
+  window.addEventListener("online",  ()=>{ if(db) setConn("sync"); });
+}
+
+/* ---- Catálogo compartido de licores (crece al registrar productos) ---- */
+async function saveCatalog(code, nombre, categoria){
+  if(!db || !code) return;
+  catalog.set(code, {nombre, categoria});
+  try{ await db.collection(COL("gf_catalogo")).doc(code).set({nombre, categoria},{merge:true}); }catch(e){}
+}
+
+/* ---- Limpieza automática del historial (ventana rodante) ---- */
+async function purgeOldMovements(){
+  if(!db || !isAdmin()) return;
+  const cutoff = new Date(Date.now() - HISTORY_DAYS*86400000);
+  try{
+    const snap = await db.collection(COL("gf_movimientos")).where("ts","<",cutoff).limit(300).get();
+    const batch = db.batch();
+    snap.forEach(d=>batch.delete(d.ref));
+    if(snap.size) await batch.commit();
+  }catch(e){}
+}
+
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
 async function initData(){
   if(FIREBASE_CONFIG){
@@ -935,26 +1129,46 @@ async function initData(){
       await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
       firebase.initializeApp(FIREBASE_CONFIG);
       db = firebase.firestore();
-      db.collection("gf_empleados").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+      // Persistencia offline: los cambios se guardan en el móvil y se envían al reconectar
+      try{ await db.enablePersistence({synchronizeTabs:true}); }catch(e){}
+      wireConnEvents();
+      // PIN de administrador cifrado (se crea la primera vez)
+      try{
+        const cfg = await db.collection(COL("gf_config")).doc("security").get();
+        adminSec = cfg.exists ? cfg.data() : null;
+      }catch(e){ adminSec = null; }
+      db.collection(COL("gf_catalogo")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
+        if(ch.type==="removed") catalog.delete(ch.doc.id); else catalog.set(ch.doc.id, ch.doc.data());
+      });});
+      db.collection(COL("gf_empleados")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") employees.delete(ch.doc.id); else employees.set(ch.doc.id, ch.doc.data());
       }); renderLogin(); if($("app").style.display==="flex") renderEmployees();});
-      db.collection("gf_productos").onSnapshot(s=>{s.docChanges().forEach(ch=>{
-        if(ch.type==="removed") products.delete(ch.doc.id); else products.set(ch.doc.id, ch.doc.data());
-      }); if($("app").style.display==="flex") renderAll();});
-      db.collection("gf_movimientos").orderBy("ts","desc").limit(150).onSnapshot(s=>{
-        movements = s.docs.map(d=>{const x=d.data(); return {...x, ts:x.ts&&x.ts.toDate?x.ts.toDate():new Date()};});
+      db.collection(COL("gf_productos")).onSnapshot({includeMetadataChanges:true}, s=>{
+        s.docChanges().forEach(ch=>{
+          if(ch.type==="removed") products.delete(ch.doc.id); else products.set(ch.doc.id, ch.doc.data());
+        });
+        // Estado de conexión en vivo
+        if(!navigator.onLine || s.metadata.fromCache) setConn("offline");
+        else if(s.metadata.hasPendingWrites) setConn("pending");
+        else setConn("sync");
+        if($("app").style.display==="flex") renderAll();
+      });
+      db.collection(COL("gf_movimientos")).orderBy("ts","desc").limit(400).onSnapshot(s=>{
+        const cutoff = Date.now() - HISTORY_DAYS*86400000;
+        movements = s.docs.map(d=>{const x=d.data(); return {...x, id:d.id, ts:x.ts&&x.ts.toDate?x.ts.toDate():new Date()};})
+                          .filter(m=>m.ts.getTime() >= cutoff);
         renderHistory();
       });
-      db.collection("gf_recetas").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+      db.collection(COL("gf_recetas")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") recipes.delete(ch.doc.id); else recipes.set(ch.doc.id, ch.doc.data());
-      }); renderRecipes();});
-      db.collection("gf_manual").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+      }); renderRecipes(); if(currentScreen==="prices") renderPrices();});
+      db.collection(COL("gf_manual")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") manual.delete(ch.doc.id); else manual.set(ch.doc.id, ch.doc.data());
       }); renderManual();});
-      db.collection("gf_compras").onSnapshot(s=>{s.docChanges().forEach(ch=>{
+      db.collection(COL("gf_compras")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") shopExtra.delete(ch.doc.id); else shopExtra.set(ch.doc.id, ch.doc.data());
       }); renderShopping(); renderStats();});
-      const chip = $("syncChip"); chip.textContent="sync"; chip.classList.add("on");
+      setConn(navigator.onLine ? "sync" : "offline");
       return;
     }catch(e){ console.error("Firebase falló, usando demo:", e); }
   }
@@ -1177,34 +1391,46 @@ function seedDemoManual(){
     manual.set(m.id, {titulo:(m.titulo[lang]||m.titulo.es), items:(m.items[lang]||m.items.es), orden:m.orden});
   });
 }
-async function persist(col, id, data){ if(db) await db.collection(col).doc(id).set(data,{merge:true}); }
-async function persistDel(col, id){ if(db) await db.collection(col).doc(id).delete(); }
+async function persist(col, id, data){ if(db) await db.collection(COL(col)).doc(id).set(data,{merge:true}); }
+async function persistDel(col, id){ if(db) await db.collection(COL(col)).doc(id).delete(); }
 function logMovement(id, prod, tipo, cantidad){
   const mv = {code:id, nombre:prod.nombre, tipo, cantidad, ts:new Date(),
     byName: currentUser?currentUser.nombre:"—", byColor: currentUser?currentUser.color:"#999"};
-  movements.unshift(mv); movements = movements.slice(0,150);
-  if(db) db.collection("gf_movimientos").add({...mv, ts: firebase.firestore.FieldValue.serverTimestamp()});
+  movements.unshift(mv);
+  const cutoff = Date.now() - HISTORY_DAYS*86400000;
+  movements = movements.filter(m=>(m.ts instanceof Date ? m.ts.getTime() : new Date(m.ts).getTime()) >= cutoff);
+  if(db) db.collection(COL("gf_movimientos")).add({...mv, ts: firebase.firestore.FieldValue.serverTimestamp()});
   renderHistory();
 }
 
 /* =================== Stock =================== */
+// Escritura atómica: cada teléfono suma/resta sobre el valor real del servidor,
+// no sobre una copia. Así dos personas pueden escanear a la vez sin descuadrar.
+async function bumpStock(id, delta){
+  if(db){
+    try{ await db.collection(COL("gf_productos")).doc(id).update({cantidad: firebase.firestore.FieldValue.increment(delta)}); }
+    catch(e){ await persist("gf_productos", id, products.get(id)); }
+  }
+}
 async function applyDelta(id, delta){
   const p = products.get(id); if(!p) return;
-  if(delta<0 && p.cantidad + delta < 0){ toast(`${t("sinStock")} ${p.cantidad}`,"err"); return; }
-  p.cantidad += delta;
+  if(delta<0 && (p.cantidad||0) + delta < 0){ toast(`${t("sinStock")} ${p.cantidad}`,"err"); return; }
+  p.cantidad = (p.cantidad||0) + delta;
   products.set(id,p);
   logMovement(id, p, delta>0?"entrada":"salida", Math.abs(delta));
-  await persist("gf_productos", id, p);
+  await bumpStock(id, delta);
   renderAll();
 }
 async function applyMovement(id, prod, qty, tipo){
-  let p = products.get(id);
-  if(!p){ p = {...prod, cantidad:0, code:id}; products.set(id,p); }
-  if(tipo==="salida" && p.cantidad < qty) return {ok:false, available:p.cantidad};
-  p.cantidad += (tipo==="entrada" ? qty : -qty);
+  let p = products.get(id), isNew = false;
+  if(!p){ p = {...prod, cantidad:0, code:id, unidad:prod.unidad||"unidad"}; products.set(id,p); isNew = true; }
+  if(tipo==="salida" && (p.cantidad||0) < qty) return {ok:false, available:p.cantidad||0};
+  const delta = (tipo==="entrada" ? qty : -qty);
+  p.cantidad = (p.cantidad||0) + delta;
   products.set(id,p);
   logMovement(id, p, tipo, qty);
-  await persist("gf_productos", id, p);
+  if(isNew){ await persist("gf_productos", id, p); }   // primer registro: crea el documento
+  else{ await bumpStock(id, delta); }                  // ya existe: suma atómica
   renderAll();
   return {ok:true};
 }
@@ -1313,6 +1539,12 @@ async function handleCode(code){
   busy = true; beep(); pauseScan();
   let prod = products.get(code);
   if(!prod){
+    // 1º catálogo de licores compartido, 2º Open Food Facts
+    if(catalog.has(code)){
+      toast(t("encontradoCat"),"ok");
+      openRegModal(code, catalog.get(code));
+      busy = false; return;
+    }
     $("scanStatus").textContent = t("buscando");
     const off = await lookupOFF(code);
     toast(off ? t("encontradoOFF") : t("noEncontrado"), off ? "ok" : "");
@@ -1365,14 +1597,20 @@ $("mvConfirm").addEventListener("click", async ()=>{
 
 /* =================== Modal producto nuevo =================== */
 CATS.forEach(c=>{const o=document.createElement("option");o.textContent=c;$("regCat").appendChild(o);});
+UNIDADES.forEach(u=>{const o=document.createElement("option");o.value=u;o.textContent=u;$("regUnidad").appendChild(o);});
 function openRegModal(code, prefill){
   currentCode = code;
+  // si ya conocemos el código en el catálogo compartido, autocompletamos
+  if(code && !prefill && catalog.has(code)) prefill = catalog.get(code);
   $("regCode").style.display = code ? "block" : "none";
   $("regCode").textContent = code || "";
   $("regName").value = prefill ? prefill.nombre : "";
   $("regCat").value = prefill ? prefill.categoria : "OTROS";
+  $("regUnidad").value = (prefill && prefill.unidad) ? prefill.unidad : "unidad";
   $("regQty").value = 0;
   $("regMin").value = prefill ? (prefill.min ?? STOCK_MIN_DEFAULT) : STOCK_MIN_DEFAULT;
+  $("regCosto").value = prefill && prefill.precioCompra ? prefill.precioCompra : "";
+  $("regVol").value = prefill && prefill.volumenMl ? prefill.volumenMl : "";
   $("regModalBg").classList.add("open");
   if(!prefill) setTimeout(()=>$("regName").focus(),150);
 }
@@ -1382,11 +1620,14 @@ $("regSave").addEventListener("click", async ()=>{
   if(!nombre){ toast(t("nombreReq"),"err"); return; }
   const id = currentCode || newId();
   const qty = Math.max(0, parseInt($("regQty").value)||0);
-  const prod = {nombre, categoria:$("regCat").value, cantidad:qty,
-    min:Math.max(0, parseInt($("regMin").value)||STOCK_MIN_DEFAULT), code:currentCode||null};
+  const prod = {nombre, categoria:$("regCat").value, unidad:$("regUnidad").value||"unidad",
+    cantidad:qty, min:Math.max(0, parseInt($("regMin").value)||STOCK_MIN_DEFAULT),
+    precioCompra: parseNum($("regCosto").value), volumenMl: Math.max(0, parseInt($("regVol").value)||0),
+    code:currentCode||null};
   products.set(id, prod);
   if(qty>0) logMovement(id, prod, "entrada", qty);
   await persist("gf_productos", id, prod);
+  if(currentCode) saveCatalog(currentCode, nombre, prod.categoria); // alimenta la base de licores
   $("regModalBg").classList.remove("open");
   toast(`✓ ${t("prodGuardado")}`,"ok");
   renderAll();
@@ -1514,7 +1755,8 @@ function renderCats(){
       <div class="cat-body">
         ${items.map(([id,p])=>{
           const low = isLow(p);
-          const minLabel = `${t("min")} ${p.min ?? STOCK_MIN_DEFAULT}`;
+          const uLabel = t("u_"+(p.unidad||"unidad")) || (p.unidad||"unidad");
+          const minLabel = `${uLabel} · ${t("min")} ${p.min ?? STOCK_MIN_DEFAULT}`;
           return `<div class="prod${low?" low":""}" data-id="${esc(id)}">
             <div class="prod-top">
               <div class="prod-name">${esc(p.nombre)}${low?`<span class="low-badge">${esc(t("pocoStock"))}</span>`:""}</div>
@@ -1720,7 +1962,8 @@ function openEmpForm(id){
   const e = id ? employees.get(id) : null;
   $("empFormTitle").textContent = e ? t("editarEmp") : t("nuevoEmp");
   $("empName").value = e ? e.nombre : "";
-  $("empPin").value = e ? e.pin : "";
+  $("empPin").value = "";
+  $("empPin").placeholder = e ? (lang==="pt"?"•••• (vazio = manter)":lang==="en"?"•••• (blank = keep)":"•••• (vacío = mantener)") : "0000";
   empFormColor = e ? (e.color||AVATAR_COLORS[0]) : AVATAR_COLORS[employees.size % AVATAR_COLORS.length];
   $("empDelete").style.display = id ? "inline-flex" : "none";
   buildEmpColors();
@@ -1729,17 +1972,24 @@ function openEmpForm(id){
 $("empCancel").addEventListener("click", ()=>$("empModalBg").classList.remove("open"));
 $("empSave").addEventListener("click", async ()=>{
   const nombre = $("empName").value.trim().toUpperCase();
-  const pin = $("empPin").value.trim();
+  const pinRaw = $("empPin").value.trim();
   if(!nombre){ toast(t("nombreReq"),"err"); return; }
-  if(!/^\d{4,6}$/.test(pin)){ toast(t("pinReq"),"err"); return; }
-  // PIN único (admin + otros empleados)
-  if(pin===ADMIN_PIN){ toast(t("pinDup"),"err"); return; }
-  for(const [eid,e] of employees){ if(eid!==empEditId && e.pin===pin){ toast(t("pinDup"),"err"); return; } }
+  const editing = !!empEditId;
+  let pinHashVal = editing ? (employees.get(empEditId)?.pinHash || null) : null;
+  let pinLenVal  = editing ? (employees.get(empEditId)?.pinLen || 4) : 4;
+  if(pinRaw){
+    if(!/^\d{4,6}$/.test(pinRaw)){ toast(t("pinReq"),"err"); return; }
+    const h = await pinHash(pinRaw);
+    // PIN único vs admin y demás empleados (por hash)
+    if(adminSec ? h===adminSec.hash : pinRaw===ADMIN_PIN){ toast(t("pinDup"),"err"); return; }
+    for(const [eid,e] of employees){ if(eid!==empEditId && (e.pinHash ? e.pinHash===h : e.pin===pinRaw)){ toast(t("pinDup"),"err"); return; } }
+    pinHashVal = h; pinLenVal = pinRaw.length;
+  }else if(!editing){ toast(t("pinReq"),"err"); return; }
   const id = empEditId || newId("e");
-  const orden = empEditId ? (employees.get(empEditId)?.orden ?? 99) : (employees.size + 1);
-  const emp = {nombre, pin, color:empFormColor, orden};
+  const orden = editing ? (employees.get(empEditId)?.orden ?? 99) : (employees.size + 1);
+  const emp = {nombre, pinHash:pinHashVal, pinLen:pinLenVal, color:empFormColor, orden};
   employees.set(id, emp);
-  await persist("gf_empleados", id, emp);
+  if(db){ try{ await db.collection(COL("gf_empleados")).doc(id).set({...emp, pin: firebase.firestore.FieldValue.delete()},{merge:true}); }catch(e){ await persist("gf_empleados", id, emp); } }
   $("empModalBg").classList.remove("open");
   toast(`✓ ${t("prodGuardado")}`,"ok");
   renderEmployees(); renderLogin();
@@ -1756,19 +2006,117 @@ function renderEmployees(){
   const el = $("empList");
   let html = `<div class="emp-row admin">
     <div class="avatar" style="width:44px;height:44px;font-size:18px;background:${ADMIN_USER.color}">${esc(initial(ADMIN_USER.nombre))}</div>
-    <div class="info"><div class="en">${esc(ADMIN_USER.nombre)}</div><div class="er">${esc(t("admin"))} · PIN ${esc(ADMIN_PIN)}</div></div>
+    <div class="info"><div class="en">${esc(ADMIN_USER.nombre)}</div><div class="er">${esc(t("admin"))} · PIN ${"•".repeat(adminSec?(adminSec.len||6):6)}</div></div>
   </div>`;
   const arr = [...employees.entries()].sort((a,b)=>(a[1].orden??99)-(b[1].orden??99));
   html += arr.map(([id,e])=>`
     <div class="emp-row">
       <div class="avatar" style="width:44px;height:44px;font-size:18px;background:${esc(e.color||"#E5392B")}">${esc(initial(e.nombre))}</div>
-      <div class="info"><div class="en">${esc(e.nombre)}</div><div class="er">${esc(t("empleado"))} · PIN ${esc(e.pin)}</div></div>
+      <div class="info"><div class="en">${esc(e.nombre)}</div><div class="er">${esc(t("empleado"))} · PIN ${"•".repeat(e.pinLen||4)}</div></div>
       <div class="emp-actions">
         <button data-edit="${esc(id)}">✎</button>
       </div>
     </div>`).join("");
   el.innerHTML = html;
   el.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEmpForm(b.dataset.edit)));
+}
+
+/* =================== Precios / Costeo (solo admin) =================== */
+function bottleUnitCost(p){ return (p && p.precioCompra && p.volumenMl) ? (p.precioCompra / p.volumenMl) : null; }
+const ING_CAT = {TEQUILA:"TEQUILA",GIN:"GIN",VODKA:"VODKA",RON:"RON",RUM:"RON",WHISK:"WHISKY",BOURBON:"WHISKY",
+  CAMPARI:"LICORES",APEROL:"LICORES",VERMUT:"LICORES",VERMOUTH:"LICORES",COINTREAU:"LICORES","TRIPLE SEC":"LICORES",
+  PROSECCO:"VINOS & ESPUMANTES",CAVA:"VINOS & ESPUMANTES",CHAMPAGNE:"VINOS & ESPUMANTES"};
+function findProductForIngredient(line){
+  const L = line.toUpperCase();
+  const words = L.replace(/\d+\s*(ML|CL|L|OZ|DASH|DASHES|GOTAS?)/g," ").split(/[^A-ZÁÉÍÓÚÑ]+/).filter(w=>w.length>=4);
+  for(const [,p] of products){ const N=(p.nombre||"").toUpperCase(); if(words.some(w=>N.includes(w))) return p; }
+  for(const key in ING_CAT){ if(L.includes(key)){ for(const [,p] of products){ if((p.categoria||"")===ING_CAT[key]) return p; } } }
+  return null;
+}
+function costLine(line){
+  const m = line.match(/(\d+(?:[.,]\d+)?)\s*ml/i);
+  const ml = m ? parseNum(m[1]) : 0;
+  const p = findProductForIngredient(line);
+  const upc = p ? bottleUnitCost(p) : null;
+  if(ml && upc!=null) return {line, ml, cost: ml*upc, matched:p.nombre};
+  return {line, ml, cost:0, matched: p?p.nombre:null, incomplete:true};
+}
+function autoCostRecipe(r){
+  let auto=0; const lines=(r.ing||[]).map(l=>{ const c=costLine(l); auto+=c.cost; return c; });
+  return {auto, lines};
+}
+function renderPrices(){
+  if(!isAdmin() || !$("screen-prices")) return;
+  let total=0, withCost=0, missing=0;
+  for(const [,p] of products){ if(p.precioCompra){ total += (p.precioCompra||0)*(p.cantidad||0); withCost++; } else missing++; }
+  $("stockValue").textContent = fmtMoney(total);
+  $("valueSub").textContent = `${withCost} ${t("conCosto")} · ${missing} ${t("sinCosto")}`;
+
+  const prods=[...products.entries()].sort((a,b)=>(a[1].nombre||"").localeCompare(b[1].nombre||""));
+  $("prodCosts").innerHTML = prods.map(([id,p])=>`
+    <div class="pc-row" data-id="${esc(id)}">
+      <div class="nm">${esc(p.nombre)}</div>
+      <span class="cur">${CURRENCY}</span>
+      <input type="text" inputmode="decimal" class="pcost" value="${p.precioCompra||""}" placeholder="0.00">
+    </div>`).join("") || `<div class="empty">${esc(t("vacioStock"))}</div>`;
+  $("prodCosts").querySelectorAll(".pcost").forEach(inp=>{
+    inp.addEventListener("change", async ()=>{
+      const id=inp.closest(".pc-row").dataset.id, p=products.get(id); if(!p) return;
+      p.precioCompra=parseNum(inp.value); products.set(id,p);
+      await persist("gf_productos", id, {precioCompra:p.precioCompra});
+      renderPrices();
+    });
+  });
+
+  const recs=[...recipes.entries()].sort((a,b)=>(a[1].nombre||"").localeCompare(b[1].nombre||""));
+  $("cocktailCosts").innerHTML = recs.map(([id,r])=>{
+    const {auto,lines}=autoCostRecipe(r);
+    const coste=(r.coste!=null && r.coste!=="")?r.coste:auto;
+    const precio=r.precioVenta||0, margin=precio?precio-coste:0, pour=precio?coste/precio*100:0;
+    return `<div class="cc-card" data-rec="${esc(id)}">
+      <div class="cc-head"><div class="gl">${glassSVG(r.copa,r.color,r.garnish)}</div><div class="nm">${esc(r.nombre)}</div></div>
+      ${lines.map(l=>`<div class="cc-line ${l.matched?(l.incomplete?"miss":"match"):"miss"}"><span>${esc(l.line)}</span><span>${l.cost?fmtMoney(l.cost):(l.matched?"— "+t("faltaVol"):t("sinLigar"))}</span></div>`).join("")}
+      <div class="cc-grid">
+        <div class="cc-fld"><label>${esc(t("costoAuto"))}</label><div class="ro">${fmtMoney(auto)}</div></div>
+        <div class="cc-fld"><label>${esc(t("costoManual"))}</label><input class="cc-manual" inputmode="decimal" value="${r.coste!=null?r.coste:""}" placeholder="${esc(t("auto"))}"></div>
+      </div>
+      <div class="cc-grid">
+        <div class="cc-fld"><label>${esc(t("precioVenta"))}</label><input class="cc-price" inputmode="decimal" value="${r.precioVenta||""}" placeholder="0.00"></div>
+        <div class="cc-fld"><label>${esc(t("margenObj"))}</label><input class="cc-margin" inputmode="numeric" value="${r.margenObj||""}" placeholder="70"></div>
+      </div>
+      <div class="cc-metrics">
+        <span class="cc-chip cost">${t("costo")}: ${fmtMoney(coste)}</span>
+        ${precio?`<span class="cc-chip price">${t("venta")}: ${fmtMoney(precio)}</span>`:""}
+        ${precio?`<span class="cc-chip margin">${t("margen")}: ${fmtMoney(margin)}</span>`:""}
+        ${precio?`<span class="cc-chip pour">Pour: ${pour.toFixed(0)}%</span>`:""}
+      </div>
+      <button class="cc-save" data-sugg="${esc(id)}" style="background:none;border-color:var(--line-hi);color:var(--muted)">${esc(t("sugerirPrecio"))}</button>
+      <button class="cc-save" data-save="${esc(id)}">${esc(t("guardar"))}</button>
+    </div>`;
+  }).join("") || `<div class="empty">${esc(t("vacioRec"))}</div>`;
+
+  $("cocktailCosts").querySelectorAll(".cc-card").forEach(card=>{
+    const id=card.dataset.rec;
+    card.querySelector("[data-sugg]").addEventListener("click",()=>{
+      const r=recipes.get(id); const {auto}=autoCostRecipe(r);
+      const manualVal=card.querySelector(".cc-manual").value;
+      const coste = manualVal!=="" ? parseNum(manualVal) : auto;
+      const marg = parseNum(card.querySelector(".cc-margin").value)||70;
+      const price = marg<100 ? coste/(1-marg/100) : coste;
+      card.querySelector(".cc-price").value = price.toFixed(2);
+    });
+    card.querySelector("[data-save]").addEventListener("click", async ()=>{
+      const r=recipes.get(id); if(!r) return;
+      const manualVal=card.querySelector(".cc-manual").value;
+      r.coste = manualVal!=="" ? parseNum(manualVal) : null;
+      r.precioVenta = parseNum(card.querySelector(".cc-price").value);
+      r.margenObj = parseNum(card.querySelector(".cc-margin").value)||null;
+      recipes.set(id,r);
+      await persist("gf_recetas", id, {coste:r.coste, precioVenta:r.precioVenta, margenObj:r.margenObj});
+      toast(`✓ ${t("prodGuardado")}`,"ok");
+      renderPrices();
+    });
+  });
 }
 
 /* =================== Render all / init =================== */
@@ -1782,6 +2130,8 @@ function renderAll(){
     chip.classList.toggle("admin", isAdmin());
   }
   $("teamTile").style.display = isAdmin() ? "flex" : "none";
+  $("pricesTile").style.display = isAdmin() ? "flex" : "none";
+  if(currentScreen==="prices") renderPrices();
   const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
   $("fab").style.display = fabScreens[currentScreen] ? "flex" : "none";
 }
