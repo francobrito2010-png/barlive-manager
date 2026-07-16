@@ -314,6 +314,25 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .cc-chip.margin{color:var(--amber)}
 .cc-chip.pour{color:var(--muted)}
 .cc-save{margin-top:10px;width:100%;padding:11px;border-radius:11px;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.05em;background:var(--amber-soft);border:1px solid rgba(232,163,61,.5);color:var(--amber)}
+
+/* ---------- Biblioteca ---------- */
+.lib-filters{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;margin-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.lib-filters::-webkit-scrollbar{display:none}
+.lib-filters button{flex-shrink:0;font-size:11px;font-weight:800;letter-spacing:.06em;padding:8px 13px;border:1px solid var(--line-hi);border-radius:99px;background:var(--surface);color:var(--muted);white-space:nowrap}
+.lib-filters button.sel{border-color:var(--red);color:#fff;background:var(--red-soft)}
+.lib-count{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:10px}
+.lib-row{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:8px}
+.lib-row.added{border-color:rgba(79,174,127,.5);background:linear-gradient(160deg,rgba(79,174,127,.08),var(--surface) 70%)}
+.lib-row .gl{width:32px;height:38px;flex-shrink:0}
+.lib-row .gl svg{width:32px;height:38px}
+.lib-row .tx{flex:1;min-width:0}
+.lib-row .nm{font-weight:900;font-size:14px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-row .ig{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.lib-row .kk{font-family:var(--mono);font-size:9px;color:var(--amber);letter-spacing:.08em;margin-top:3px}
+.lib-add{width:42px;height:42px;border-radius:12px;flex-shrink:0;font-size:19px;font-weight:800;border:1px solid var(--line-hi);background:var(--surface2)}
+.lib-add.on{background:var(--green);color:#08130D;border-color:transparent}
+.lib-add:active{transform:scale(.92)}
+.lib-view{width:36px;height:42px;flex-shrink:0;font-size:15px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -415,6 +434,11 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
         <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M4 4h7v16H4z"/><path d="M12 5a3 3 0 0 0-3-3H4v16h5a3 3 0 0 1 3 3"/><path d="M12 5a3 3 0 0 1 3-3h5v16h-5a3 3 0 0 0-3 3"/><path d="M12 5v16"/></svg></div>
         <h2>Manual</h2><p data-i18n="tileMan">Herramientas, higiene y rutinas</p>
       </button>
+      <button class="tile admin-only" data-go="library" id="libTile">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M4 3h6v18H4z"/><path d="M4 3h6v18H4zM10 3h5v18h-5z"/><path d="M15.5 4.2l4 17.3"/></svg></div>
+        <div class="txt"><h2 data-i18n="tileLibT">Biblioteca</h2><p data-i18n="tileLib">100 cócteles listos para añadir a la carta</p></div>
+      </button>
       <button class="tile admin-only" data-go="prices" id="pricesTile">
         <div class="glow"></div>
         <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
@@ -504,6 +528,17 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
   <!-- ===== EMPLEADOS ===== -->
   <div class="screen" id="screen-team">
     <div id="empList" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ===== BIBLIOTECA (solo admin) ===== -->
+  <div class="screen" id="screen-library">
+    <div class="search-bar" style="margin-top:14px">
+      <span class="ico">🔍</span>
+      <input id="libSearch" data-i18n-ph="buscarCoctel" placeholder="Buscar cóctel o ingrediente...">
+    </div>
+    <div class="lib-filters" id="libFilters"></div>
+    <div class="lib-count" id="libCount"></div>
+    <div id="libList"></div>
   </div>
 
   <!-- ===== PRECIOS (solo admin) ===== -->
@@ -678,7 +713,10 @@ const I18N = {
     auto:"auto",precioVenta:"Precio de venta",margenObj:"Margen objetivo %",costo:"Costo",venta:"Venta",
     margen:"Margen",faltaVol:"falta volumen",sinLigar:"sin ligar",sugerirPrecio:"Sugerir precio de venta",
     encontradoCat:"Encontrado en tu catálogo",sinConexion:"Sin conexión — los cambios se guardan y se enviarán al reconectar.",
-    u_unidad:"uds",u_botella:"botellas",u_caja:"cajas",u_garrafa:"garrafas",u_lata:"latas",u_pack:"packs"},
+    u_unidad:"uds",u_botella:"botellas",u_caja:"cajas",u_garrafa:"garrafas",u_lata:"latas",u_pack:"packs",
+    tileLibT:"Biblioteca",tileLib:"100 cócteles listos para añadir a la carta",
+    buscarCoctel:"Buscar cóctel o ingrediente...",enCarta:"en la carta",disponibles:"disponibles",
+    añadido:"Añadido a la carta",quitado:"Quitado de la carta",sinResultados:"Sin resultados"},
   pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
     buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",
     shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
@@ -1015,6 +1053,7 @@ function enterApp(){
   chip.classList.toggle("admin", isAdmin());
   $("teamTile").style.display = isAdmin() ? "flex" : "none";
   $("pricesTile").style.display = isAdmin() ? "flex" : "none";
+  $("libTile").style.display = isAdmin() ? "flex" : "none";
   if(isAdmin()) purgeOldMovements();
   showScreen("hub");
   renderAll();
@@ -1044,12 +1083,13 @@ function showScreen(name){
   const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
   $("fab").style.display = fabScreens[name] ? "flex" : "none";
   if(name==="prices") renderPrices();
+  if(name==="library") renderLibrary();
   if(name!=="scan") stopScanner();
   window.scrollTo(0,0);
 }
 document.querySelectorAll(".tile").forEach(tl=>tl.addEventListener("click",()=>{
   const go = tl.dataset.go;
-  if((go==="team"||go==="prices") && !isAdmin()) return;
+  if((go==="team"||go==="prices"||go==="library") && !isAdmin()) return;
   showScreen(go);
 }));
 $("backBtn").addEventListener("click",()=>showScreen("hub"));
@@ -2021,6 +2061,373 @@ function renderEmployees(){
   el.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEmpForm(b.dataset.edit)));
 }
 
+/* =================== BIBLIOTECA DE CÓCTELES (100) ===================
+   Va dentro del HTML: no consume lecturas de Firebase y carga al instante.
+   Solo el ADMIN la ve. Con "Añadir a la carta" el cóctel pasa al Recetario
+   que ven los trabajadores.
+   n=nombre c=copa col=color g=garnish k=categoría i=ingredientes p=pasos */
+const LIB_CATS = ["TODOS","RON","GIN","VODKA","WHISKY","TEQUILA","APERITIVO","ESPUMANTE","CREMOSOS","TROPICAL","SIN ALCOHOL"];
+const COCKTAIL_LIB = [
+{n:"MOJITO",c:"highball",col:"#7FD8BE",g:"🌿",k:"RON",
+ i:["50 ml ron blanco","25 ml zumo de lima","2 cdtas de azúcar","8 hojas de hierbabuena","Soda","Hielo picado"],
+ p:["Poner la hierbabuena, el azúcar y la lima en el vaso","Macerar suave: presionar, no triturar","Llenar con hielo picado y añadir el ron","Remover de abajo hacia arriba","Completar con soda y decorar con hierbabuena"]},
+{n:"MARGARITA",c:"coupe",col:"#5CBF6E",g:"🍋",k:"TEQUILA",
+ i:["50 ml tequila blanco","25 ml triple sec","25 ml zumo de lima","Sal para el borde"],
+ p:["Escarchar medio borde de la copa con sal","Agitar todo con hielo 12-15 s","Colar en la copa fría","Decorar con rodaja de lima"]},
+{n:"NEGRONI",c:"rocks",col:"#8E1E1E",g:"🍊",k:"APERITIVO",
+ i:["30 ml gin","30 ml Campari","30 ml vermut rojo","Piel de naranja"],
+ p:["Verter todo en el vaso con hielo","Remover 20 s hasta enfriar","Perfumar con la piel de naranja y dejarla dentro"]},
+{n:"OLD FASHIONED",c:"rocks",col:"#C97B2D",g:"🍊",k:"WHISKY",
+ i:["60 ml bourbon","1 terrón de azúcar (o 10 ml sirope)","3 dashes de Angostura","Piel de naranja"],
+ p:["Disolver el azúcar con los bitters y unas gotas de agua","Añadir el bourbon y un hielo grande","Remover 20-30 s","Perfumar con piel de naranja"]},
+{n:"DAIQUIRI",c:"coupe",col:"#D7E2EA",g:"🍈",k:"RON",
+ i:["50 ml ron blanco","25 ml zumo de lima","15 ml sirope simple"],
+ p:["Agitar todo con hielo 12 s","Doble colado en copa fría","Servir sin hielo"]},
+{n:"PIÑA COLADA",c:"highball",col:"#F2E8D5",g:"🍍",k:"TROPICAL",
+ i:["50 ml ron blanco","30 ml crema de coco","90 ml zumo de piña","Hielo"],
+ p:["Batir o agitar con fuerza con hielo","Servir en vaso alto con hielo","Decorar con piña y cereza"]},
+{n:"COSMOPOLITAN",c:"martini",col:"#D6336C",g:"🍋",k:"VODKA",
+ i:["40 ml vodka cítrico","15 ml triple sec","30 ml zumo de arándano","10 ml zumo de lima"],
+ p:["Agitar todo con hielo 12 s","Colar en copa fría","Decorar con piel de lima o naranja"]},
+{n:"BLOODY MARY",c:"highball",col:"#E5392B",g:"🌿",k:"VODKA",
+ i:["50 ml vodka","100 ml zumo de tomate","15 ml zumo de limón","2 dashes salsa Worcestershire","2 dashes Tabasco","Sal, pimienta y apio"],
+ p:["Rodar entre dos vasos para mezclar sin espumar","Servir sobre hielo en vaso alto","Ajustar sal y pimienta","Decorar con rama de apio y limón"]},
+{n:"CAIPIRINHA",c:"rocks",col:"#B6D94C",g:"🍋",k:"OTROS",
+ i:["50 ml cachaça","1 lima en 8 trozos","2 cdtas de azúcar","Hielo"],
+ p:["Macerar la lima con el azúcar en el vaso","Añadir la cachaça","Llenar de hielo y remover bien"]},
+{n:"ESPRESSO MARTINI",c:"martini",col:"#5C4033",g:"☕",k:"CREMOSOS",
+ i:["50 ml vodka","30 ml espresso recién hecho","20 ml licor de café","10 ml sirope simple"],
+ p:["Agitar muy fuerte con hielo 15 s (para la espuma)","Doble colado en copa fría","Decorar con 3 granos de café"]},
+{n:"MANHATTAN",c:"martini",col:"#8E1E1E",g:"🍒",k:"WHISKY",
+ i:["50 ml rye o bourbon","25 ml vermut rojo","2 dashes de Angostura","Cereza"],
+ p:["Remover todo con hielo 25 s","Colar en copa fría","Decorar con cereza"]},
+{n:"DRY MARTINI",c:"martini",col:"#D7E2EA",g:"🫒",k:"GIN",
+ i:["60 ml gin","10 ml vermut seco","Piel de limón o aceituna"],
+ p:["Remover con hielo 25-30 s","Colar en copa muy fría","Decorar con aceituna o piel de limón"]},
+{n:"WHISKEY SOUR",c:"rocks",col:"#E3B505",g:"🍒",k:"WHISKY",
+ i:["50 ml bourbon","25 ml zumo de limón","15 ml sirope simple","15 ml clara de huevo (opcional)"],
+ p:["Si usas clara: agitar sin hielo 10 s","Agitar con hielo 12 s","Colar sobre hielo","Decorar con cereza y naranja"]},
+{n:"MAI TAI",c:"rocks",col:"#C97B2D",g:"🌿",k:"TROPICAL",
+ i:["30 ml ron añejo","30 ml ron blanco","15 ml licor de naranja","15 ml sirope de almendra (orgeat)","25 ml zumo de lima"],
+ p:["Agitar con hielo 10 s","Servir sobre hielo picado","Decorar con hierbabuena y media lima"]},
+{n:"APEROL SPRITZ",c:"vino",col:"#FF9F1C",g:"🍊",k:"APERITIVO",
+ i:["60 ml Aperol","90 ml prosecco","Splash de soda","Rodaja de naranja"],
+ p:["Llenar la copa de hielo","Verter el prosecco y luego el Aperol","Splash de soda y remover una vez","Decorar con naranja"]},
+{n:"GIN TONIC",c:"highball",col:"#D7E2EA",g:"🍋",k:"GIN",
+ i:["50 ml gin","150 ml tónica bien fría","Piel de limón o pepino","Hielo"],
+ p:["Llenar la copa de hielo y enfriarla","Verter el gin","Añadir la tónica inclinando la copa","Remover una vez y decorar"]},
+{n:"CUBA LIBRE",c:"highball",col:"#5C4033",g:"🍋",k:"RON",
+ i:["50 ml ron","10 ml zumo de lima","120 ml Coca-Cola","Hielo"],
+ p:["Llenar el vaso de hielo","Añadir el ron y la lima","Completar con Coca-Cola","Remover suave y decorar con lima"]},
+{n:"TEQUILA SUNRISE",c:"highball",col:"#F28C28",g:"🍊",k:"TEQUILA",
+ i:["50 ml tequila","100 ml zumo de naranja","10 ml granadina"],
+ p:["Verter tequila y naranja sobre hielo","Añadir la granadina por el borde, sin remover","Dejar el degradado y decorar con naranja"]},
+{n:"LONG ISLAND ICED TEA",c:"highball",col:"#C97B2D",g:"🍋",k:"OTROS",
+ i:["15 ml vodka","15 ml gin","15 ml ron blanco","15 ml tequila","15 ml triple sec","25 ml zumo de limón","15 ml sirope simple","Cola"],
+ p:["Agitar todo menos la cola con hielo","Colar sobre hielo en vaso alto","Completar con un chorro de cola","Decorar con limón"]},
+{n:"FRENCH 75",c:"flute",col:"#F2C94C",g:"🍋",k:"ESPUMANTE",
+ i:["30 ml gin","15 ml zumo de limón","10 ml sirope simple","90 ml champagne o prosecco"],
+ p:["Agitar gin, limón y sirope con hielo","Colar en la flauta","Completar con espumante","Decorar con piel de limón"]},
+{n:"SIDECAR",c:"coupe",col:"#C97B2D",g:"🍊",k:"OTROS",
+ i:["50 ml cognac","20 ml triple sec","20 ml zumo de limón","Azúcar para el borde (opcional)"],
+ p:["Escarchar el borde con azúcar si se desea","Agitar con hielo 12 s","Doble colado en copa fría","Decorar con piel de naranja"]},
+{n:"SAZERAC",c:"rocks",col:"#C97B2D",g:"🍋",k:"WHISKY",
+ i:["60 ml rye whiskey","10 ml sirope simple","3 dashes de Peychaud's","5 ml absenta (para enjuagar)","Piel de limón"],
+ p:["Enjuagar el vaso frío con absenta y desecharla","Remover rye, sirope y bitters con hielo","Colar en el vaso sin hielo","Perfumar con piel de limón"]},
+{n:"TOM COLLINS",c:"highball",col:"#F2C94C",g:"🍋",k:"GIN",
+ i:["50 ml gin","25 ml zumo de limón","15 ml sirope simple","Soda"],
+ p:["Agitar gin, limón y sirope con hielo","Colar sobre hielo en vaso alto","Completar con soda","Decorar con limón y cereza"]},
+{n:"JOHN COLLINS",c:"highball",col:"#E3B505",g:"🍋",k:"WHISKY",
+ i:["50 ml bourbon","25 ml zumo de limón","15 ml sirope simple","Soda"],
+ p:["Agitar bourbon, limón y sirope con hielo","Colar sobre hielo en vaso alto","Completar con soda","Decorar con limón"]},
+{n:"BOULEVARDIER",c:"rocks",col:"#8E1E1E",g:"🍊",k:"WHISKY",
+ i:["45 ml bourbon","30 ml Campari","30 ml vermut rojo","Piel de naranja"],
+ p:["Remover con hielo 25 s","Colar sobre un hielo grande","Perfumar con piel de naranja"]},
+{n:"DARK AND STORMY",c:"highball",col:"#C97B2D",g:"🍋",k:"RON",
+ i:["50 ml ron oscuro","10 ml zumo de lima","120 ml ginger beer"],
+ p:["Llenar el vaso de hielo y añadir el ginger beer y la lima","Verter el ron por encima, flotando","Decorar con lima, servir sin remover"]},
+{n:"MINT JULEP",c:"rocks",col:"#7FD8BE",g:"🌿",k:"WHISKY",
+ i:["60 ml bourbon","10 ml sirope simple","8 hojas de hierbabuena","Hielo picado"],
+ p:["Presionar la hierbabuena con el sirope en el vaso","Añadir el bourbon y llenar de hielo picado","Remover hasta escarchar el vaso","Coronar con un ramo de hierbabuena"]},
+{n:"AMARETTO SOUR",c:"rocks",col:"#C97B2D",g:"🍒",k:"CREMOSOS",
+ i:["50 ml amaretto","25 ml zumo de limón","10 ml sirope simple","15 ml clara de huevo"],
+ p:["Agitar sin hielo 10 s","Agitar con hielo 12 s","Colar sobre hielo","Decorar con cereza"]},
+{n:"BLACK RUSSIAN",c:"rocks",col:"#2B2B2B",g:"",k:"VODKA",
+ i:["50 ml vodka","25 ml licor de café"],
+ p:["Verter sobre hielo en el vaso","Remover 10 s"]},
+{n:"WHITE RUSSIAN",c:"rocks",col:"#F2E8D5",g:"",k:"CREMOSOS",
+ i:["50 ml vodka","25 ml licor de café","25 ml nata líquida"],
+ p:["Verter vodka y licor de café sobre hielo","Añadir la nata flotando por encima","Servir sin remover del todo"]},
+{n:"SINGAPORE SLING",c:"highball",col:"#FF6F5E",g:"🍒",k:"GIN",
+ i:["30 ml gin","15 ml licor de cereza","10 ml Cointreau","10 ml Bénédictine","90 ml zumo de piña","15 ml zumo de lima","10 ml granadina","1 dash Angostura"],
+ p:["Agitar todo con hielo 12 s","Colar sobre hielo en vaso alto","Decorar con piña y cereza"]},
+{n:"BELLINI",c:"flute",col:"#FF9F1C",g:"🍑",k:"ESPUMANTE",
+ i:["50 ml puré de melocotón blanco","100 ml prosecco frío"],
+ p:["Poner el puré en la flauta fría","Añadir el prosecco muy despacio","Remover suave una vez"]},
+{n:"ROSSINI",c:"flute",col:"#D6336C",g:"🍓",k:"ESPUMANTE",
+ i:["50 ml puré de fresa","100 ml prosecco frío"],
+ p:["Poner el puré en la flauta fría","Añadir el prosecco despacio","Remover suave una vez"]},
+{n:"SPRITZ VENEZIANO",c:"vino",col:"#FF9F1C",g:"🍊",k:"APERITIVO",
+ i:["60 ml Aperol","90 ml vino blanco seco o prosecco","Splash de soda","Aceituna o naranja"],
+ p:["Llenar la copa de hielo","Verter el vino y luego el Aperol","Splash de soda","Decorar con naranja o aceituna"]},
+{n:"PALOMA",c:"highball",col:"#F27FA5",g:"🍋",k:"TEQUILA",
+ i:["50 ml tequila","15 ml zumo de lima","120 ml refresco de pomelo","Sal para el borde"],
+ p:["Escarchar el borde con sal","Llenar de hielo, añadir tequila y lima","Completar con el refresco de pomelo","Remover suave y decorar con lima"]},
+{n:"PENICILLIN",c:"rocks",col:"#E3B505",g:"🍋",k:"WHISKY",
+ i:["50 ml blended scotch","25 ml zumo de limón","20 ml sirope de miel y jengibre","10 ml scotch ahumado (flotado)"],
+ p:["Agitar scotch, limón y sirope con hielo","Colar sobre un hielo grande","Flotar el scotch ahumado por encima","Decorar con jengibre confitado"]},
+{n:"VESPER MARTINI",c:"martini",col:"#D7E2EA",g:"🍋",k:"GIN",
+ i:["60 ml gin","20 ml vodka","10 ml Lillet Blanc","Piel de limón"],
+ p:["Agitar con hielo 10 s","Colar en copa muy fría","Perfumar con piel de limón"]},
+{n:"BRAMBLE",c:"rocks",col:"#D6336C",g:"🍋",k:"GIN",
+ i:["50 ml gin","25 ml zumo de limón","10 ml sirope simple","15 ml licor de mora"],
+ p:["Agitar gin, limón y sirope con hielo","Colar sobre hielo picado","Verter el licor de mora por encima en hilo","Decorar con mora y limón"]},
+{n:"CLOVER CLUB",c:"coupe",col:"#F27FA5",g:"🍓",k:"GIN",
+ i:["50 ml gin","20 ml zumo de limón","15 ml sirope de frambuesa","15 ml clara de huevo"],
+ p:["Agitar sin hielo 10 s","Agitar con hielo 12 s","Doble colado en copa fría","Decorar con frambuesa"]},
+{n:"PISCO SOUR",c:"coupe",col:"#F2E8D5",g:"",k:"OTROS",
+ i:["60 ml pisco","25 ml zumo de limón","20 ml sirope simple","15 ml clara de huevo","3 gotas de Angostura"],
+ p:["Agitar sin hielo 10 s","Agitar con hielo 12 s","Colar en copa fría","Marcar la espuma con 3 gotas de Angostura"]},
+{n:"CAIPIROSKA",c:"rocks",col:"#B6D94C",g:"🍋",k:"VODKA",
+ i:["50 ml vodka","1 lima en trozos","2 cdtas de azúcar","Hielo"],
+ p:["Macerar la lima con el azúcar","Añadir el vodka","Llenar de hielo y remover bien"]},
+{n:"CAIPIRISSIMA",c:"rocks",col:"#B6D94C",g:"🍋",k:"RON",
+ i:["50 ml ron blanco","1 lima en trozos","2 cdtas de azúcar","Hielo"],
+ p:["Macerar la lima con el azúcar","Añadir el ron","Llenar de hielo y remover bien"]},
+{n:"RUM PUNCH",c:"highball",col:"#F28C28",g:"🍊",k:"TROPICAL",
+ i:["50 ml ron oscuro","60 ml zumo de naranja","60 ml zumo de piña","15 ml zumo de lima","10 ml granadina"],
+ p:["Agitar todo con hielo","Servir sobre hielo en vaso alto","Decorar con naranja y cereza"]},
+{n:"PLANTER'S PUNCH",c:"highball",col:"#C97B2D",g:"🍊",k:"TROPICAL",
+ i:["60 ml ron añejo","25 ml zumo de lima","15 ml sirope simple","60 ml zumo de naranja","2 dashes Angostura"],
+ p:["Agitar todo con hielo","Servir sobre hielo picado","Decorar con naranja y cereza"]},
+{n:"ZOMBIE",c:"highball",col:"#F28C28",g:"🍒",k:"TROPICAL",
+ i:["30 ml ron blanco","30 ml ron añejo","20 ml ron 151","20 ml zumo de lima","20 ml zumo de piña","10 ml granadina","1 dash Angostura"],
+ p:["Agitar todo con hielo 10 s","Servir sobre hielo picado en vaso alto","Decorar con hierbabuena y cereza"]},
+{n:"HURRICANE",c:"highball",col:"#FF6F5E",g:"🍊",k:"TROPICAL",
+ i:["30 ml ron blanco","30 ml ron oscuro","60 ml zumo de maracuyá","30 ml zumo de naranja","15 ml zumo de lima","10 ml granadina"],
+ p:["Agitar todo con hielo","Servir sobre hielo en vaso alto","Decorar con naranja y cereza"]},
+{n:"BLUE LAGOON",c:"highball",col:"#4F8FDE",g:"🍋",k:"VODKA",
+ i:["40 ml vodka","20 ml curaçao azul","120 ml limonada","Hielo"],
+ p:["Llenar el vaso de hielo","Añadir vodka y curaçao azul","Completar con limonada","Decorar con rodaja de limón"]},
+{n:"SEX ON THE BEACH",c:"highball",col:"#FF6F5E",g:"🍊",k:"VODKA",
+ i:["40 ml vodka","20 ml licor de melocotón","60 ml zumo de naranja","40 ml zumo de arándano"],
+ p:["Llenar el vaso de hielo","Añadir vodka, licor y naranja","Verter el arándano por el borde para el degradado","Decorar con naranja"]},
+{n:"SEA BREEZE",c:"highball",col:"#E5392B",g:"🍋",k:"VODKA",
+ i:["50 ml vodka","90 ml zumo de arándano","30 ml zumo de pomelo"],
+ p:["Llenar el vaso de hielo","Verter todo y remover suave","Decorar con lima"]},
+{n:"BAY BREEZE",c:"highball",col:"#F27FA5",g:"🍍",k:"VODKA",
+ i:["50 ml vodka","90 ml zumo de arándano","30 ml zumo de piña"],
+ p:["Llenar el vaso de hielo","Verter todo y remover suave","Decorar con piña"]},
+{n:"GREYHOUND",c:"highball",col:"#F27FA5",g:"🍊",k:"VODKA",
+ i:["50 ml vodka","120 ml zumo de pomelo"],
+ p:["Llenar el vaso de hielo","Verter y remover","Decorar con pomelo"]},
+{n:"SALTY DOG",c:"highball",col:"#F27FA5",g:"🍊",k:"VODKA",
+ i:["50 ml vodka","120 ml zumo de pomelo","Sal para el borde"],
+ p:["Escarchar el borde con sal","Llenar de hielo y verter","Remover suave"]},
+{n:"KAMIKAZE",c:"martini",col:"#D7E2EA",g:"🍋",k:"VODKA",
+ i:["30 ml vodka","30 ml triple sec","30 ml zumo de lima"],
+ p:["Agitar con hielo 10 s","Colar en copa fría","Decorar con lima"]},
+{n:"GODFATHER",c:"rocks",col:"#C97B2D",g:"",k:"WHISKY",
+ i:["50 ml scotch","25 ml amaretto"],
+ p:["Verter sobre un hielo grande","Remover 10 s"]},
+{n:"GODMOTHER",c:"rocks",col:"#F2E8D5",g:"",k:"VODKA",
+ i:["50 ml vodka","25 ml amaretto"],
+ p:["Verter sobre un hielo grande","Remover 10 s"]},
+{n:"RUSTY NAIL",c:"rocks",col:"#C97B2D",g:"🍋",k:"WHISKY",
+ i:["50 ml scotch","25 ml Drambuie","Piel de limón"],
+ p:["Verter sobre un hielo grande","Remover 15 s","Perfumar con piel de limón"]},
+{n:"IRISH COFFEE",c:"highball",col:"#5C4033",g:"☕",k:"CREMOSOS",
+ i:["40 ml whiskey irlandés","90 ml café caliente","10 ml sirope de azúcar","30 ml nata semimontada"],
+ p:["Calentar el vaso con agua caliente","Mezclar whiskey, café y azúcar","Flotar la nata por el dorso de una cuchara","Servir sin remover"]},
+{n:"HOT TODDY",c:"highball",col:"#C97B2D",g:"🍋",k:"WHISKY",
+ i:["50 ml whisky","15 ml miel","15 ml zumo de limón","120 ml agua caliente","1 rodaja de limón y clavo"],
+ p:["Calentar el vaso","Disolver la miel con el agua caliente","Añadir whisky y limón","Decorar con limón y clavo"]},
+{n:"FRENCH MARTINI",c:"martini",col:"#F27FA5",g:"🍍",k:"VODKA",
+ i:["50 ml vodka","15 ml Chambord","60 ml zumo de piña"],
+ p:["Agitar fuerte con hielo 12 s (crea la espuma)","Colar en copa fría","Decorar con piña"]},
+{n:"CHOCOLATE MARTINI",c:"martini",col:"#5C4033",g:"🍫",k:"CREMOSOS",
+ i:["40 ml vodka","25 ml licor de cacao","20 ml nata","10 ml sirope de chocolate"],
+ p:["Pintar la copa con sirope de chocolate","Agitar todo con hielo 12 s","Colar en la copa fría"]},
+{n:"APPLE MARTINI",c:"martini",col:"#B6D94C",g:"🍏",k:"VODKA",
+ i:["50 ml vodka","25 ml licor de manzana","10 ml zumo de limón","10 ml sirope simple"],
+ p:["Agitar con hielo 12 s","Colar en copa fría","Decorar con lámina de manzana"]},
+{n:"MELON BALL",c:"highball",col:"#B6D94C",g:"🍈",k:"VODKA",
+ i:["30 ml vodka","30 ml Midori","90 ml zumo de piña o naranja"],
+ p:["Llenar el vaso de hielo","Verter todo y remover suave","Decorar con melón"]},
+{n:"GRASSHOPPER",c:"coupe",col:"#7FD8BE",g:"🌿",k:"CREMOSOS",
+ i:["30 ml crema de menta verde","30 ml licor de cacao blanco","30 ml nata"],
+ p:["Agitar fuerte con hielo 12 s","Doble colado en copa fría","Decorar con hierbabuena"]},
+{n:"GOLDEN DREAM",c:"coupe",col:"#F2C94C",g:"🍊",k:"CREMOSOS",
+ i:["30 ml Galliano","20 ml triple sec","20 ml zumo de naranja","20 ml nata"],
+ p:["Agitar fuerte con hielo 12 s","Doble colado en copa fría","Decorar con naranja"]},
+{n:"HARVEY WALLBANGER",c:"highball",col:"#F28C28",g:"🍊",k:"VODKA",
+ i:["45 ml vodka","120 ml zumo de naranja","15 ml Galliano"],
+ p:["Verter vodka y naranja sobre hielo","Flotar el Galliano por encima","Decorar con naranja"]},
+{n:"MIDORI SOUR",c:"highball",col:"#B6D94C",g:"🍋",k:"OTROS",
+ i:["50 ml Midori","25 ml zumo de limón","15 ml sirope simple","Soda"],
+ p:["Agitar Midori, limón y sirope con hielo","Colar sobre hielo","Completar con soda","Decorar con limón y cereza"]},
+{n:"AVIATION",c:"coupe",col:"#7B4BC9",g:"🍒",k:"GIN",
+ i:["50 ml gin","15 ml maraschino","10 ml crème de violette","20 ml zumo de limón"],
+ p:["Agitar con hielo 12 s","Doble colado en copa fría","Decorar con cereza"]},
+{n:"LAST WORD",c:"coupe",col:"#5CBF6E",g:"🍒",k:"GIN",
+ i:["25 ml gin","25 ml Chartreuse verde","25 ml maraschino","25 ml zumo de lima"],
+ p:["Agitar con hielo 12 s","Doble colado en copa fría","Decorar con cereza"]},
+{n:"CORPSE REVIVER #2",c:"coupe",col:"#F2C94C",g:"🍊",k:"GIN",
+ i:["25 ml gin","25 ml Cointreau","25 ml Lillet Blanc","25 ml zumo de limón","1 dash de absenta"],
+ p:["Enjuagar la copa con absenta","Agitar el resto con hielo 12 s","Doble colado en la copa","Decorar con piel de naranja"]},
+{n:"BEE'S KNEES",c:"coupe",col:"#F2C94C",g:"🍋",k:"GIN",
+ i:["50 ml gin","20 ml zumo de limón","20 ml sirope de miel"],
+ p:["Agitar con hielo 12 s","Doble colado en copa fría","Decorar con piel de limón"]},
+{n:"PAPER PLANE",c:"coupe",col:"#FF9F1C",g:"🍊",k:"WHISKY",
+ i:["22 ml bourbon","22 ml Aperol","22 ml Amaro Nonino","22 ml zumo de limón"],
+ p:["Agitar con hielo 12 s","Doble colado en copa fría","Servir sin decoración o con piel de naranja"]},
+{n:"NAKED AND FAMOUS",c:"coupe",col:"#5CBF6E",g:"🍋",k:"TEQUILA",
+ i:["22 ml mezcal","22 ml Chartreuse amarillo","22 ml Aperol","22 ml zumo de lima"],
+ p:["Agitar con hielo 12 s","Doble colado en copa fría","Decorar con piel de lima"]},
+{n:"AMERICANO",c:"highball",col:"#E5392B",g:"🍊",k:"APERITIVO",
+ i:["30 ml Campari","30 ml vermut rojo","Soda","Rodaja de naranja"],
+ p:["Verter Campari y vermut sobre hielo","Completar con soda","Remover una vez y decorar con naranja"]},
+{n:"KIR ROYALE",c:"flute",col:"#6E1B3A",g:"🍒",k:"ESPUMANTE",
+ i:["10 ml crème de cassis","100 ml champagne o prosecco"],
+ p:["Poner el cassis en la flauta fría","Completar con el espumante despacio"]},
+{n:"KIR",c:"vino",col:"#6E1B3A",g:"🍒",k:"OTROS",
+ i:["10 ml crème de cassis","120 ml vino blanco seco frío"],
+ p:["Poner el cassis en la copa","Completar con el vino blanco","Remover suave"]},
+{n:"SPRITZ HUGO",c:"vino",col:"#7FD8BE",g:"🌿",k:"APERITIVO",
+ i:["20 ml sirope de flor de saúco","90 ml prosecco","Splash de soda","Hierbabuena y lima"],
+ p:["Llenar la copa de hielo con hierbabuena y lima","Añadir el sirope y el prosecco","Splash de soda y remover suave"]},
+{n:"CAMPARI SPRITZ",c:"vino",col:"#E5392B",g:"🍊",k:"APERITIVO",
+ i:["50 ml Campari","90 ml prosecco","Splash de soda","Rodaja de naranja"],
+ p:["Llenar la copa de hielo","Verter prosecco y Campari","Splash de soda","Decorar con naranja"]},
+{n:"GARIBALDI",c:"highball",col:"#F28C28",g:"🍊",k:"APERITIVO",
+ i:["50 ml Campari","120 ml zumo de naranja bien esponjoso"],
+ p:["Batir el zumo de naranja para airearlo","Verter el Campari sobre hielo","Completar con la naranja esponjada"]},
+{n:"SHANDY",c:"highball",col:"#F2C94C",g:"🍋",k:"OTROS",
+ i:["200 ml cerveza lager","100 ml limonada o gaseosa"],
+ p:["Enfriar el vaso","Verter la cerveza y luego la limonada","Servir sin hielo"]},
+{n:"MICHELADA",c:"highball",col:"#E3B505",g:"🍋",k:"OTROS",
+ i:["330 ml cerveza clara","25 ml zumo de lima","2 dashes salsa inglesa","2 dashes Tabasco","Sal y pimienta","Sal para el borde"],
+ p:["Escarchar el borde con sal","Poner lima y salsas en el vaso con hielo","Completar con la cerveza despacio","Remover suave"]},
+{n:"RED SNAPPER",c:"highball",col:"#E5392B",g:"🌿",k:"GIN",
+ i:["50 ml gin","100 ml zumo de tomate","15 ml zumo de limón","2 dashes salsa inglesa","2 dashes Tabasco","Sal, pimienta y apio"],
+ p:["Rodar entre dos vasos para mezclar","Servir sobre hielo","Ajustar sal y pimienta","Decorar con apio y limón"]},
+{n:"BATIDA",c:"highball",col:"#F2E8D5",g:"🍓",k:"TROPICAL",
+ i:["50 ml cachaça","100 ml fruta fresca o pulpa","30 ml leche condensada","Hielo"],
+ p:["Licuar todo con hielo hasta cremoso","Servir en vaso alto","Decorar con la fruta usada"]},
+{n:"CANCHÁNCHARA",c:"rocks",col:"#C97B2D",g:"🍋",k:"RON",
+ i:["50 ml aguardiente de caña o ron","20 ml zumo de lima","20 ml miel","Hielo picado"],
+ p:["Disolver la miel con la lima en el vaso","Añadir el ron y remover","Llenar de hielo picado"]},
+{n:"TI PUNCH",c:"rocks",col:"#D7E2EA",g:"🍋",k:"RON",
+ i:["50 ml ron agrícola blanco","10 ml sirope de caña","1 disco de piel de lima"],
+ p:["Presionar la lima con el sirope en el vaso","Añadir el ron","Remover; hielo opcional"]},
+{n:"PAINKILLER",c:"highball",col:"#F2E8D5",g:"🍍",k:"TROPICAL",
+ i:["60 ml ron oscuro","60 ml zumo de piña","30 ml zumo de naranja","30 ml crema de coco","Nuez moscada"],
+ p:["Agitar todo con hielo","Servir sobre hielo picado","Rallar nuez moscada por encima"]},
+{n:"BLUE HAWAIIAN",c:"highball",col:"#4F8FDE",g:"🍍",k:"TROPICAL",
+ i:["40 ml ron blanco","20 ml curaçao azul","60 ml zumo de piña","30 ml crema de coco"],
+ p:["Batir o agitar con hielo","Servir en vaso alto","Decorar con piña y cereza"]},
+{n:"BAHAMA MAMA",c:"highball",col:"#FF6F5E",g:"🍍",k:"TROPICAL",
+ i:["30 ml ron oscuro","20 ml ron de coco","60 ml zumo de piña","30 ml zumo de naranja","10 ml granadina","10 ml zumo de limón"],
+ p:["Agitar todo con hielo","Servir sobre hielo en vaso alto","Decorar con piña y cereza"]},
+{n:"JUNGLE BIRD",c:"rocks",col:"#8E1E1E",g:"🍍",k:"TROPICAL",
+ i:["45 ml ron oscuro","20 ml Campari","60 ml zumo de piña","15 ml zumo de lima","15 ml sirope simple"],
+ p:["Agitar todo con hielo 10 s","Colar sobre hielo","Decorar con piña"]},
+{n:"SATURN",c:"coupe",col:"#F2C94C",g:"🍋",k:"GIN",
+ i:["45 ml gin","15 ml zumo de limón","15 ml sirope de maracuyá","10 ml orgeat","10 ml falernum"],
+ p:["Agitar con hielo 10 s","Servir sobre hielo picado","Decorar con piel de limón"]},
+{n:"EL DIABLO",c:"highball",col:"#6E1B3A",g:"🍋",k:"TEQUILA",
+ i:["45 ml tequila","15 ml crème de cassis","15 ml zumo de lima","90 ml ginger beer"],
+ p:["Verter tequila, cassis y lima sobre hielo","Completar con ginger beer","Remover suave y decorar con lima"]},
+{n:"MEXICAN MULE",c:"highball",col:"#B6D94C",g:"🍋",k:"TEQUILA",
+ i:["50 ml tequila","20 ml zumo de lima","120 ml ginger beer"],
+ p:["Llenar el vaso de hielo","Añadir tequila y lima","Completar con ginger beer","Decorar con lima y hierbabuena"]},
+{n:"MOSCOW MULE",c:"highball",col:"#C97B2D",g:"🍋",k:"VODKA",
+ i:["50 ml vodka","20 ml zumo de lima","120 ml ginger beer"],
+ p:["Llenar la jarra o vaso de hielo","Añadir vodka y lima","Completar con ginger beer","Decorar con lima y hierbabuena"]},
+{n:"LONDON MULE",c:"highball",col:"#C97B2D",g:"🍋",k:"GIN",
+ i:["50 ml gin","20 ml zumo de lima","120 ml ginger beer"],
+ p:["Llenar el vaso de hielo","Añadir gin y lima","Completar con ginger beer","Decorar con pepino y lima"]},
+{n:"KENTUCKY MULE",c:"highball",col:"#C97B2D",g:"🌿",k:"WHISKY",
+ i:["50 ml bourbon","20 ml zumo de lima","120 ml ginger beer"],
+ p:["Llenar el vaso de hielo","Añadir bourbon y lima","Completar con ginger beer","Decorar con hierbabuena"]},
+{n:"DARK MOJITO",c:"highball",col:"#5C4033",g:"🌿",k:"RON",
+ i:["50 ml ron oscuro","25 ml zumo de lima","2 cdtas de azúcar moreno","8 hojas de hierbabuena","Soda"],
+ p:["Macerar hierbabuena, azúcar moreno y lima","Llenar de hielo picado y añadir el ron","Remover de abajo hacia arriba","Completar con soda y decorar"]},
+{n:"STRAWBERRY DAIQUIRI",c:"coupe",col:"#D6336C",g:"🍓",k:"RON",
+ i:["50 ml ron blanco","25 ml zumo de lima","15 ml sirope simple","5 fresas frescas"],
+ p:["Licuar con hielo hasta cremoso (o agitar si es servido)","Servir en copa fría","Decorar con una fresa"]},
+{n:"FROZEN MARGARITA",c:"coupe",col:"#5CBF6E",g:"🍋",k:"TEQUILA",
+ i:["50 ml tequila","25 ml triple sec","25 ml zumo de lima","15 ml sirope simple","1 taza de hielo"],
+ p:["Licuar todo hasta textura de nieve","Servir en copa con borde de sal","Decorar con lima"]},
+{n:"FROZEN PIÑA COLADA",c:"highball",col:"#F2E8D5",g:"🍍",k:"TROPICAL",
+ i:["50 ml ron blanco","30 ml crema de coco","90 ml zumo de piña","1 taza de hielo"],
+ p:["Licuar todo hasta cremoso","Servir en vaso alto","Decorar con piña y cereza"]},
+{n:"GIMLET",c:"coupe",col:"#D7E2EA",g:"🍋",k:"GIN",
+ i:["60 ml gin","20 ml zumo de lima","15 ml sirope simple"],
+ p:["Agitar con hielo 12 s","Doble colado en copa fría","Decorar con piel de lima"]},
+{n:"VIRGIN MOJITO",c:"highball",col:"#7FD8BE",g:"🌿",k:"SIN ALCOHOL",
+ i:["25 ml zumo de lima","2 cdtas de azúcar","8 hojas de hierbabuena","Soda","Hielo picado"],
+ p:["Macerar hierbabuena, azúcar y lima","Llenar de hielo picado","Completar con soda y remover","Decorar con hierbabuena"]}
+];
+
+/* =================== Biblioteca de cócteles (solo admin) =================== */
+let libFilter = "TODOS";
+const libSlug = n => "lib_" + n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+function libToRecipe(x){ return {nombre:x.n, copa:x.c, color:x.col, garnish:x.g||"", ing:x.i, pasos:x.p}; }
+function renderLibFilters(){
+  $("libFilters").innerHTML = LIB_CATS.map(c=>`<button data-lf="${esc(c)}" class="${c===libFilter?"sel":""}">${esc(c)}</button>`).join("");
+  $("libFilters").querySelectorAll("[data-lf]").forEach(b=>b.addEventListener("click",()=>{ libFilter=b.dataset.lf; renderLibFilters(); renderLibrary(); }));
+}
+function renderLibrary(){
+  if(!isAdmin()) return;
+  renderLibFilters();
+  const q = ($("libSearch").value||"").toLowerCase().trim();
+  const list = COCKTAIL_LIB.filter(x=>{
+    if(libFilter!=="TODOS" && x.k!==libFilter) return false;
+    if(!q) return true;
+    return x.n.toLowerCase().includes(q) || x.i.some(i=>i.toLowerCase().includes(q));
+  });
+  const added = [...recipes.keys()].filter(k=>String(k).startsWith("lib_")).length;
+  $("libCount").textContent = `${list.length} ${t("disponibles")} · ${added} ${t("enCarta")}`;
+  if(!list.length){ $("libList").innerHTML = `<div class="empty">${esc(t("sinResultados"))}</div>`; return; }
+  $("libList").innerHTML = list.map(x=>{
+    const id = libSlug(x.n), on = recipes.has(id);
+    return `<div class="lib-row ${on?"added":""}" data-lib="${esc(x.n)}">
+      <div class="gl">${glassSVG(x.c, x.col, x.g)}</div>
+      <div class="tx">
+        <div class="nm">${esc(x.n)}</div>
+        <div class="ig">${esc(x.i.slice(0,3).join(" · "))}</div>
+        <div class="kk">${esc(x.k)}</div>
+      </div>
+      <button class="lib-view" data-see="${esc(x.n)}">👁</button>
+      <button class="lib-add ${on?"on":""}" data-add="${esc(x.n)}">${on?"✓":"＋"}</button>
+    </div>`;
+  }).join("");
+  $("libList").querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click", async ()=>{
+    const x = COCKTAIL_LIB.find(c=>c.n===b.dataset.add); if(!x) return;
+    const id = libSlug(x.n);
+    if(recipes.has(id)){
+      recipes.delete(id); await persistDel("gf_recetas", id); toast(t("quitado"));
+    }else{
+      const r = libToRecipe(x); recipes.set(id, r); await persist("gf_recetas", id, r);
+      toast(`✓ ${t("añadido")}`,"ok");
+    }
+    renderLibrary(); renderRecipes();
+  }));
+  $("libList").querySelectorAll("[data-see]").forEach(b=>b.addEventListener("click",()=>{
+    const x = COCKTAIL_LIB.find(c=>c.n===b.dataset.see); if(!x) return;
+    const r = libToRecipe(x);
+    $("recViewName").textContent = r.nombre;
+    $("recViewGlass").innerHTML = glassSVG(r.copa, r.color, r.garnish);
+    $("recViewIng").innerHTML = r.ing.map(i=>`<div class="rec-item"><span class="n">•</span><span>${esc(i)}</span></div>`).join("");
+    $("recViewSteps").innerHTML = r.pasos.map((s,i)=>`<div class="rec-item"><span class="n">${i+1}.</span><span>${esc(s)}</span></div>`).join("");
+    recViewId = null;
+    $("recViewActions").style.display = "none";  // vista previa: sin editar/eliminar
+    $("recViewBg").classList.add("open");
+  }));
+}
+$("libSearch").addEventListener("input", renderLibrary);
+
 /* =================== Precios / Costeo (solo admin) =================== */
 function bottleUnitCost(p){ return (p && p.precioCompra && p.volumenMl) ? (p.precioCompra / p.volumenMl) : null; }
 const ING_CAT = {TEQUILA:"TEQUILA",GIN:"GIN",VODKA:"VODKA",RON:"RON",RUM:"RON",WHISK:"WHISKY",BOURBON:"WHISKY",
@@ -2131,7 +2538,9 @@ function renderAll(){
   }
   $("teamTile").style.display = isAdmin() ? "flex" : "none";
   $("pricesTile").style.display = isAdmin() ? "flex" : "none";
+  $("libTile").style.display = isAdmin() ? "flex" : "none";
   if(currentScreen==="prices") renderPrices();
+  if(currentScreen==="library") renderLibrary();
   const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
   $("fab").style.display = fabScreens[currentScreen] ? "flex" : "none";
 }
