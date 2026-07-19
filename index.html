@@ -162,6 +162,8 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .min-btn{font-family:var(--mono);font-size:11px;font-weight:600;padding:6px 11px;border:1px solid var(--line-hi);border-radius:99px;background:rgba(0,0,0,.25);color:var(--text)}
 .min-btn.plain{border-color:transparent;background:none;color:var(--muted)}
 .prod-sub .code{font-family:var(--mono);font-size:10px;margin-left:auto;opacity:.7;max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.del-btn{font-size:12px;line-height:1;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:none;color:var(--muted);opacity:.65;flex-shrink:0}
+.del-btn:active{color:var(--red);border-color:var(--red);opacity:1}
 .empty{color:var(--muted);font-size:13px;text-align:center;padding:34px 20px}
 
 /* ---------- Scanner ---------- */
@@ -749,7 +751,7 @@ const I18N = {
     buscarCoctel:"Buscar cóctel o ingrediente...",enCarta:"en la carta",disponibles:"disponibles",
     añadido:"Añadido a la carta",quitado:"Quitado de la carta",sinResultados:"Sin resultados",
     stockBajoTit:"Productos en mínimo",vacioLow:"Todo el stock está por encima del mínimo. 💪",
-    traduciendo:"traduciendo…"},
+    traduciendo:"traduciendo…",yaEnStock:"Ya está en tu stock — sumando"},
   pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
     buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",
     shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
@@ -1297,11 +1299,11 @@ async function initData(){
    [null,"SUPER BOCK 33CL (CAJA)","CERVEZA",3,4],
    [null,"HEINEKEN 33CL (CAJA)","CERVEZA",5,4],
    [null,"CORONA 35CL (CAJA)","CERVEZA",2,3],
-   [null,"COCA-COLA 20CL (CAJA)","REFRESCOS",6,4],
+   ["5449000000996","COCA-COLA LATA 33CL","REFRESCOS",6,4],
    [null,"TÓNICA SCHWEPPES (CAJA)","REFRESCOS",4,4],
    [null,"SODA / AGUA CON GAS (CAJA)","REFRESCOS",5,4],
    [null,"ZUMO DE LIMA 1L","REFRESCOS",3,3],
-   [null,"RED BULL 25CL (CAJA)","REFRESCOS",2,3]
+   ["9002490100070","RED BULL LATA 25CL","REFRESCOS",2,3]
   ].forEach(([code,nombre,categoria,cantidad,min])=>{
     const N=(nombre||"").toUpperCase();
     const base={WHISKY:24,VODKA:19,GIN:19,RON:16,TEQUILA:25,"AGUARDENTE / COGNAC":34,LICORES:16,JARABES:6,"VINOS & ESPUMANTES":11,CERVEZA:20,REFRESCOS:12,OTROS:14};
@@ -1629,21 +1631,47 @@ async function onScan(code){
   lastCode = code; lastCodeAt = now;
   await handleCode(code.trim());
 }
+function normName(s){
+  return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\b\d+\s*(ml|cl|l)\b/g," ").replace(/[^a-z0-9]+/g," ").trim();
+}
+function findProductByName(name){
+  const q = normName(name); if(!q) return null;
+  const qw = new Set(q.split(" ").filter(w=>w.length>=3)); if(!qw.size) return null;
+  let best=null, bestScore=0;
+  for(const [id,p] of products){
+    const nw = new Set(normName(p.nombre).split(" ").filter(w=>w.length>=3)); if(!nw.size) continue;
+    let inter=0; qw.forEach(w=>{ if(nw.has(w)) inter++; });
+    const score = inter / Math.min(qw.size, nw.size);
+    if(score>bestScore){ bestScore=score; best=id; }
+  }
+  return bestScore>=0.8 ? best : null;   // 0.8 = casi el mismo nombre
+}
 async function handleCode(code){
   if(!code || busy) return;
   busy = true; beep(); pauseScan();
   let prod = products.get(code);
   if(!prod){
-    // 1º catálogo de licores compartido, 2º Open Food Facts
-    if(catalog.has(code)){
-      toast(t("encontradoCat"),"ok");
-      openRegModal(code, catalog.get(code));
-      busy = false; return;
+    // ¿lo conocemos por nombre? (catálogo o base global) -> evita duplicar lo que ya está en stock
+    let info = catalog.has(code) ? catalog.get(code) : null;
+    if(info) toast(t("encontradoCat"),"ok");
+    else{
+      $("scanStatus").textContent = t("buscando");
+      info = await lookupOFF(code);
+      toast(info ? t("encontradoOFF") : t("noEncontrado"), info ? "ok" : "");
     }
-    $("scanStatus").textContent = t("buscando");
-    const off = await lookupOFF(code);
-    toast(off ? t("encontradoOFF") : t("noEncontrado"), off ? "ok" : "");
-    openRegModal(code, off);
+    if(info && info.nombre){
+      const existId = findProductByName(info.nombre);
+      if(existId){
+        const p = products.get(existId);
+        if(!p.code){ p.code = code; products.set(existId,p); await persist("gf_productos", existId, {code}); }
+        saveCatalog(code, p.nombre, p.categoria);
+        toast(t("yaEnStock"),"ok");
+        openMoveModal(existId, p);
+        busy = false; return;
+      }
+    }
+    openRegModal(code, info);
     busy = false; return;
   }
   openMoveModal(code, prod);
@@ -1730,6 +1758,15 @@ $("regSave").addEventListener("click", async ()=>{
 });
 
 /* =================== Modal ajustes de producto (mínimo) =================== */
+async function deleteProduct(id){
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  const p = products.get(id); if(!p) return;
+  if(!confirm(`${t("eliminarProd")}: ${p.nombre}?`)) return;
+  products.delete(id);
+  await persistDel("gf_productos", id);
+  toast(t("prodBorrado"));
+  renderAll();
+}
 function openMinModal(id){
   if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
   const p = products.get(id); if(!p) return;
@@ -1892,6 +1929,7 @@ function renderCats(){
                 ? `<button class="min-btn" data-act="cfg">⚙ ${esc(minLabel)}</button>`
                 : `<span class="min-btn plain">${esc(minLabel)}</span>`}
               ${p.code?`<span class="code">${esc(p.code)}</span>`:""}
+              ${isAdmin()?`<button class="del-btn" data-act="del" title="${esc(t("eliminarProd"))}">🗑</button>`:""}
             </div>
           </div>`;
         }).join("")}
@@ -1910,6 +1948,7 @@ function renderCats(){
     if(act==="inc") applyDelta(id, +1);
     else if(act==="dec") applyDelta(id, -1);
     else if(act==="cfg") openMinModal(id);
+    else if(act==="del") deleteProduct(id);
   }));
 }
 function renderHistory(){
