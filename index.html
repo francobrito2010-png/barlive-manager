@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D0B0B">
 <title>B'LIVE Bar OS — Stock · Escáner · Recetario · Manual</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,9 +22,12 @@
   --sans:'Archivo',system-ui,-apple-system,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.4;overflow-x:hidden}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{height:100%;overscroll-behavior:none}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.4;overflow-x:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:pan-y}
+input,select,textarea{-webkit-user-select:text;user-select:text}
 button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer}
 input,select,textarea{font-family:inherit;font-size:16px;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--red)}
@@ -333,6 +339,16 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .lib-add.on{background:var(--green);color:#08130D;border-color:transparent}
 .lib-add:active{transform:scale(.92)}
 .lib-view{width:36px;height:42px;flex-shrink:0;font-size:15px;color:var(--muted)}
+
+/* ---------- Panel stock bajo ---------- */
+.low-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 12px;font-weight:900;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--amber)}
+.low-item{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid rgba(232,163,61,.45);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.low-item .li-info{flex:1;min-width:0}
+.low-item .li-nm{font-weight:800;font-size:14px;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.low-item .li-sub{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.low-item .li-sub b{color:var(--amber)}
+.low-item .li-add{flex-shrink:0;font-size:12px;font-weight:800;padding:9px 13px;border-radius:10px;border:1px solid var(--line-hi);background:var(--surface2);color:var(--text)}
+.low-item .li-add:active{transform:scale(.94)}
 </style>
 </head>
 <body>
@@ -358,11 +374,18 @@ const STOCK_MIN_DEFAULT = 2;
 const CATS = ["JARABES","LICORES","WHISKY","AGUARDENTE / COGNAC","GIN","VINOS & ESPUMANTES","VODKA","RON","TEQUILA","CERVEZA","REFRESCOS","OTROS"];
 const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA5","#2DB7A8","#C97B2D"];
 
+/* ================== MODO DEMOSTRACIÓN ==================
+   DEMO = true  -> la app abre YA LLENA (stock, empleados, manual, cócteles)
+                   sin tocar Firebase. Nunca se ve en blanco. Ideal para enseñar.
+                   PIN admin de la demo: 123456
+   DEMO = false -> usa Firebase real (tus datos del bar).                       */
+const DEMO = true;
+
 /* ============ AJUSTES DE ESTA ACTUALIZACIÓN ============
    DATA_NS: espacio de datos. Déjalo en "test_" para PROBAR en paralelo sin
    tocar los datos reales del bar. Cuando valides todo, ponlo en "" (vacío)
    para usar la base de producción (gf_productos, etc.).                     */
-const DATA_NS = "";
+const DATA_NS = "test_";
 const CURRENCY = "€";          /* símbolo de moneda para precios y valor de stock */
 const HISTORY_DAYS = 45;       /* el historial guarda ~mes y medio y se limpia solo */
 const PIN_SALT = "blive.barlive-manager.v2"; /* sal para cifrar los PIN (no la cambies tras crear PINs) */
@@ -484,6 +507,14 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
 
     <div id="histPanel" style="display:none">
       <div id="historyList"></div>
+    </div>
+
+    <div id="lowPanel" style="display:none">
+      <div class="low-head">
+        <span>⚠️ <span data-i18n="stockBajoTit">Productos en mínimo</span></span>
+        <button class="tbtn red" id="lowWaBtn" style="padding:8px 12px">📋 WhatsApp</button>
+      </div>
+      <div id="lowList"></div>
     </div>
   </div>
 
@@ -716,7 +747,9 @@ const I18N = {
     u_unidad:"uds",u_botella:"botellas",u_caja:"cajas",u_garrafa:"garrafas",u_lata:"latas",u_pack:"packs",
     tileLibT:"Biblioteca",tileLib:"100 cócteles listos para añadir a la carta",
     buscarCoctel:"Buscar cóctel o ingrediente...",enCarta:"en la carta",disponibles:"disponibles",
-    añadido:"Añadido a la carta",quitado:"Quitado de la carta",sinResultados:"Sin resultados"},
+    añadido:"Añadido a la carta",quitado:"Quitado de la carta",sinResultados:"Sin resultados",
+    stockBajoTit:"Productos en mínimo",vacioLow:"Todo el stock está por encima del mínimo. 💪",
+    traduciendo:"traduciendo…"},
   pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
     buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",
     shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
@@ -808,7 +841,7 @@ const I18N = {
     nuevoEmp:"নতুন কর্মী",editarEmp:"কর্মী সম্পাদনা",addEmp:"যোগ করুন",pinReq:"পিন ৪ থেকে ৬ অঙ্কের হতে হবে",
     pinDup:"এই পিন ইতিমধ্যে ব্যবহৃত হচ্ছে",salir:"লগ আউট"}
 };
-const LANGS = [["es","ES"],["pt","PT"],["en","EN"],["bn","বাং"]];
+const LANGS = [["es","ES"],["pt","PT"],["en","EN"]];
 let lang = "es";
 const t = k => (I18N[lang][k] ?? I18N.es[k] ?? k);
 function setLang(l){
@@ -1084,6 +1117,7 @@ function showScreen(name){
   $("fab").style.display = fabScreens[name] ? "flex" : "none";
   if(name==="prices") renderPrices();
   if(name==="library") renderLibrary();
+  if(name==="stock") showPanel("stock");
   if(name!=="scan") stopScanner();
   window.scrollTo(0,0);
 }
@@ -1163,11 +1197,16 @@ async function purgeOldMovements(){
 
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
 async function initData(){
-  if(FIREBASE_CONFIG){
+  if(FIREBASE_CONFIG && !DEMO){
     try{
       await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+      await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js");
       await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
       firebase.initializeApp(FIREBASE_CONFIG);
+      // Login anónimo: la app se identifica ante Firebase. Sin esto, con las
+      // reglas de seguridad puestas, nadie de fuera puede tocar la base.
+      try{ await firebase.auth().signInAnonymously(); }
+      catch(e){ console.error("Auth anónimo falló:", e); toast("Activa Authentication → Anonymous en Firebase","err"); }
       db = firebase.firestore();
       // Persistencia offline: los cambios se guardan en el móvil y se envían al reconectar
       try{ await db.enablePersistence({synchronizeTabs:true}); }catch(e){}
@@ -1264,13 +1303,29 @@ async function initData(){
    [null,"ZUMO DE LIMA 1L","REFRESCOS",3,3],
    [null,"RED BULL 25CL (CAJA)","REFRESCOS",2,3]
   ].forEach(([code,nombre,categoria,cantidad,min])=>{
-    products.set(code || newId(), {nombre,categoria,cantidad,min,code:code||null});
+    const N=(nombre||"").toUpperCase();
+    const base={WHISKY:24,VODKA:19,GIN:19,RON:16,TEQUILA:25,"AGUARDENTE / COGNAC":34,LICORES:16,JARABES:6,"VINOS & ESPUMANTES":11,CERVEZA:20,REFRESCOS:12,OTROS:14};
+    let precio = base[categoria] ?? 14;
+    if(["GREY GOOSE","HENDRICK","DON JULIO","PATRÓN","MOËT","GLENFIDDICH","CHIVAS","HENNESSY","RÉMY","BAILEYS","JOHNNIE WALKER BLACK"].some(x=>N.includes(x))) precio = Math.round(precio*1.6);
+    const caja = (categoria==="CERVEZA"||categoria==="REFRESCOS");
+    const unidad = caja ? "caja" : "botella";
+    const volumenMl = caja ? 0 : (N.includes("1L")?1000:(categoria==="VINOS & ESPUMANTES"?750:700));
+    products.set(code || newId(), {nombre,categoria,cantidad,min,code:code||null,unidad,precioCompra:precio,volumenMl});
   });
 
   seedDemoRecipes();
   seedDemoManual();
+  // Precargar cócteles de la biblioteca en la CARTA (además de los del recetario demo)
+  if(typeof COCKTAIL_LIB!=="undefined"){
+    ["MOJITO","MARGARITA","NEGRONI","OLD FASHIONED","DAIQUIRI","PIÑA COLADA","APEROL SPRITZ","GIN TONIC","CUBA LIBRE","MOSCOW MULE","ESPRESSO MARTINI","CAIPIRINHA","MAI TAI","COSMOPOLITAN","WHISKEY SOUR","MANHATTAN","PALOMA","TEQUILA SUNRISE"].forEach(nm=>{
+      const x = COCKTAIL_LIB.find(c=>c.n===nm); if(!x) return;
+      const id = "lib_"+nm.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+      recipes.set(id, {nombre:x.n, copa:x.c, color:x.col, garnish:x.g||"", ing:x.i, pasos:x.p, srcLang:"es", precioVenta:8, coste:null});
+    });
+  }
+  adminSec = {hash: await pinHash("123456"), len:6};   // demo: admin entra con 123456
+  const sc=$("syncChip"); sc.textContent="online"; sc.classList.remove("off","warn"); sc.classList.add("on");
   renderLogin();
-  setTimeout(()=>toast(t("demoAviso")), 400);
 }
 
 /* =================== Datos demo multiidioma (recetario + manual) ===================
@@ -1723,55 +1778,81 @@ async function removeShopItem(id){
 
 /* =================== WhatsApp =================== */
 $("waBtn").addEventListener("click", ()=>{
-  const items = lowItems();
+  // La lista de compras es SOLO lo que el admin añade a mano
   const d = new Date();
-  const loc = lang==="pt"?"pt-PT":"es-ES";
+  const loc = lang==="pt"?"pt-PT":(lang==="en"?"en-GB":"es-ES");
   let msg = `🛒 *${t("waTitle")}* — ${d.toLocaleDateString(loc,{weekday:"long",day:"numeric",month:"long"})}\n\n`;
-  if(!items.length && !shopExtra.size) msg += t("vacioShop");
-  items.forEach(([,p])=>{ msg += `• ${p.nombre} — ${t("quedan")} ${p.cantidad} (${t("min")} ${p.min ?? STOCK_MIN_DEFAULT})\n`; });
+  if(!shopExtra.size) msg += t("vacioShop");
   shopExtra.forEach(it=>{ msg += `• ${it.nombre}\n`; });
   msg += `\n${t("waFoot")} ${BRAND.emoji} ${BRAND.name}`;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
 });
+$("lowWaBtn").addEventListener("click", ()=>{
+  const items = lowItems();
+  const d = new Date();
+  const loc = lang==="pt"?"pt-PT":(lang==="en"?"en-GB":"es-ES");
+  let msg = `⚠️ *${t("stockBajoTit")}* — ${d.toLocaleDateString(loc,{day:"numeric",month:"long"})}\n\n`;
+  if(!items.length) msg += t("vacioLow");
+  items.forEach(([,p])=>{ msg += `• ${p.nombre} — ${t("quedan")} ${p.cantidad} (${t("min")} ${p.min ?? STOCK_MIN_DEFAULT})\n`; });
+  msg += `\n${t("waFoot")} ${BRAND.emoji} ${BRAND.name}`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+});
 $("lowBtn").addEventListener("click", ()=>{
-  showStockPanel(true);
-  $("shopCard").classList.add("open");
-  $("shopCard").scrollIntoView({behavior:"smooth", block:"start"});
+  const showing = $("lowPanel").style.display !== "none";
+  showPanel(showing ? "stock" : "low");
 });
 $("shopHead").addEventListener("click", ()=>$("shopCard").classList.toggle("open"));
 
-/* =================== Histórico toggle =================== */
-function showStockPanel(stock){
-  $("stockPanel").style.display = stock ? "block" : "none";
-  $("histPanel").style.display = stock ? "none" : "block";
-  $("histBtn").classList.toggle("on", !stock);
+/* =================== Paneles de stock (stock / bajo / histórico) =================== */
+function showPanel(which){
+  $("stockPanel").style.display = which==="stock" ? "block" : "none";
+  $("lowPanel").style.display   = which==="low"   ? "block" : "none";
+  $("histPanel").style.display  = which==="hist"  ? "block" : "none";
+  $("lowBtn").classList.toggle("on", which==="low");
+  $("histBtn").classList.toggle("on", which==="hist");
+  if(which==="low") renderLow();
 }
 $("histBtn").addEventListener("click", ()=>{
-  const showingHist = $("histPanel").style.display !== "none";
-  showStockPanel(showingHist);
+  const showing = $("histPanel").style.display !== "none";
+  showPanel(showing ? "stock" : "hist");
 });
 
 /* =================== Render: stock =================== */
 function renderStats(){
   $("statTotal").textContent = products.size;
   const low = lowItems().length;
-  const pend = low + shopExtra.size;
   $("statLow").textContent = low;
   $("lowCnt").textContent = low;
   const b = $("tileLowBadge");
-  b.style.display = pend ? "block" : "none";
-  b.textContent = pend;
+  b.style.display = low ? "block" : "none";  // el badge avisa de stock bajo (independiente de compras)
+  b.textContent = low;
 }
 function renderShopping(){
-  const items = lowItems();
-  $("shopCnt").textContent = items.length + shopExtra.size;
-  let html = items.map(([,p])=>`<div class="shop-item"><b>${esc(p.nombre)}</b><span>${t("quedan")} ${p.cantidad} · ${t("min")} ${p.min ?? STOCK_MIN_DEFAULT}</span></div>`).join("");
+  // SOLO lo que el admin añade a mano
+  $("shopCnt").textContent = shopExtra.size;
+  let html = "";
   shopExtra.forEach((it,id)=>{
-    html += `<div class="shop-item"><b>${esc(it.nombre)}</b><span>${esc(t("manualItem"))}</span><button class="rm" data-shop="${esc(id)}">✕</button></div>`;
+    html += `<div class="shop-item"><b>${esc(it.nombre)}</b><button class="rm" data-shop="${esc(id)}">✕</button></div>`;
   });
-  if(!html) html = `<div class="shop-item"><b>${esc(t("vacioShop"))}</b></div>`;
+  if(!html) html = `<div class="shop-item" style="color:var(--muted)"><b>${esc(t("vacioShop"))}</b></div>`;
   $("shopList").innerHTML = html;
   $("shopList").querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
+}
+function renderLow(){
+  const items = lowItems();
+  const el = $("lowList");
+  if(!items.length){ el.innerHTML = `<div class="empty">${esc(t("vacioLow"))}</div>`; return; }
+  el.innerHTML = items.map(([id,p])=>`
+    <div class="low-item">
+      <div class="li-info"><div class="li-nm">${esc(p.nombre)}</div>
+        <div class="li-sub">${t("quedan")} <b>${p.cantidad}</b> · ${t("min")} ${p.min ?? STOCK_MIN_DEFAULT}</div></div>
+      <button class="li-add" data-buy="${esc(p.nombre)}">🛒 +</button>
+    </div>`).join("");
+  el.querySelectorAll("[data-buy]").forEach(b=>b.addEventListener("click", async ()=>{
+    const nombre=b.dataset.buy, id=newId("c");
+    shopExtra.set(id,{nombre}); await persist("gf_compras", id, {nombre});
+    toast(`✓ ${nombre} → ${t("comprasPend")}`,"ok"); renderShopping(); renderStats();
+  }));
 }
 function renderCats(){
   const q = ($("stockSearch").value||"").toLowerCase().trim();
@@ -1888,7 +1969,8 @@ $("recSave").addEventListener("click", async ()=>{
     nombre, copa:recFormCopa, color:recFormColor,
     garnish: $("recGarnish").value.trim().slice(0,4),
     ing: $("recIng").value.split("\n").map(s=>s.trim()).filter(Boolean),
-    pasos: $("recSteps").value.split("\n").map(s=>s.trim()).filter(Boolean)
+    pasos: $("recSteps").value.split("\n").map(s=>s.trim()).filter(Boolean),
+    srcLang: lang
   };
   const id = recEditId || newId("r");
   recipes.set(id, rec);
@@ -1915,6 +1997,7 @@ function openRecView(id){
   $("recViewGlass").innerHTML = glassSVG(r.copa, r.color, r.garnish);
   $("recViewIng").innerHTML = (r.ing||[]).map(i=>`<div class="rec-item"><span class="n">•</span><span>${esc(i)}</span></div>`).join("") || `<div class="empty">—</div>`;
   $("recViewSteps").innerHTML = (r.pasos||[]).map((s,i)=>`<div class="rec-item"><span class="n">${i+1}.</span><span>${esc(s)}</span></div>`).join("") || `<div class="empty">—</div>`;
+  translateSteps("recViewSteps", r.pasos||[], r.srcLang||"es");
   $("recViewActions").style.display = isAdmin() ? "flex" : "none";
   $("recViewBg").classList.add("open");
 }
@@ -1947,7 +2030,7 @@ $("manSave").addEventListener("click", async ()=>{
   const items = $("manItems").value.split("\n").map(s=>s.trim()).filter(Boolean);
   const id = manEditId || newId("m");
   const orden = manEditId ? (manual.get(manEditId)?.orden ?? 99) : (manual.size + 1);
-  const sec = {titulo, items, orden};
+  const sec = {titulo, items, orden, srcLang: lang};
   manual.set(id, sec);
   await persist("gf_manual", id, sec);
   $("manModalBg").classList.remove("open");
@@ -1962,6 +2045,47 @@ $("manDelete").addEventListener("click", async ()=>{
   toast(t("prodBorrado"));
   renderManual();
 });
+/* =================== Traducción automática (manual + preparación) ===================
+   Traduce SOLO texto libre (manual y pasos de cócteles). Nombres e ingredientes
+   nunca se tocan. Muestra el original al instante y lo reemplaza al traducir.
+   Usa un servicio gratuito con caché; si falla o no hay internet, deja el original. */
+const trCache = new Map();
+async function trText(text, src, tgt){
+  if(!text || src===tgt) return text;
+  const key = src+">"+tgt+">"+text;
+  if(trCache.has(key)) return trCache.get(key);
+  try{
+    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`);
+    const j = await r.json();
+    let out = j && j.responseData && j.responseData.translatedText;
+    if(!out || /MYMEMORY WARNING|QUERY LENGTH|INVALID/i.test(out)) out = text;
+    trCache.set(key, out); return out;
+  }catch(e){ return text; }
+}
+async function trArr(arr, src, tgt){
+  if(src===tgt || !arr || !arr.length) return arr;
+  const out = await trText(arr.join("\n"), src, tgt);
+  const parts = out.split("\n").map(s=>s.trim()).filter(Boolean);
+  return parts.length===arr.length ? parts : arr;  // si no cuadra, original
+}
+function translateManual(arr){
+  arr.forEach(([id,m])=>{
+    const src = m.srcLang || "es";
+    if(src===lang) return;
+    const sec = document.querySelector('.man-sec[data-man="'+id+'"]'); if(!sec) return;
+    const h2 = sec.querySelector("h2");
+    trText(m.titulo, src, lang).then(x=>{ if(h2 && x) h2.textContent = x; });
+    const spans = sec.querySelectorAll(".man-item span:last-child");
+    trArr(m.items||[], src, lang).then(items=>items.forEach((tx,i)=>{ if(spans[i]) spans[i].textContent = tx; }));
+  });
+}
+function translateSteps(containerId, pasos, src){
+  if((src||"es")===lang) return;
+  trArr(pasos, src||"es", lang).then(out=>{
+    const spans = document.querySelectorAll("#"+containerId+" .rec-item span:last-child");
+    out.forEach((tx,i)=>{ if(spans[i]) spans[i].textContent = tx; });
+  });
+}
 function renderManual(){
   const el = $("manList");
   if(!manual.size){ el.innerHTML = `<div class="empty">—</div>`; return; }
@@ -1988,6 +2112,7 @@ function renderManual(){
     e.stopPropagation();
     openManForm(b.dataset.edit);
   }));
+  translateManual(arr);
 }
 
 /* =================== Empleados =================== */
@@ -2421,6 +2546,7 @@ function renderLibrary(){
     $("recViewGlass").innerHTML = glassSVG(r.copa, r.color, r.garnish);
     $("recViewIng").innerHTML = r.ing.map(i=>`<div class="rec-item"><span class="n">•</span><span>${esc(i)}</span></div>`).join("");
     $("recViewSteps").innerHTML = r.pasos.map((s,i)=>`<div class="rec-item"><span class="n">${i+1}.</span><span>${esc(s)}</span></div>`).join("");
+    translateSteps("recViewSteps", r.pasos, "es");
     recViewId = null;
     $("recViewActions").style.display = "none";  // vista previa: sin editar/eliminar
     $("recViewBg").classList.add("open");
@@ -2544,6 +2670,13 @@ function renderAll(){
   const fabScreens = isAdmin() ? {stock:1, recipes:1, manual:1, team:1} : {stock:1};
   $("fab").style.display = fabScreens[currentScreen] ? "flex" : "none";
 }
+/* Rigidez: bloquea el pellizco-zoom (el doble-tap ya lo bloquea touch-action:manipulation).
+   No bloqueamos el toque simple, así los botones +/- responden a toques rápidos sin lag. */
+(function lockZoom(){
+  ["gesturestart","gesturechange","gestureend"].forEach(ev=>
+    document.addEventListener(ev, e=>e.preventDefault(), {passive:false}));
+  document.addEventListener("touchmove", e=>{ if(e.touches.length>1) e.preventDefault(); }, {passive:false});
+})();
 applyI18n();
 initData();
 </script>
