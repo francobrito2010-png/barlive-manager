@@ -352,60 +352,56 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .low-item .li-add{flex-shrink:0;font-size:12px;font-weight:800;padding:9px 13px;border-radius:10px;border:1px solid var(--line-hi);background:var(--surface2);color:var(--text)}
 .low-item .li-add:active{transform:scale(.94)}
 /* ===== ALMACÉN ===== */
-.alm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.alm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .alm-btn{background:var(--red);color:#fff;border:none;border-radius:12px;padding:11px 15px;font:800 13px var(--sans);letter-spacing:.03em;cursor:pointer}
 .alm-btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
 .alm-btn.ghost.on{border-color:var(--amber);color:var(--amber)}
-.alm-editnote{display:none;background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber);border-radius:12px;padding:9px 12px;font:600 12px var(--sans);margin-bottom:12px}
-.alm-editnote.show{display:block}
-.alm-summary{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:12px;padding:12px 14px;font:600 13px var(--sans);line-height:1.6;margin-bottom:14px}
-.alm-summary b{color:var(--red)}
-.alm-cat{background:#000;color:#fff;font:800 12px var(--sans);letter-spacing:.08em;padding:8px 12px;border-radius:10px 10px 0 0;margin-top:14px}
-.alm-tbl{width:100%;border-collapse:collapse;background:var(--surface);border-radius:0 0 10px 10px;overflow:hidden}
-.alm-tbl th{background:var(--surface2);color:var(--muted);font:700 10px var(--sans);letter-spacing:.05em;text-transform:uppercase;padding:7px 4px;text-align:center}
+.alm-cat{background:#000;color:#fff;font:800 12px var(--sans);letter-spacing:.08em;padding:8px 12px;border-radius:10px 10px 0 0;margin-top:16px}
+.alm-tbl{width:100%;border-collapse:collapse;background:var(--surface);table-layout:fixed}
+.alm-tbl col.c1{width:40%}.alm-tbl col.c2{width:18%}.alm-tbl col.c3{width:22%}.alm-tbl col.c4{width:20%}
+.alm-tbl th{background:var(--surface2);color:var(--muted);font:700 9.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;padding:7px 3px;text-align:center}
 .alm-tbl th:first-child{text-align:left;padding-left:12px}
-.alm-tbl td{border-top:1px solid var(--line);padding:7px 4px;text-align:center;vertical-align:middle;font:600 14px var(--sans)}
+.alm-tbl td{border-top:1px solid var(--line);padding:8px 3px;text-align:center;vertical-align:middle}
 .alm-tbl td:first-child{text-align:left;padding-left:12px}
-.alm-idealview{color:var(--muted);font-weight:800}
-.alm-num{width:52px;background:var(--surface2);border:1px solid var(--line-hi);color:var(--text);border-radius:8px;padding:6px 3px;font:800 14px var(--mono);text-align:center}
+.alm-tbl tr.need td{background:rgba(176,36,24,.055)}
+.alm-pn{display:flex;align-items:center;font:700 13.5px var(--sans);line-height:1.25}
+.alm-ps{font:600 10px var(--mono);color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:4px}
+.alm-unlbl{font:600 9.5px var(--sans);color:var(--muted);letter-spacing:.02em}
+.alm-nopk{font:700 9.5px var(--sans);color:var(--amber)}
+.alm-mini{width:40px;background:var(--surface2);border:1px solid var(--amber);color:var(--amber);border-radius:6px;padding:2px;font:700 11px var(--mono);text-align:center}
+.alm-mini:focus{outline:none}
+.alm-big{font:800 15px var(--mono);color:var(--text);white-space:nowrap}
+.alm-big i{font:700 9px var(--sans);font-style:normal;color:var(--muted)}
+.alm-sub{font:600 9.5px var(--mono);color:var(--muted);margin-top:2px}
+.alm-dash{color:#5c545a;font:700 14px var(--sans)}
+.alm-num{width:52px;background:var(--surface2);border:1px solid var(--line-hi);color:var(--text);border-radius:8px;padding:7px 2px;font:800 15px var(--mono);text-align:center}
 .alm-num:focus{outline:none;border-color:var(--amber)}
 .alm-num.ideal{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
-.alm-cv{display:flex;gap:4px;justify-content:center}
-.alm-cv .b{display:flex;flex-direction:column;align-items:center;gap:2px}
-.alm-cv label{font:700 8px var(--sans);color:var(--muted);text-transform:uppercase}
-.alm-cv .alm-num{width:42px}
-.alm-buy{font:800 14px var(--mono);color:var(--muted)}
-.alm-buy.hot{color:var(--red)}
-.alm-tag{font:800 10px var(--sans);padding:4px 7px;border-radius:20px;display:inline-block;white-space:nowrap}
+.alm-one{display:flex;align-items:center;justify-content:center;gap:4px}
+.alm-uin{font:700 9.5px var(--sans);color:var(--muted);text-transform:uppercase}
+.alm-two{display:flex;gap:4px;justify-content:center}
+.alm-two .b{display:flex;flex-direction:column;align-items:center;gap:2px}
+.alm-two label{font:700 8px var(--sans);color:var(--muted);text-transform:uppercase}
+.alm-two .alm-num{width:40px;font-size:13px}
+.alm-buyn{font:800 18px var(--mono);color:var(--red);white-space:nowrap;line-height:1}
+.alm-buyn i{font:700 9px var(--sans);font-style:normal;opacity:.75}
+.alm-tag{font:800 10px var(--sans);padding:4px 8px;border-radius:20px;display:inline-block;white-space:nowrap}
 .alm-ok{background:var(--green-soft);color:var(--green)}
-.alm-buyt{background:var(--amber-soft);color:var(--amber)}
-.alm-out{background:var(--red-soft);color:var(--red)}
-.alm-over{background:rgba(79,143,222,.15);color:#7FB2F2}
-.alm-none{background:var(--surface2);color:#5c545a}
-.alm-foot{color:var(--muted);font:600 11px var(--sans);text-align:center;margin-top:20px;line-height:1.6}
-.alm-del{background:var(--red-soft);color:var(--red);border:none;border-radius:6px;width:20px;height:20px;font:800 14px var(--sans);line-height:1;cursor:pointer;margin-right:8px;vertical-align:middle}
+.alm-watch{background:var(--amber-soft);color:var(--amber)}
+.alm-del{background:var(--red-soft);color:var(--red);border:none;border-radius:6px;width:19px;height:19px;font:800 13px var(--sans);line-height:1;cursor:pointer;margin-right:7px;flex:none}
 .alm-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
 .alm-modal-bg.show{display:flex}
 .alm-modal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;width:100%;max-width:360px}
 .alm-modal h3{font:800 17px var(--sans);margin-bottom:14px}
 .alm-modal label{display:block;font:700 11px var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:10px 0 5px}
-.alm-modal input[type=text],.alm-modal select{width:100%;background:var(--surface2);border:1px solid var(--line-hi);color:var(--text);border-radius:10px;padding:11px;font:600 15px var(--sans)}
+.alm-modal input[type=text],.alm-modal input[type=number],.alm-modal select{width:100%;background:var(--surface2);border:1px solid var(--line-hi);color:var(--text);border-radius:10px;padding:11px;font:600 15px var(--sans)}
 .alm-modal input:focus,.alm-modal select:focus{outline:none;border-color:var(--amber)}
+.alm-modal-row{display:flex;gap:10px}
+.alm-modal-row>div{flex:1}
 .alm-modal .alm-check{display:flex;align-items:center;gap:9px;text-transform:none;letter-spacing:0;font:600 13px var(--sans);color:var(--text);margin-top:14px}
 .alm-modal .alm-check input{width:18px;height:18px;accent-color:var(--red)}
 .alm-modal-actions{display:flex;gap:10px;margin-top:20px}
 .alm-modal-actions .alm-btn{flex:1;text-align:center}
-.alm-modal-row{display:flex;gap:10px}
-.alm-modal-row>div{flex:1}
-.alm-modal input[type=number]{width:100%;background:var(--surface2);border:1px solid var(--line-hi);color:var(--text);border-radius:10px;padding:11px;font:600 15px var(--sans)}
-.alm-pn{display:flex;align-items:center;gap:0;font:700 14px var(--sans)}
-.alm-ps{font:600 10px var(--mono);color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:4px}
-.alm-nopk{color:var(--amber)}
-.alm-unlbl{font:600 9px var(--sans);color:var(--muted);text-transform:uppercase}
-.alm-mini{width:44px;background:var(--surface2);border:1px solid var(--line-hi);color:var(--amber);border-radius:6px;padding:3px;font:700 12px var(--mono);text-align:center}
-.alm-mini:focus{outline:none;border-color:var(--amber)}
-.alm-buyun{font:600 9px var(--mono);color:var(--muted);margin-top:2px}
-.alm-watch{background:var(--amber-soft);color:var(--amber)}
 </style>
 <!-- Almacén: PDF no próprio navegador -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -658,10 +654,7 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
       <button class="alm-btn ghost admin-only" id="almAddBtn" style="display:none">＋ <span data-i18n="almAdd">Añadir producto</span></button>
       <button class="alm-btn" id="almPdfBtn">⬇ PDF</button>
     </div>
-    <div class="alm-editnote" id="almEditNote" data-i18n="almEditNote">Modo edición de ideales activo. El resto del equipo solo edita el stock.</div>
-    <div class="alm-summary" id="almSummary"></div>
     <div id="almacenList"></div>
-    <div class="alm-foot" data-i18n="almFoot">En el día a día se rellena solo la columna Stock. Los ideales los fija el administrador.</div>
   </div>
 </main>
 
@@ -818,10 +811,9 @@ const I18N = {
     almEditNote:"Modo edición de ideales activo. El resto del equipo solo edita el stock.",
     almFoot:"En el día a día se rellena solo la columna Stock. Los ideales los fija el administrador.",
     almProd:"Producto",almIdeal:"Ideal",almStock:"Stock",almComprar:"Comprar",almEstado:"Estado",almCheia:"Llenas",almVazia:"Vacías",
-    almIdealPk:"Ideal (packs)",almPk:"Packs",almUn:"Sueltas",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
-    almSemPack:"definir pack",almFaltaPack:"sin unidades por pack definidas",almPacksComprar:"packs a comprar",
-    almTagWatch:"⚠ VIGILAR",almPdfPacks:"Total de packs a comprar",
-    almPdfNote:"Cantidades en packs. El bar cuenta en unidades; la app convierte a packs para la compra.",
+    almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
+    almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",almGrades:"grades",
+    almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
     almAComprar:"productos",almEsgot:"agotados",almConIdeal:"con ideal",almEsgotLista:"Agotados",
     almTagOut:"AGOTADO",almTagBuy:"Comprar",almTagOk:"OK",almTagOver:"Sobra",
     almPdfTitle:"Inventario de Stock — B'LIVE",almPdfSub:"Almacén del bar · Fecha:",almPdfBuy:"Artículos a comprar",almPdfOut:"Agotados",
@@ -875,10 +867,9 @@ const I18N = {
     almEditNote:"Modo edição de ideais ativo. O resto da equipa só edita o stock.",
     almFoot:"No dia-a-dia preenche-se só a coluna Stock. Os ideais são definidos pelo administrador.",
     almProd:"Produto",almIdeal:"Ideal",almStock:"Stock",almComprar:"Comprar",almEstado:"Estado",almCheia:"Cheias",almVazia:"Vazias",
-    almIdealPk:"Ideal (packs)",almPk:"Packs",almUn:"Soltas",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
-    almSemPack:"definir pack",almFaltaPack:"sem unidades por pack definidas",almPacksComprar:"packs a comprar",
-    almTagWatch:"⚠ ATENÇÃO",almPdfPacks:"Total de packs a comprar",
-    almPdfNote:"Quantidades em packs. O bar conta em unidades; a app converte para packs na compra.",
+    almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
+    almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",almGrades:"grades",
+    almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
     almAComprar:"produtos",almEsgot:"esgotados",almConIdeal:"com ideal",almEsgotLista:"Esgotados",
     almTagOut:"ESGOTADO",almTagBuy:"Comprar",almTagOk:"OK",almTagOver:"Sobra",
     almPdfTitle:"Inventário de Stock — B'LIVE",almPdfSub:"Armazém do bar · Data:",almPdfBuy:"Artigos a comprar",almPdfOut:"Esgotados",
@@ -918,10 +909,9 @@ const I18N = {
     almEditNote:"Target-editing mode on. The rest of the team only edits stock.",
     almFoot:"Day to day, only the Stock column is filled in. Targets are set by the admin.",
     almProd:"Product",almIdeal:"Target",almStock:"Stock",almComprar:"Buy",almEstado:"Status",almCheia:"Full",almVazia:"Empty",
-    almIdealPk:"Target (packs)",almPk:"Packs",almUn:"Loose",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
-    almSemPack:"set pack",almFaltaPack:"missing units-per-pack",almPacksComprar:"packs to buy",
-    almTagWatch:"\u26a0 WATCH",almPdfPacks:"Total packs to buy",
-    almPdfNote:"Quantities in packs. The bar counts units; the app converts to packs for ordering.",
+    almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
+    almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",almGrades:"crates",
+    almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
     almAComprar:"products",almEsgot:"out of stock",almConIdeal:"with target",almEsgotLista:"Out of stock",
     almTagOut:"OUT",almTagBuy:"Buy",almTagOk:"OK",almTagOver:"Over",
     almPdfTitle:"Stock Inventory — B'LIVE",almPdfSub:"Bar warehouse · Date:",almPdfBuy:"Items to buy",almPdfOut:"Out of stock",
@@ -2846,12 +2836,12 @@ function renderPrices(){
 }
 
 /* =================== ALMACÉN =================== */
-/* Modelo por PACKS: el jefe compra por packs, el bar cuenta por unidades.
-   pk = unidades por pack (0 = aún sin definir -> se cuenta solo en packs)
-   ip = ideal en PACKS (lo que fijó el jefe por WhatsApp)
-   cv = 1 -> se cuenta en cheias/vazias (barriles y grades retornables), en packs
-   w  = 1 -> "ter atenção" (el jefe pidió vigilarlo, sin número fijo)
-   Firestore (gf_almacen): {pack, idealPk, sPk, sUn, cheia, vazia, custom, hidden} */
+/* Regla simple:
+   - El bar CUENTA en unidades (lo que ves en el estante).
+   - El jefe COMPRA en packs.
+   - La app hace la conversión: sabe cuántas unidades trae cada pack.
+   pk = unidades por pack   ip = ideal en packs   cv = se cuenta cheias/vazias   w = vigilar
+   Firestore (gf_almacen): {pack, idealPk, stock, cheia, vazia, custom, hidden} */
 const ALM_DEFS = [
   ["ÁGUAS", [
     {n:"Pedras Limão", ip:2}, {n:"Pedras Maracujá", ip:2},
@@ -2860,7 +2850,7 @@ const ALM_DEFS = [
     {n:"Água Castelo 1L", ip:9}
   ]],
   ["REFRIGERANTES", [
-    {n:"Coca-Cola", cv:1, ip:4}, {n:"Coca Zero", cv:1, ip:1}, {n:"Coca-Cola 1L", ip:1},
+    {n:"Coca-Cola", cv:1, ip:4, pk:1}, {n:"Coca Zero", cv:1, ip:1, pk:1}, {n:"Coca-Cola 1L", ip:1},
     {n:"Sprite Lata", ip:1}, {n:"Sprite 1,5L", ip:1},
     {n:"Nestea Pêssego", ip:1}, {n:"Nestea Limão", ip:2}, {n:"Nestea Manga-Ananás", ip:2},
     {n:"Ginger Beer", ip:1}, {n:"Ginger Ale", ip:1}, {n:"Red Bull", ip:3}
@@ -2876,12 +2866,12 @@ const ALM_DEFS = [
     {n:"Compal Maçã", ip:1}, {n:"Compal Laranja", ip:1}
   ]],
   ["FRUTA & FRESCOS", [
-    {n:"Laranja"}, {n:"Limão"}, {n:"Lima"}, {n:"Hortelã"}
+    {n:"Laranja", pk:1}, {n:"Limão", pk:1}, {n:"Lima", pk:1}, {n:"Hortelã", pk:1}
   ]],
   ["CONGELADOS & GELO", [
     {n:"Polpa Maracujá Congelada", ip:2, pk:1}, {n:"Polpa Manga", ip:1, pk:1},
     {n:"Frutos Vermelhos (saco)", ip:4, pk:1}, {n:"Morango (saco)", ip:3, pk:1},
-    {n:"Gelo"}, {n:"Gelo Picado"}
+    {n:"Gelo", pk:1}, {n:"Gelo Picado", pk:1}
   ]],
   ["MERCEARIA / INGREDIENTES", [
     {n:"Maracujá (lata)", ip:1}, {n:"Açúcar Amarelo", ip:1}, {n:"Açúcar Branco", ip:1},
@@ -2895,7 +2885,7 @@ const ALM_DEFS = [
   ]],
   ["DESCARTÁVEIS / MATERIAL", [
     {n:"Palhinhas Pequenas"}, {n:"Palhinhas Grandes"}, {n:"Foguete"}, {n:"Borracha Foguete"},
-    {n:"Palitos / Café"}, {n:"Guardanapos", ip:1, w:1}, {n:"Raid (mata-mosquitos)"}
+    {n:"Palitos / Café"}, {n:"Guardanapos", ip:1, w:1}, {n:"Raid (mata-mosquitos)", pk:1}
   ]],
 ];
 const ALM_ID = s => "a_" + s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
@@ -2907,7 +2897,6 @@ ALM_DEFS.forEach(([cat, itens])=>itens.forEach(it=>{
   ALM_DEF.set(id, {pk:it.pk||0, ip:it.ip||0, w:it.w?1:0});
 }));
 
-/* Catálogo en vivo = base (menos ocultos) + productos añadidos por el admin */
 function almCatalog(){
   const list = [];
   ALM_BASE.forEach(d=>{
@@ -2928,47 +2917,43 @@ function almCats(){
   cats.sort((a,b)=>{
     const ia=order.indexOf(a), ib=order.indexOf(b);
     if(ia===-1&&ib===-1) return 0;
-    if(ia===-1) return 1;
-    if(ib===-1) return -1;
+    if(ia===-1) return 1; if(ib===-1) return -1;
     return ia-ib;
   });
   return cats;
 }
 
-/* ---- valores: default del jefe + lo que se haya guardado encima ---- */
+/* ---------- valores ---------- */
 function almVals(d){
   const def = ALM_DEF.get(d.id) || {};
   const v = almacen.get(d.id) || {};
+  let stock = v.stock;
+  if(stock == null){ // migración de versiones anteriores
+    const pk = v.pack != null ? v.pack : (def.pk||0);
+    stock = (v.sUn != null ? v.sUn : (v.atual||0)) + (v.sPk||0) * (pk>1?pk:1);
+  }
   return {
     pack:    v.pack    != null ? v.pack    : (def.pk||0),
     idealPk: v.idealPk != null ? v.idealPk : (def.ip||0),
-    sPk:     v.sPk||0,
-    sUn:     v.sUn != null ? v.sUn : (v.atual||0), // migra dato antiguo
+    stock:   stock||0,
     cheia:   v.cheia||0,
     vazia:   v.vazia||0,
     watch:   def.w?1:0
   };
 }
-function almPack(d){ return almVals(d).pack||0; }          // 0 = sin definir
-function almStockPk(d){                                     // stock convertido a packs
-  const v = almVals(d), pk = almPack(d);
-  if(d.cv) return v.cheia||0;
-  return pk>0 ? (v.sPk + v.sUn/pk) : v.sPk;
+/* pk>1 -> el stock se cuenta en UNIDADES;  pk<=1 -> el producto se cuenta directo en packs/piezas */
+function almByUnit(d){ return !d.cv && almVals(d).pack > 1; }
+function almStockPk(d){                       // stock convertido a packs
+  const v = almVals(d);
+  if(d.cv) return v.cheia;
+  return almByUnit(d) ? v.stock / v.pack : v.stock;
 }
-function almBuyPk(d){                                       // packs a comprar (redondea arriba)
+function almIdealUn(d){ const v=almVals(d); return almByUnit(d) ? v.idealPk * v.pack : 0; }
+function almBuyPk(d){                         // packs a comprar (siempre pack entero)
   const falta = almVals(d).idealPk - almStockPk(d);
   return falta > 1e-9 ? Math.ceil(falta - 1e-9) : 0;
 }
-function almBuyUn(d){ const pk = almPack(d); return pk>0 ? almBuyPk(d)*pk : 0; }
-function almState(d){
-  const v = almVals(d);
-  if(!v.idealPk) return v.watch ? {txt:t("almTagWatch"), cls:"alm-watch"} : {txt:"—", cls:"alm-none"};
-  const s = almStockPk(d);
-  if(s <= 0) return {txt:t("almTagOut"), cls:"alm-out"};
-  if(s < v.idealPk - 1e-9) return {txt:t("almTagBuy"), cls:"alm-buyt"};
-  if(s > v.idealPk + 1e-9) return {txt:t("almTagOver"), cls:"alm-over"};
-  return {txt:t("almTagOk"), cls:"alm-ok"};
-}
+function almBuyUn(d){ return almByUnit(d) ? almBuyPk(d) * almVals(d).pack : 0; }
 
 async function almSave(id, patch){
   const cur = almacen.get(id) || {};
@@ -2984,15 +2969,10 @@ async function almRemove(id, custom){
 }
 function openAlmAdd(){
   if(!isAdmin()) return;
-  const sel = $("almCatSel");
-  sel.innerHTML = almCats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")
+  $("almCatSel").innerHTML = almCats().map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("")
     + `<option value="__new__">＋ ${esc(t("almNewCat"))}</option>`;
-  $("almNameInp").value = "";
-  $("almNewCatInp").value = "";
-  $("almNewCatInp").style.display = "none";
-  $("almPkInp").value = "";
-  $("almIpInp").value = "";
-  $("almCvChk").checked = false;
+  $("almNameInp").value=""; $("almNewCatInp").value=""; $("almNewCatInp").style.display="none";
+  $("almPkInp").value=""; $("almIpInp").value=""; $("almCvChk").checked=false;
   $("almAddBg").classList.add("show");
   setTimeout(()=>$("almNameInp").focus(), 50);
 }
@@ -3005,18 +2985,16 @@ async function almAddProduct(){
   const id = ALM_ID(nome);
   if(almCatalog().some(d=>d.id===id)){ toast(t("almDup"),"err"); return; }
   const rec = almacen.get(id);
-  if(rec && rec.hidden && !rec.custom){        // reactivar un producto base que estaba oculto
-    await almSave(id, {hidden:false});
-  } else {
+  if(rec && rec.hidden && !rec.custom){ await almSave(id, {hidden:false}); }
+  else {
     await almSave(id, {custom:true, nome, cat, cv:$("almCvChk").checked?1:0,
       pack:Math.max(0,parseNum($("almPkInp").value)), idealPk:Math.max(0,parseNum($("almIpInp").value)),
-      sPk:0, sUn:0, cheia:0, vazia:0, hidden:false});
+      stock:0, cheia:0, vazia:0, hidden:false});
   }
-  closeAlmAdd();
-  toast("✓ "+nome, "ok");
-  renderAlmacen();
+  closeAlmAdd(); toast("✓ "+nome,"ok"); renderAlmacen();
 }
 
+/* ---------- render: hoja de cálculo limpia ---------- */
 function renderAlmacen(){
   const box = $("almacenList"); if(!box) return;
   const admin = isAdmin();
@@ -3024,41 +3002,67 @@ function renderAlmacen(){
   if(!admin) almEdit = false;
   $("almEditBtn").classList.toggle("on", almEdit);
   $("almEditBtn").querySelector("span").textContent = almEdit ? t("almBloquear") : t("almEditar");
-  $("almEditNote").classList.toggle("show", almEdit);
   $("almAddBtn").style.display = (almEdit && admin) ? "inline-block" : "none";
 
   const CAT = almCatalog();
   let html = "";
   almCats().forEach(cat=>{
+    const items = CAT.filter(d=>d.cat===cat);
+    if(!items.length) return;
     html += `<div class="alm-cat">${esc(cat)}</div>`;
-    html += `<table class="alm-tbl"><thead><tr>
-      <th>${t("almProd")}</th><th>${t("almIdealPk")}</th><th>${t("almStock")}</th><th>${t("almComprar")}</th><th>${t("almEstado")}</th>
-    </tr></thead><tbody>`;
-    CAT.filter(d=>d.cat===cat).forEach(d=>{
-      const v = almVals(d), st = almState(d), pk = almPack(d);
-      const buyPk = almBuyPk(d), buyUn = almBuyUn(d);
+    html += `<table class="alm-tbl"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
+      <thead><tr><th>${t("almProd")}</th><th>${t("almIdeal")}</th><th>${t("almTenho")}</th><th>${t("almComprar")}</th></tr></thead><tbody>`;
+    items.forEach(d=>{
+      const v = almVals(d), byUn = almByUnit(d), buyPk = almBuyPk(d), buyUn = almBuyUn(d);
       const del = (almEdit && admin) ? `<button class="alm-del" data-del="${d.id}" data-custom="${d.custom?1:0}">×</button>` : "";
-      const packSub = (almEdit && admin)
-        ? `<input class="alm-mini" type="number" min="0" inputmode="numeric" placeholder="—" value="${pk||""}" data-alm="${d.id}" data-f="pack"> <span class="alm-unlbl">${t("almUnPack")}</span>`
-        : (pk>0 ? `${pk} ${t("almUnPack")}` : `<span class="alm-nopk">${t("almSemPack")}</span>`);
+
+      /* subtítulo: cuántas unidades trae el pack */
+      let sub;
+      if(almEdit && admin && !d.cv){
+        sub = `<input class="alm-mini" type="number" min="0" inputmode="numeric" placeholder="1" value="${v.pack||""}" data-alm="${d.id}" data-f="pack"><span class="alm-unlbl">${t("almUnPack")}</span>`;
+      } else if(d.cv){
+        sub = `<span class="alm-unlbl">${t("almGrades")}</span>`;
+      } else if(v.pack>1){
+        sub = `<span class="alm-unlbl">1 pack = ${v.pack} ${t("almUnShort")}</span>`;
+      } else if(v.pack===1){
+        sub = `<span class="alm-unlbl">${t("almPorUnidade")}</span>`;
+      } else {
+        sub = `<span class="alm-nopk">${t("almSemPack")}</span>`;
+      }
+
+      /* IDEAL: packs (+ equivalente en unidades) */
       const idealCell = (almEdit && admin)
         ? `<input class="alm-num ideal" type="number" min="0" inputmode="numeric" value="${v.idealPk||""}" data-alm="${d.id}" data-f="idealPk">`
-        : `<span class="alm-idealview">${v.idealPk||"—"}</span>`;
+        : (v.idealPk
+            ? `<div class="alm-big">${v.idealPk} <i>pk</i></div>${byUn?`<div class="alm-sub">${almIdealUn(d)} ${t("almUnShort")}</div>`:""}`
+            : `<span class="alm-dash">—</span>`);
+
+      /* TENGO: una sola casilla, con su unidad clara */
       const stockCell = d.cv
-        ? `<div class="alm-cv">
+        ? `<div class="alm-two">
              <div class="b"><label>${t("almCheia")}</label><input class="alm-num" type="number" min="0" inputmode="numeric" value="${v.cheia}" data-alm="${d.id}" data-f="cheia"></div>
              <div class="b"><label>${t("almVazia")}</label><input class="alm-num" type="number" min="0" inputmode="numeric" value="${v.vazia}" data-alm="${d.id}" data-f="vazia"></div>
            </div>`
-        : `<div class="alm-cv">
-             <div class="b"><label>${t("almPk")}</label><input class="alm-num" type="number" min="0" inputmode="numeric" value="${v.sPk}" data-alm="${d.id}" data-f="sPk"></div>
-             ${pk>0?`<div class="b"><label>${t("almUn")}</label><input class="alm-num" type="number" min="0" inputmode="numeric" value="${v.sUn}" data-alm="${d.id}" data-f="sUn"></div>`:""}
-           </div>`;
-      html += `<tr>
-        <td><div class="alm-pn">${del}${esc(d.nome)}</div><div class="alm-ps">${packSub}</div></td>
+        : `<div class="alm-one">
+             <input class="alm-num" type="number" min="0" inputmode="numeric" value="${v.stock}" data-alm="${d.id}" data-f="stock">
+             <span class="alm-uin">${byUn ? t("almUnShort") : "pk"}</span>
+           </div>${byUn && v.stock ? `<div class="alm-sub">= ${(v.stock/v.pack).toFixed(1)} pk</div>` : ""}`;
+
+      /* COMPRAR: la respuesta clara */
+      let buyCell;
+      if(!v.idealPk){
+        buyCell = v.watch ? `<span class="alm-tag alm-watch">${t("almTagWatch")}</span>` : `<span class="alm-dash">—</span>`;
+      } else if(buyPk>0){
+        buyCell = `<div class="alm-buyn">${buyPk} <i>pk</i></div>${buyUn?`<div class="alm-sub">${buyUn} ${t("almUnShort")}</div>`:""}`;
+      } else {
+        buyCell = `<span class="alm-tag alm-ok">${t("almTagOk")}</span>`;
+      }
+
+      html += `<tr class="${buyPk>0?"need":""}">
+        <td><div class="alm-pn">${del}${esc(d.nome)}</div><div class="alm-ps">${sub}</div></td>
         <td>${idealCell}</td>
         <td>${stockCell}</td>
-        <td class="alm-buy ${buyPk>0?"hot":""}">${v.idealPk? buyPk : "—"}${(buyPk>0&&buyUn)?`<div class="alm-buyun">${buyUn} ${t("almUnShort")}</div>`:""}</td>
-        <td><span class="alm-tag ${st.cls}">${st.txt}</span></td>
+        <td class="alm-bc">${buyCell}</td>
       </tr>`;
     });
     html += `</tbody></table>`;
@@ -3071,21 +3075,12 @@ function renderAlmacen(){
       renderAlmacen();
     });
   });
-  box.querySelectorAll(".alm-del").forEach(btn=>{
-    btn.addEventListener("click", ()=>almRemove(btn.dataset.del, btn.dataset.custom==="1"));
+  box.querySelectorAll(".alm-del").forEach(b=>{
+    b.addEventListener("click", ()=>almRemove(b.dataset.del, b.dataset.custom==="1"));
   });
-
-  const withTarget = CAT.filter(d=>almVals(d).idealPk>0);
-  const buyN = withTarget.filter(d=>almBuyPk(d)>0).length;
-  const totalPk = withTarget.reduce((a,d)=>a+almBuyPk(d),0);
-  const outList = withTarget.filter(d=>almStockPk(d)<=0).map(d=>d.nome);
-  const noPack = CAT.filter(d=>almVals(d).idealPk>0 && !d.cv && almPack(d)===0).length;
-  $("almSummary").innerHTML =
-    `<b>${totalPk}</b> ${t("almPacksComprar")} &nbsp;·&nbsp; <b>${buyN}</b> ${t("almAComprar")} &nbsp;·&nbsp; <b>${outList.length}</b> ${t("almEsgot")}` +
-    (outList.length ? `<br><span style="color:var(--muted)">${t("almEsgotLista")}: ${esc(outList.join(", "))}</span>` : "") +
-    (noPack ? `<br><span style="color:var(--amber)">⚠ ${noPack} ${t("almFaltaPack")}</span>` : "");
 }
 
+/* ---------- PDF: inventario + lista de compras ---------- */
 function almExportPDF(){
   const { jsPDF } = window.jspdf || {};
   if(!jsPDF){ toast("PDF…","err"); return; }
@@ -3098,46 +3093,58 @@ function almExportPDF(){
   doc.text(t("almPdfSub") + " " + hoje, 14, 19);
 
   const CAT = almCatalog();
-  const withTarget = CAT.filter(d=>almVals(d).idealPk>0);
-  const totalPk = withTarget.reduce((a,d)=>a+almBuyPk(d),0);
-  const outN = withTarget.filter(d=>almStockPk(d)<=0).length;
-  doc.setTextColor(40,40,40); doc.setFontSize(10);
-  doc.text(`${t("almPdfPacks")}: ${totalPk}    ·    ${t("almPdfOut")}: ${outN}`, 14, 30);
-  doc.setTextColor(110,110,110); doc.setFontSize(8);
-  doc.text(t("almPdfNote"), 14, 35);
-
   const rows = [];
   almCats().forEach(cat=>{
     const items = CAT.filter(d=>d.cat===cat);
     if(!items.length) return;
     rows.push([{content:cat, colSpan:5, styles:{fillColor:[23,19,20],textColor:[255,255,255],fontStyle:"bold"}}]);
     items.forEach(d=>{
-      const v = almVals(d), st = almState(d), pk = almPack(d), buyPk = almBuyPk(d);
-      const stock = d.cv
-        ? `${t("almCheia")}: ${v.cheia} / ${t("almVazia")}: ${v.vazia}`
-        : (pk>0 ? `${v.sPk} pk + ${v.sUn} un` : `${v.sPk} pk`);
-      const buy = v.idealPk ? (buyPk>0 ? `${buyPk} pk${pk>0?` (${almBuyUn(d)} un)`:""}` : "0") : "—";
-      rows.push([d.nome, v.idealPk||"—", stock, buy, st.txt]);
+      const v = almVals(d), byUn = almByUnit(d), buyPk = almBuyPk(d);
+      const packTxt = d.cv ? t("almGrades") : (v.pack>1 ? `${v.pack} ${t("almUnShort")}` : (v.pack===1 ? "1" : "—"));
+      const idealTxt = v.idealPk ? `${v.idealPk} pk${byUn?` (${almIdealUn(d)} un)`:""}` : "—";
+      const stockTxt = d.cv ? `${v.cheia} / ${v.vazia}` : (byUn ? `${v.stock} un` : `${v.stock} pk`);
+      const buyTxt = !v.idealPk ? (v.watch ? t("almTagWatch") : "—")
+                    : (buyPk>0 ? `${buyPk} pk${byUn?` (${almBuyUn(d)} un)`:""}` : t("almTagOk"));
+      rows.push([d.nome, packTxt, idealTxt, stockTxt, buyTxt]);
     });
   });
-
   doc.autoTable({
-    startY:39, head:[[t("almProd"),t("almIdealPk"),t("almStock"),t("almComprar"),t("almEstado")]],
+    startY:28,
+    head:[[t("almProd"),t("almUnPack"),t("almIdeal"),t("almTenho"),t("almComprar")]],
     body:rows, theme:"grid",
-    styles:{fontSize:9, cellPadding:2.3},
+    styles:{fontSize:8.5, cellPadding:2},
     headStyles:{fillColor:[51,51,51], textColor:[255,255,255]},
-    columnStyles:{0:{cellWidth:62},1:{halign:"center",cellWidth:20},2:{halign:"center"},3:{halign:"center",fontStyle:"bold"},4:{halign:"center"}},
+    columnStyles:{0:{cellWidth:58},1:{halign:"center",cellWidth:20},2:{halign:"center",cellWidth:30},3:{halign:"center",cellWidth:26},4:{halign:"center",fontStyle:"bold"}},
     didParseCell:function(c){
       if(c.section==="body" && c.column.index===4){
-        const v=c.cell.raw;
-        if(v===t("almTagOut")){c.cell.styles.textColor=[176,36,24];c.cell.styles.fontStyle="bold";c.cell.styles.fillColor=[250,232,230];}
-        else if(v===t("almTagBuy")){c.cell.styles.textColor=[184,120,20];c.cell.styles.fontStyle="bold";}
-        else if(v===t("almTagOk")){c.cell.styles.textColor=[40,120,80];}
-        else if(v===t("almTagOver")){c.cell.styles.textColor=[40,90,150];}
-        else if(v===t("almTagWatch")){c.cell.styles.textColor=[150,110,20];}
+        const v=String(c.cell.raw||"");
+        if(v===t("almTagOk")) c.cell.styles.textColor=[40,120,80];
+        else if(v===t("almTagWatch")) c.cell.styles.textColor=[150,110,20];
+        else if(v!=="—"){ c.cell.styles.textColor=[176,36,24]; c.cell.styles.fillColor=[250,238,236]; }
       }
     }
   });
+
+  /* segunda tabla: solo lo que hay que comprar */
+  const buyList = CAT.filter(d=>almVals(d).idealPk>0 && almBuyPk(d)>0);
+  let y = doc.lastAutoTable.finalY + 10;
+  if(y > 250){ doc.addPage(); y = 20; }
+  doc.setFillColor(139,26,26); doc.rect(14, y-5, 182, 8, "F");
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(10);
+  doc.text(t("almPdfLista"), 16, y+0.6);
+  if(buyList.length){
+    doc.autoTable({
+      startY: y+6,
+      head:[[t("almProd"), t("almComprar")]],
+      body: buyList.map(d=>[d.nome, `${almBuyPk(d)} pk${almByUnit(d)?` (${almBuyUn(d)} un)`:""}`]),
+      theme:"grid", styles:{fontSize:9, cellPadding:2.2},
+      headStyles:{fillColor:[51,51,51], textColor:[255,255,255]},
+      columnStyles:{0:{cellWidth:120},1:{halign:"center",fontStyle:"bold"}}
+    });
+  } else {
+    doc.setTextColor(40,120,80); doc.setFont("helvetica","normal"); doc.setFontSize(10);
+    doc.text(t("almNadaComprar"), 16, y+12);
+  }
   doc.save(`Stock_BLIVE_${hoje.replace(/\//g,"-")}.pdf`);
 }
 
