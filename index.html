@@ -358,7 +358,7 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .alm-btn.ghost.on{border-color:var(--amber);color:var(--amber)}
 .alm-cat{background:#000;color:#fff;font:800 12px var(--sans);letter-spacing:.08em;padding:8px 12px;border-radius:10px 10px 0 0;margin-top:16px}
 .alm-tbl{width:100%;border-collapse:collapse;background:var(--surface);table-layout:fixed}
-.alm-tbl col.c1{width:40%}.alm-tbl col.c2{width:18%}.alm-tbl col.c3{width:22%}.alm-tbl col.c4{width:20%}
+.alm-tbl col.c1{width:32%}.alm-tbl col.c2{width:14%}.alm-tbl col.c3{width:19%}.alm-tbl col.c4{width:16%}.alm-tbl col.c5{width:19%}
 .alm-tbl th{background:var(--surface2);color:var(--muted);font:700 9.5px var(--sans);letter-spacing:.05em;text-transform:uppercase;padding:7px 3px;text-align:center}
 .alm-tbl th:first-child{text-align:left;padding-left:12px}
 .alm-tbl td{border-top:1px solid var(--line);padding:8px 3px;text-align:center;vertical-align:middle}
@@ -385,9 +385,14 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .alm-two .alm-num{width:40px;font-size:13px}
 .alm-buyn{font:800 18px var(--mono);color:var(--red);white-space:nowrap;line-height:1}
 .alm-buyn i{font:700 9px var(--sans);font-style:normal;opacity:.75}
-.alm-tag{font:800 10px var(--sans);padding:4px 8px;border-radius:20px;display:inline-block;white-space:nowrap}
+.alm-tag{font:800 9px var(--sans);padding:4px 7px;border-radius:20px;display:inline-block;white-space:nowrap;letter-spacing:.02em}
 .alm-ok{background:var(--green-soft);color:var(--green)}
+.alm-out{background:var(--red-soft);color:var(--red)}
+.alm-falta{background:var(--amber-soft);color:var(--amber)}
+.alm-over{background:rgba(79,143,222,.15);color:#7FB2F2}
+.alm-none{background:var(--surface2);color:#5c545a}
 .alm-watch{background:var(--amber-soft);color:var(--amber)}
+.alm-zero{font:800 15px var(--mono);color:var(--green)}
 .alm-del{background:var(--red-soft);color:var(--red);border:none;border-radius:6px;width:19px;height:19px;font:800 13px var(--sans);line-height:1;cursor:pointer;margin-right:7px;flex:none}
 .alm-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(2px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
 .alm-modal-bg.show{display:flex}
@@ -808,15 +813,13 @@ const I18N = {
     tileTeamT:"Empleados",tileTeam:"Crear y gestionar accesos",
     tileAlmT:"Almacén",tileAlm:"Lo que hay y lo que falta",
     almEditar:"Editar ideales",almBloquear:"Bloquear ideales",
-    almEditNote:"Modo edición de ideales activo. El resto del equipo solo edita el stock.",
-    almFoot:"En el día a día se rellena solo la columna Stock. Los ideales los fija el administrador.",
-    almProd:"Producto",almIdeal:"Ideal",almStock:"Stock",almComprar:"Comprar",almEstado:"Estado",almCheia:"Llenas",almVazia:"Vacías",
+    almProd:"Producto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Llenas",almVazia:"Vacías",
     almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",almGrades:"grades",
+    almStock:"Stock",almEstado:"Estado",almTagOut:"AGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
-    almAComprar:"productos",almEsgot:"agotados",almConIdeal:"con ideal",almEsgotLista:"Agotados",
-    almTagOut:"AGOTADO",almTagBuy:"Comprar",almTagOk:"OK",almTagOver:"Sobra",
-    almPdfTitle:"Inventario de Stock — B'LIVE",almPdfSub:"Almacén del bar · Fecha:",almPdfBuy:"Artículos a comprar",almPdfOut:"Agotados",
+    
+    almPdfTitle:"Inventario de Stock — B'LIVE",almPdfSub:"Almacén del bar · Fecha:",
     almAdd:"Añadir producto",almAddTitle:"Nuevo producto",almName:"Nombre",almCat:"Categoría",almNewCat:"Nueva categoría",almHasCV:"Se cuenta con llenas y vacías",almSaveBtn:"Guardar",almCancel:"Cancelar",almDelConfirm:"¿Quitar este producto del almacén?",almNameReq:"Escribe un nombre",almDup:"Ese producto ya existe",
     nuevoProd:"Producto nuevo",nombre:"Nombre",categoria:"Categoría",cantIni:"Cantidad inicial",
     stockMin:"Mínimo (alerta)",guardar:"Guardar",guardarCambios:"Guardar cambios",cancelar:"Cancelar",
@@ -864,15 +867,13 @@ const I18N = {
     tileTeamT:"Funcionários",tileTeam:"Criar e gerir acessos",
     tileAlmT:"Armazém",tileAlm:"O que há e o que falta",
     almEditar:"Editar ideais",almBloquear:"Bloquear ideais",
-    almEditNote:"Modo edição de ideais ativo. O resto da equipa só edita o stock.",
-    almFoot:"No dia-a-dia preenche-se só a coluna Stock. Os ideais são definidos pelo administrador.",
-    almProd:"Produto",almIdeal:"Ideal",almStock:"Stock",almComprar:"Comprar",almEstado:"Estado",almCheia:"Cheias",almVazia:"Vazias",
+    almProd:"Produto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Cheias",almVazia:"Vazias",
     almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",almGrades:"grades",
+    almStock:"Stock",almEstado:"Estado",almTagOut:"ESGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
-    almAComprar:"produtos",almEsgot:"esgotados",almConIdeal:"com ideal",almEsgotLista:"Esgotados",
-    almTagOut:"ESGOTADO",almTagBuy:"Comprar",almTagOk:"OK",almTagOver:"Sobra",
-    almPdfTitle:"Inventário de Stock — B'LIVE",almPdfSub:"Armazém do bar · Data:",almPdfBuy:"Artigos a comprar",almPdfOut:"Esgotados",
+    
+    almPdfTitle:"Inventário de Stock — B'LIVE",almPdfSub:"Armazém do bar · Data:",
     almAdd:"Adicionar produto",almAddTitle:"Novo produto",almName:"Nome",almCat:"Categoria",almNewCat:"Nova categoria",almHasCV:"Conta com cheias e vazias",almSaveBtn:"Guardar",almCancel:"Cancelar",almDelConfirm:"Remover este produto do armazém?",almNameReq:"Escreve um nome",almDup:"Esse produto já existe",
     nuevoProd:"Produto novo",nombre:"Nome",categoria:"Categoria",cantIni:"Quantidade inicial",
     stockMin:"Mínimo (alerta)",guardar:"Guardar",guardarCambios:"Guardar alterações",cancelar:"Cancelar",
@@ -895,7 +896,22 @@ const I18N = {
     nuevaSec:"Secção nova",puntos:"pontos",admin:"Admin",empleado:"Funcionário",
     pinEmp:"PIN (4 a 6 dígitos)",colorAvatar:"Cor do quadrado",eliminarEmp:"Eliminar funcionário",
     nuevoEmp:"Funcionário novo",editarEmp:"Editar funcionário",addEmp:"Adicionar",pinReq:"O PIN deve ter de 4 a 6 dígitos",
-    pinDup:"Esse PIN já está em uso",salir:"Sair"},
+    pinDup:"Esse PIN já está em uso",salir:"Sair",
+    tilePriceT:"Preços",tilePrice:"Valor em stock e custo de cocktails",
+    tipoUnidad:"Conta-se por",precioCompra:"Preço de custo",volumenMl:"Volume (ml)",valorStock:"Dinheiro em stock",
+    costoCoctel:"Custo e preço de cocktails",costoProductos:"Custo por produto",
+    costoHint:"Escreve o preço de custo de cada garrafa para calcular o valor do stock e o custo dos cocktails.",
+    conCosto:"com custo",sinCosto:"sem custo",costoAuto:"Custo automático",costoManual:"Custo manual",auto:"auto",
+    precioVenta:"Preço de venda",margenObj:"Margem objetivo %",costo:"Custo",venta:"Venda",margen:"Margem",
+    faltaVol:"falta volume",sinLigar:"sem ligar",sugerirPrecio:"Sugerir preço de venda",
+    encontradoCat:"Encontrado no teu catálogo",
+    sinConexion:"Sem ligação — as alterações são guardadas e enviadas ao reconectar.",
+    u_unidad:"un",u_botella:"garrafas",u_caja:"caixas",u_garrafa:"garrafões",u_lata:"latas",u_pack:"packs",
+    tileLibT:"Biblioteca",tileLib:"100 cocktails prontos para adicionar à carta",
+    buscarCoctel:"Procurar cocktail ou ingrediente...",enCarta:"na carta",disponibles:"disponíveis",
+    añadido:"Adicionado à carta",quitado:"Removido da carta",sinResultados:"Sem resultados",
+    stockBajoTit:"Produtos no mínimo",vacioLow:"Todo o stock está acima do mínimo. 💪",
+    traduciendo:"a traduzir…",yaEnStock:"Já está no teu stock — a somar"},
   en:{quienEres:"Who are you?",volver:"← Back",productos:"Products",areponer:"To restock",
     buscar:"Search product...",historico:"History",comprasPend:"Shopping list",
     shopPh:"Add: lemon, sugar, napkins…",entrada:"Stock in",salida:"Stock out",iniciarCam:"Start camera",
@@ -906,15 +922,13 @@ const I18N = {
     tileTeamT:"Staff",tileTeam:"Create and manage access",
     tileAlmT:"Warehouse",tileAlm:"What you have and what's missing",
     almEditar:"Edit targets",almBloquear:"Lock targets",
-    almEditNote:"Target-editing mode on. The rest of the team only edits stock.",
-    almFoot:"Day to day, only the Stock column is filled in. Targets are set by the admin.",
-    almProd:"Product",almIdeal:"Target",almStock:"Stock",almComprar:"Buy",almEstado:"Status",almCheia:"Full",almVazia:"Empty",
+    almProd:"Product",almIdeal:"Target",almComprar:"Buy",almCheia:"Full",almVazia:"Empty",
     almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
     almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",almGrades:"crates",
+    almStock:"Stock",almEstado:"Status",almTagOut:"OUT",almTagBuy:"SHORT",almTagOver:"OVER",almTagOk:"OK",
     almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
-    almAComprar:"products",almEsgot:"out of stock",almConIdeal:"with target",almEsgotLista:"Out of stock",
-    almTagOut:"OUT",almTagBuy:"Buy",almTagOk:"OK",almTagOver:"Over",
-    almPdfTitle:"Stock Inventory — B'LIVE",almPdfSub:"Bar warehouse · Date:",almPdfBuy:"Items to buy",almPdfOut:"Out of stock",
+    
+    almPdfTitle:"Stock Inventory — B'LIVE",almPdfSub:"Bar warehouse · Date:",
     almAdd:"Add product",almAddTitle:"New product",almName:"Name",almCat:"Category",almNewCat:"New category",almHasCV:"Counted as full and empty",almSaveBtn:"Save",almCancel:"Cancel",almDelConfirm:"Remove this product from the warehouse?",almNameReq:"Enter a name",almDup:"That product already exists",
     nuevoProd:"New product",nombre:"Name",categoria:"Category",cantIni:"Initial quantity",
     stockMin:"Minimum (alert)",guardar:"Save",guardarCambios:"Save changes",cancelar:"Cancel",
@@ -937,37 +951,22 @@ const I18N = {
     nuevaSec:"New section",puntos:"points",admin:"Admin",empleado:"Staff",
     pinEmp:"PIN (4 to 6 digits)",colorAvatar:"Tile color",eliminarEmp:"Delete staff member",
     nuevoEmp:"New staff member",editarEmp:"Edit staff member",addEmp:"Add",pinReq:"PIN must be 4 to 6 digits",
-    pinDup:"That PIN is already in use",salir:"Log out"},
-  bn:{quienEres:"আপনি কে?",volver:"← ফিরে যান",productos:"পণ্য",areponer:"রিস্টক করতে হবে",
-    buscar:"পণ্য খুঁজুন...",historico:"ইতিহাস",comprasPend:"কেনাকাটার তালিকা",
-    shopPh:"যোগ করুন: লেবু, চিনি, ন্যাপকিন…",entrada:"স্টক ইন",salida:"স্টক আউট",iniciarCam:"ক্যামেরা চালু করুন",
-    camHint:"বারকোডে তাক করুন। স্ক্যান করা সবকিছু সরাসরি স্টকে যায়।",
-    codigoManual:"ম্যানুয়াল কোড (যেমন 5601234567890)",
-    tileStock:"ইনভেন্টরি ও কেনাকাটা",tileScanT:"স্ক্যানার",tileScan:"বারকোডে স্টক ইন/আউট",
-    tileRecT:"রেসিপি",tileRec:"বারের ককটেল",tileMan:"সরঞ্জাম, পরিচ্ছন্নতা ও রুটিন",
-    tileTeamT:"কর্মী",tileTeam:"অ্যাক্সেস তৈরি ও পরিচালনা",
-    nuevoProd:"নতুন পণ্য",nombre:"নাম",categoria:"বিভাগ",cantIni:"প্রাথমিক পরিমাণ",
-    stockMin:"সর্বনিম্ন (সতর্কতা)",guardar:"সংরক্ষণ",guardarCambios:"পরিবর্তন সংরক্ষণ",cancelar:"বাতিল",
-    eliminarProd:"পণ্য মুছুন",confirmarIn:"স্টক ইন নথিভুক্ত করুন",confirmarOut:"স্টক আউট নথিভুক্ত করুন",
-    stockActual:"বর্তমান স্টক",buscando:"পণ্য খোঁজা হচ্ছে…",encontradoOFF:"গ্লোবাল ডেটাবেসে পাওয়া গেছে",
-    noEncontrado:"পণ্য নিবন্ধিত নয় — একবার নিবন্ধন করুন",sinStock:"পর্যাপ্ত স্টক নেই। উপলব্ধ:",
-    entradaOk:"স্টক ইন নথিভুক্ত হয়েছে",salidaOk:"স্টক আউট নথিভুক্ত হয়েছে",prodGuardado:"সংরক্ষিত",
-    prodBorrado:"মোছা হয়েছে",nombreReq:"নাম লিখুন",
-    camErr:"ক্যামেরা চালু করা যায়নি। অনুমতি পরীক্ষা করুন এবং HTTPS ব্যবহার করুন।",
-    vacioStock:"এখনও কোনো পণ্য নেই। ＋ দিয়ে যোগ করুন বা প্রথম বোতল স্ক্যান করুন।",
-    vacioHist:"এখনও কোনো গতিবিধি নেই।",vacioShop:"কেনার কিছু বাকি নেই। 💪",
-    vacioRec:"এখনও কোনো ককটেল নেই।",demoAviso:"ডেমো মোড: ডেটা সংরক্ষিত হয় না (Firebase সেট আপ করুন)।",
-    unidades:"একক",escaneando:"স্ক্যান করা হচ্ছে…",pocoStock:"কম স্টক",min:"সর্বনিম্ন",
-    confirmDel:"স্থায়ীভাবে মুছবেন?",waTitle:"কেনাকাটার তালিকা",waFoot:"পাঠানো হয়েছে",
-    quedan:"বাকি",manualItem:"হাতে যোগ করা",soloAdmin:"শুধু অ্যাডমিন সম্পাদনা করতে পারে",
-    copa:"গ্লাস",colorBebida:"পানীয়ের রং",garnish:"গার্নিশ (ইমোজি, ঐচ্ছিক)",
-    ingredientes:"উপকরণ",pasos:"ধাপ",editar:"সম্পাদনা",eliminar:"মুছুন",cerrar:"বন্ধ",
-    titulo:"শিরোনাম",lineas:"বিষয়বস্তু (প্রতি লাইনে একটি পয়েন্ট)",eliminarSec:"বিভাগ মুছুন",
-    editarSec:"✎ বিভাগ সম্পাদনা",nuevoCoctel:"নতুন ককটেল",editarCoctel:"ককটেল সম্পাদনা",
-    nuevaSec:"নতুন বিভাগ",puntos:"পয়েন্ট",admin:"অ্যাডমিন",empleado:"কর্মী",
-    pinEmp:"পিন (৪ থেকে ৬ অঙ্ক)",colorAvatar:"টাইলের রং",eliminarEmp:"কর্মী মুছুন",
-    nuevoEmp:"নতুন কর্মী",editarEmp:"কর্মী সম্পাদনা",addEmp:"যোগ করুন",pinReq:"পিন ৪ থেকে ৬ অঙ্কের হতে হবে",
-    pinDup:"এই পিন ইতিমধ্যে ব্যবহৃত হচ্ছে",salir:"লগ আউট"}
+    pinDup:"That PIN is already in use",salir:"Log out",
+    tilePriceT:"Prices",tilePrice:"Stock value and cocktail cost",
+    tipoUnidad:"Counted by",precioCompra:"Cost price",volumenMl:"Volume (ml)",valorStock:"Money in stock",
+    costoCoctel:"Cocktail cost and price",costoProductos:"Cost per product",
+    costoHint:"Enter the cost price of each bottle to calculate stock value and cocktail cost.",
+    conCosto:"with cost",sinCosto:"without cost",costoAuto:"Automatic cost",costoManual:"Manual cost",auto:"auto",
+    precioVenta:"Selling price",margenObj:"Target margin %",costo:"Cost",venta:"Sale",margen:"Margin",
+    faltaVol:"missing volume",sinLigar:"not linked",sugerirPrecio:"Suggest selling price",
+    encontradoCat:"Found in your catalogue",
+    sinConexion:"Offline — changes are saved and will sync when you reconnect.",
+    u_unidad:"units",u_botella:"bottles",u_caja:"boxes",u_garrafa:"jugs",u_lata:"cans",u_pack:"packs",
+    tileLibT:"Library",tileLib:"100 cocktails ready to add to the menu",
+    buscarCoctel:"Search cocktail or ingredient...",enCarta:"on the menu",disponibles:"available",
+    añadido:"Added to the menu",quitado:"Removed from the menu",sinResultados:"No results",
+    stockBajoTit:"Products at minimum",vacioLow:"All stock is above minimum. 💪",
+    traduciendo:"translating…",yaEnStock:"Already in your stock — adding"}
 };
 const LANGS = [["es","ES"],["pt","PT"],["en","EN"]];
 let lang = "es";
@@ -1481,143 +1480,114 @@ const DEMO_RECIPES = [
   {id:"dr_mojito", nombre:"MOJITO", copa:"highball", color:"#7FD8BE", garnish:"🌿",
    ing:{es:["50ml ron blanco","6 hojas de hierbabuena","25ml zumo de lima","2 cdtas de azúcar","Soda"],
         pt:["50ml rum branco","6 folhas de hortelã","25ml sumo de lima","2 c. chá de açúcar","Soda"],
-        en:["50ml white rum","6 mint leaves","25ml lime juice","2 tsp sugar","Soda water"],
-        bn:["৫০ মি.লি. সাদা রাম","৬টি পুদিনা পাতা","২৫ মি.লি. লেবুর রস","২ চা চামচ চিনি","সোডা"]},
+        en:["50ml white rum","6 mint leaves","25ml lime juice","2 tsp sugar","Soda water"]},
    pasos:{es:["Macerar hierbabuena con azúcar y lima","Llenar de hielo picado","Añadir ron y completar con soda","Remover de abajo hacia arriba"],
           pt:["Macerar hortelã com açúcar e lima","Encher com gelo picado","Adicionar rum e completar com soda","Mexer de baixo para cima"],
-          en:["Muddle mint with sugar and lime","Fill with crushed ice","Add rum and top with soda","Stir from the bottom up"],
-          bn:["পুদিনা, চিনি ও লেবু ম্যাশ করুন","ভাঙা বরফ দিয়ে ভরুন","রাম দিন ও সোডা দিয়ে পূর্ণ করুন","নিচ থেকে উপরে নাড়ুন"]}},
+          en:["Muddle mint with sugar and lime","Fill with crushed ice","Add rum and top with soda","Stir from the bottom up"]}},
   {id:"dr_caipirinha", nombre:"CAIPIRINHA", copa:"rocks", color:"#B6D94C", garnish:"🍋",
    ing:{es:["50ml cachaça","1 lima en trozos","2 cdtas de azúcar","Hielo"],
         pt:["50ml cachaça","1 lima aos pedaços","2 c. chá de açúcar","Gelo"],
-        en:["50ml cachaça","1 lime, cut in chunks","2 tsp sugar","Ice"],
-        bn:["৫০ মি.লি. কাশাসা","১টি লেবু টুকরো করা","২ চা চামচ চিনি","বরফ"]},
+        en:["50ml cachaça","1 lime, cut in chunks","2 tsp sugar","Ice"]},
    pasos:{es:["Macerar la lima con el azúcar","Añadir la cachaça","Llenar de hielo","Remover bien"],
           pt:["Macerar a lima com o açúcar","Adicionar a cachaça","Encher de gelo","Mexer bem"],
-          en:["Muddle lime with sugar","Add the cachaça","Fill with ice","Stir well"],
-          bn:["লেবু ও চিনি ম্যাশ করুন","কাশাসা যোগ করুন","বরফ দিয়ে ভরুন","ভালোভাবে নাড়ুন"]}},
+          en:["Muddle lime with sugar","Add the cachaça","Fill with ice","Stir well"]}},
   {id:"dr_margarita", nombre:"MARGARITA", copa:"coupe", color:"#5CBF6E", garnish:"🍋",
    ing:{es:["50ml tequila","25ml triple sec","25ml zumo de lima","Sal para el borde"],
         pt:["50ml tequila","25ml triple sec","25ml sumo de lima","Sal para o rebordo"],
-        en:["50ml tequila","25ml triple sec","25ml lime juice","Salt for the rim"],
-        bn:["৫০ মি.লি. টাকিলা","২৫ মি.লি. ট্রিপল সেক","২৫ মি.লি. লেবুর রস","কিনারায় লবণ"]},
+        en:["50ml tequila","25ml triple sec","25ml lime juice","Salt for the rim"]},
    pasos:{es:["Escarchar el borde con sal","Agitar todo con hielo 15s","Colar en la copa fría"],
           pt:["Escarchar o rebordo com sal","Agitar tudo com gelo 15s","Coar na taça fria"],
-          en:["Rim the glass with salt","Shake with ice for 15s","Strain into a chilled glass"],
-          bn:["গ্লাসের কিনারা লবণ দিয়ে সাজান","বরফসহ ১৫ সে. ঝাঁকান","ঠান্ডা গ্লাসে ছেঁকে ঢালুন"]}},
+          en:["Rim the glass with salt","Shake with ice for 15s","Strain into a chilled glass"]}},
   {id:"dr_daiquiri", nombre:"DAIQUIRI", copa:"coupe", color:"#D7E2EA", garnish:"🍈",
    ing:{es:["50ml ron blanco","25ml zumo de lima","15ml sirope simple"],
         pt:["50ml rum branco","25ml sumo de lima","15ml xarope simples"],
-        en:["50ml white rum","25ml lime juice","15ml simple syrup"],
-        bn:["৫০ মি.লি. সাদা রাম","২৫ মি.লি. লেবুর রস","১৫ মি.লি. সিম্পল সিরাপ"]},
+        en:["50ml white rum","25ml lime juice","15ml simple syrup"]},
    pasos:{es:["Agitar todo con hielo","Doble colado en copa fría","Servir sin hielo"],
           pt:["Agitar tudo com gelo","Duplo coado em taça fria","Servir sem gelo"],
-          en:["Shake all with ice","Double strain into a chilled glass","Serve straight up"],
-          bn:["সব বরফসহ ঝাঁকান","ঠান্ডা গ্লাসে ডাবল ছেঁকে ঢালুন","বরফ ছাড়া পরিবেশন করুন"]}},
+          en:["Shake all with ice","Double strain into a chilled glass","Serve straight up"]}},
   {id:"dr_negroni", nombre:"NEGRONI", copa:"rocks", color:"#8E1E1E", garnish:"🍊",
    ing:{es:["30ml gin","30ml Campari","30ml vermut rojo","Piel de naranja"],
         pt:["30ml gin","30ml Campari","30ml vermute tinto","Casca de laranja"],
-        en:["30ml gin","30ml Campari","30ml sweet vermouth","Orange peel"],
-        bn:["৩০ মি.লি. জিন","৩০ মি.লি. ক্যাম্পারি","৩০ মি.লি. সুইট ভার্মুথ","কমলার খোসা"]},
+        en:["30ml gin","30ml Campari","30ml sweet vermouth","Orange peel"]},
    pasos:{es:["Verter todo sobre hielo","Remover 20 segundos","Perfumar con piel de naranja"],
           pt:["Verter tudo sobre gelo","Mexer 20 segundos","Perfumar com casca de laranja"],
-          en:["Build over ice","Stir for 20 seconds","Express the orange peel"],
-          bn:["বরফের উপর সব ঢালুন","২০ সেকেন্ড নাড়ুন","কমলার খোসার সুগন্ধ দিন"]}},
+          en:["Build over ice","Stir for 20 seconds","Express the orange peel"]}},
   {id:"dr_oldfashioned", nombre:"OLD FASHIONED", copa:"rocks", color:"#C97B2D", garnish:"🍊",
    ing:{es:["60ml bourbon","1 terrón de azúcar","3 dashes de Angostura","Piel de naranja"],
         pt:["60ml bourbon","1 cubo de açúcar","3 gotas de Angostura","Casca de laranja"],
-        en:["60ml bourbon","1 sugar cube","3 dashes Angostura","Orange peel"],
-        bn:["৬০ মি.লি. বারবন","১ কিউব চিনি","৩ ফোঁটা অ্যাঙ্গোস্তুরা","কমলার খোসা"]},
+        en:["60ml bourbon","1 sugar cube","3 dashes Angostura","Orange peel"]},
    pasos:{es:["Disolver azúcar con los bitters","Añadir bourbon y hielo grande","Remover 20 segundos","Perfumar con naranja"],
           pt:["Dissolver açúcar com os bitters","Adicionar bourbon e gelo grande","Mexer 20 segundos","Perfumar com laranja"],
-          en:["Dissolve sugar with the bitters","Add bourbon and a large ice cube","Stir for 20 seconds","Express orange peel"],
-          bn:["বিটার দিয়ে চিনি গলান","বারবন ও বড় বরফ দিন","২০ সেকেন্ড নাড়ুন","কমলার সুগন্ধ দিন"]}},
+          en:["Dissolve sugar with the bitters","Add bourbon and a large ice cube","Stir for 20 seconds","Express orange peel"]}},
   {id:"dr_cosmo", nombre:"COSMOPOLITAN", copa:"martini", color:"#D6336C", garnish:"🍋",
    ing:{es:["40ml vodka","15ml triple sec","15ml zumo de arándano","10ml zumo de lima"],
         pt:["40ml vodka","15ml triple sec","15ml sumo de arando","10ml sumo de lima"],
-        en:["40ml vodka","15ml triple sec","15ml cranberry juice","10ml lime juice"],
-        bn:["৪০ মি.লি. ভদকা","১৫ মি.লি. ট্রিপল সেক","১৫ মি.লি. ক্র্যানবেরি রস","১০ মি.লি. লেবুর রস"]},
+        en:["40ml vodka","15ml triple sec","15ml cranberry juice","10ml lime juice"]},
    pasos:{es:["Agitar todo con hielo","Colar en copa fría","Decorar con piel de lima"],
           pt:["Agitar tudo com gelo","Coar em taça fria","Decorar com casca de lima"],
-          en:["Shake all with ice","Strain into a chilled glass","Garnish with lime peel"],
-          bn:["সব বরফসহ ঝাঁকান","ঠান্ডা গ্লাসে ছেঁকে ঢালুন","লেবুর খোসা দিয়ে সাজান"]}},
+          en:["Shake all with ice","Strain into a chilled glass","Garnish with lime peel"]}},
   {id:"dr_espresso", nombre:"ESPRESSO MARTINI", copa:"martini", color:"#5C4033", garnish:"☕",
    ing:{es:["50ml vodka","30ml espresso","20ml licor de café","10ml sirope simple"],
         pt:["50ml vodka","30ml espresso","20ml licor de café","10ml xarope simples"],
-        en:["50ml vodka","30ml espresso","20ml coffee liqueur","10ml simple syrup"],
-        bn:["৫০ মি.লি. ভদকা","৩০ মি.লি. এসপ্রেসো","২০ মি.লি. কফি লিকার","১০ মি.লি. সিম্পল সিরাপ"]},
+        en:["50ml vodka","30ml espresso","20ml coffee liqueur","10ml simple syrup"]},
    pasos:{es:["Agitar con hielo con fuerza","Doble colado en copa fría","Decorar con 3 granos de café"],
           pt:["Agitar com gelo com força","Duplo coado em taça fria","Decorar com 3 grãos de café"],
-          en:["Shake hard with ice","Double strain into a chilled glass","Garnish with 3 coffee beans"],
-          bn:["বরফসহ জোরে ঝাঁকান","ঠান্ডা গ্লাসে ডাবল ছেঁকে ঢালুন","৩টি কফি বিন দিয়ে সাজান"]}},
+          en:["Shake hard with ice","Double strain into a chilled glass","Garnish with 3 coffee beans"]}},
   {id:"dr_aperol", nombre:"APEROL SPRITZ", copa:"vino", color:"#FF9F1C", garnish:"🍊",
    ing:{es:["60ml Aperol","90ml prosecco","Splash de soda","Rodaja de naranja"],
         pt:["60ml Aperol","90ml prosecco","Toque de soda","Rodela de laranja"],
-        en:["60ml Aperol","90ml prosecco","Splash of soda","Orange slice"],
-        bn:["৬০ মি.লি. অ্যাপেরল","৯০ মি.লি. প্রসেকো","একটু সোডা","কমলার টুকরো"]},
+        en:["60ml Aperol","90ml prosecco","Splash of soda","Orange slice"]},
    pasos:{es:["Llenar la copa de hielo","Verter prosecco y Aperol","Splash de soda","Decorar con naranja"],
           pt:["Encher a taça de gelo","Verter prosecco e Aperol","Toque de soda","Decorar com laranja"],
-          en:["Fill the glass with ice","Pour prosecco and Aperol","Splash of soda","Garnish with orange"],
-          bn:["গ্লাস বরফ দিয়ে ভরুন","প্রসেকো ও অ্যাপেরল ঢালুন","একটু সোডা দিন","কমলা দিয়ে সাজান"]}},
+          en:["Fill the glass with ice","Pour prosecco and Aperol","Splash of soda","Garnish with orange"]}},
   {id:"dr_pinacolada", nombre:"PIÑA COLADA", copa:"highball", color:"#F2E8D5", garnish:"🍍",
    ing:{es:["50ml ron","30ml crema de coco","90ml zumo de piña","Hielo"],
         pt:["50ml rum","30ml creme de coco","90ml sumo de ananás","Gelo"],
-        en:["50ml rum","30ml coconut cream","90ml pineapple juice","Ice"],
-        bn:["৫০ মি.লি. রাম","৩০ মি.লি. নারকেল ক্রিম","৯০ মি.লি. আনারসের রস","বরফ"]},
+        en:["50ml rum","30ml coconut cream","90ml pineapple juice","Ice"]},
    pasos:{es:["Batir todo con hielo","Servir en vaso alto","Decorar con piña"],
           pt:["Bater tudo com gelo","Servir em copo alto","Decorar com ananás"],
-          en:["Blend all with ice","Serve in a tall glass","Garnish with pineapple"],
-          bn:["সব বরফসহ ব্লেন্ড করুন","লম্বা গ্লাসে পরিবেশন করুন","আনারস দিয়ে সাজান"]}},
+          en:["Blend all with ice","Serve in a tall glass","Garnish with pineapple"]}},
   {id:"dr_ginfizz", nombre:"GIN FIZZ", copa:"highball", color:"#F2C94C", garnish:"🍋",
    ing:{es:["50ml gin","25ml zumo de limón","15ml sirope simple","Soda"],
         pt:["50ml gin","25ml sumo de limão","15ml xarope simples","Soda"],
-        en:["50ml gin","25ml lemon juice","15ml simple syrup","Soda water"],
-        bn:["৫০ মি.লি. জিন","২৫ মি.লি. লেবুর রস","১৫ মি.লি. সিম্পল সিরাপ","সোডা"]},
+        en:["50ml gin","25ml lemon juice","15ml simple syrup","Soda water"]},
    pasos:{es:["Agitar gin, limón y sirope","Colar sobre hielo","Completar con soda"],
           pt:["Agitar gin, limão e xarope","Coar sobre gelo","Completar com soda"],
-          en:["Shake gin, lemon and syrup","Strain over ice","Top with soda"],
-          bn:["জিন, লেবু ও সিরাপ ঝাঁকান","বরফের উপর ছেঁকে ঢালুন","সোডা দিয়ে পূর্ণ করুন"]}},
+          en:["Shake gin, lemon and syrup","Strain over ice","Top with soda"]}},
   {id:"dr_cubalibre", nombre:"CUBA LIBRE", copa:"highball", color:"#5C4033", garnish:"🍋",
    ing:{es:["50ml ron","Coca-Cola","10ml zumo de lima","Hielo"],
         pt:["50ml rum","Coca-Cola","10ml sumo de lima","Gelo"],
-        en:["50ml rum","Cola","10ml lime juice","Ice"],
-        bn:["৫০ মি.লি. রাম","কোলা","১০ মি.লি. লেবুর রস","বরফ"]},
+        en:["50ml rum","Cola","10ml lime juice","Ice"]},
    pasos:{es:["Llenar el vaso de hielo","Añadir ron y lima","Completar con Coca-Cola"],
           pt:["Encher o copo de gelo","Adicionar rum e lima","Completar com Coca-Cola"],
-          en:["Fill the glass with ice","Add rum and lime","Top with cola"],
-          bn:["গ্লাস বরফ দিয়ে ভরুন","রাম ও লেবু দিন","কোলা দিয়ে পূর্ণ করুন"]}}
+          en:["Fill the glass with ice","Add rum and lime","Top with cola"]}}
 ];
 const DEMO_MANUAL = [
   {id:"dm_tools", orden:1,
-   titulo:{es:"HERRAMIENTAS DEL BAR",pt:"FERRAMENTAS DO BAR",en:"BAR TOOLS",bn:"বারের সরঞ্জাম"},
+   titulo:{es:"HERRAMIENTAS DEL BAR",pt:"FERRAMENTAS DO BAR",en:"BAR TOOLS"},
    items:{es:["Coctelera Boston: para agitar cócteles con cítricos","Vaso mezclador y cuchara: para cócteles removidos","Jigger: medir SIEMPRE — 25/50ml, nada a ojo","Colador Hawthorne y colador fino para doble colado","Macerador: presionar, no triturar la hierbabuena","Pinza y pala de hielo: NUNCA usar el vaso como pala"],
           pt:["Coqueteleira Boston: para agitar cocktails com citrinos","Copo de mistura e colher: para cocktails mexidos","Jigger: medir SEMPRE — 25/50ml, nada a olho","Coador Hawthorne e coador fino para duplo coado","Macerador: pressionar, não triturar a hortelã","Pinça e pá de gelo: NUNCA usar o copo como pá"],
-          en:["Boston shaker: for shaking citrus cocktails","Mixing glass and spoon: for stirred cocktails","Jigger: ALWAYS measure — 25/50ml, never by eye","Hawthorne and fine strainer for double straining","Muddler: press, don't shred the mint","Ice tongs and scoop: NEVER use the glass as a scoop"],
-          bn:["বোস্টন শেকার: সাইট্রাস ককটেল ঝাঁকাতে","মিক্সিং গ্লাস ও চামচ: নাড়ানো ককটেলের জন্য","জিগার: সবসময় মাপুন — ২৫/৫০ মি.লি., চোখে নয়","হথর্ন ও ফাইন স্ট্রেইনার ডাবল ছাঁকার জন্য","মাডলার: চাপ দিন, পুদিনা থেঁতলাবেন না","বরফ চিমটা ও স্কুপ: গ্লাস কখনো স্কুপ হিসেবে নয়"]}},
+          en:["Boston shaker: for shaking citrus cocktails","Mixing glass and spoon: for stirred cocktails","Jigger: ALWAYS measure — 25/50ml, never by eye","Hawthorne and fine strainer for double straining","Muddler: press, don't shred the mint","Ice tongs and scoop: NEVER use the glass as a scoop"]}},
   {id:"dm_hygiene", orden:2,
-   titulo:{es:"HIGIENE Y LIMPIEZA",pt:"HIGIENE E LIMPEZA",en:"HYGIENE & CLEANING",bn:"স্বাস্থ্যবিধি ও পরিচ্ছন্নতা"},
+   titulo:{es:"HIGIENE Y LIMPIEZA",pt:"HIGIENE E LIMPEZA",en:"HYGIENE & CLEANING"},
    items:{es:["Lavarse las manos al entrar y tras tocar dinero","Paños separados: uno para barra, otro para cristalería","Limpiar la estación y los picos dosificadores cada cierre","Etiquetar con fecha jarabes y zumos abiertos (máx. 5 días)","El hielo se toca solo con pala o pinza","Repasar la cristalería con marcas de agua antes de servir"],
           pt:["Lavar as mãos ao entrar e após tocar dinheiro","Panos separados: um para o balcão, outro para copos","Limpar a estação e os bicos doseadores a cada fecho","Etiquetar com data xaropes e sumos abertos (máx. 5 dias)","O gelo toca-se só com pá ou pinça","Repassar copos com marcas de água antes de servir"],
-          en:["Wash hands on arrival and after handling cash","Separate cloths: one for the bar, one for glassware","Clean the station and pour spouts at every close","Date-label opened syrups and juices (max 5 days)","Ice is only touched with a scoop or tongs","Polish glassware with water marks before serving"],
-          bn:["আসার সময় ও টাকা ধরার পর হাত ধুন","আলাদা কাপড়: একটি বারের, একটি গ্লাসের","প্রতি বন্ধের সময় স্টেশন ও পোরার মুখ পরিষ্কার করুন","খোলা সিরাপ ও রসে তারিখ লিখুন (সর্বোচ্চ ৫ দিন)","বরফ শুধু স্কুপ বা চিমটা দিয়ে ধরুন","পরিবেশনের আগে দাগযুক্ত গ্লাস মুছুন"]}},
+          en:["Wash hands on arrival and after handling cash","Separate cloths: one for the bar, one for glassware","Clean the station and pour spouts at every close","Date-label opened syrups and juices (max 5 days)","Ice is only touched with a scoop or tongs","Polish glassware with water marks before serving"]}},
   {id:"dm_open", orden:3,
-   titulo:{es:"APERTURA DEL TURNO",pt:"ABERTURA DO TURNO",en:"OPENING SHIFT",bn:"শিফট শুরু"},
+   titulo:{es:"APERTURA DEL TURNO",pt:"ABERTURA DO TURNO",en:"OPENING SHIFT"},
    items:{es:["Encender neveras y verificar temperaturas","Reponer estación: fruta cortada, jarabes, servilletas","Llenar los recipientes de hielo","Revisar la lista de compras pendientes en la app","Repasar cristalería y montar la barra"],
           pt:["Ligar frigoríficos e verificar temperaturas","Repor estação: fruta cortada, xaropes, guardanapos","Encher os recipientes de gelo","Rever a lista de compras pendentes na app","Repassar copos e montar o balcão"],
-          en:["Turn on fridges and check temperatures","Restock station: cut fruit, syrups, napkins","Fill the ice bins","Check the shopping list in the app","Polish glassware and set up the bar"],
-          bn:["ফ্রিজ চালু করুন ও তাপমাত্রা পরীক্ষা করুন","স্টেশন পূরণ: কাটা ফল, সিরাপ, ন্যাপকিন","বরফের পাত্র ভরুন","অ্যাপে বাকি কেনাকাটার তালিকা দেখুন","গ্লাস মুছুন ও বার সাজান"]}},
+          en:["Turn on fridges and check temperatures","Restock station: cut fruit, syrups, napkins","Fill the ice bins","Check the shopping list in the app","Polish glassware and set up the bar"]}},
   {id:"dm_close", orden:4,
-   titulo:{es:"CIERRE DEL TURNO",pt:"FECHO DO TURNO",en:"CLOSING SHIFT",bn:"শিফট শেষ"},
+   titulo:{es:"CIERRE DEL TURNO",pt:"FECHO DO TURNO",en:"CLOSING SHIFT"},
    items:{es:["Registrar las salidas del día en la app (escáner)","Vaciar y limpiar los recipientes de hielo","Tapar y refrigerar jarabes y zumos abiertos","Limpiar picos, coladores y coctelera con agua caliente","Dejar la estación montada para la apertura"],
           pt:["Registar as saídas do dia na app (scanner)","Esvaziar e limpar os recipientes de gelo","Tapar e refrigerar xaropes e sumos abertos","Limpar bicos, coadores e coqueteleira com água quente","Deixar a estação montada para a abertura"],
-          en:["Log the day's stock-outs in the app (scanner)","Empty and clean the ice bins","Cover and refrigerate opened syrups and juices","Clean spouts, strainers and shaker with hot water","Leave the station set up for opening"],
-          bn:["দিনের স্টক আউট অ্যাপে নথিভুক্ত করুন (স্ক্যানার)","বরফের পাত্র খালি করে পরিষ্কার করুন","খোলা সিরাপ ও রস ঢেকে ফ্রিজে রাখুন","গরম পানিতে মুখ, স্ট্রেইনার ও শেকার পরিষ্কার করুন","শিফট শুরুর জন্য স্টেশন সাজিয়ে রাখুন"]}},
+          en:["Log the day's stock-outs in the app (scanner)","Empty and clean the ice bins","Cover and refrigerate opened syrups and juices","Clean spouts, strainers and shaker with hot water","Leave the station set up for opening"]}},
   {id:"dm_service", orden:5,
-   titulo:{es:"SERVICIO Y ATENCIÓN",pt:"SERVIÇO E ATENDIMENTO",en:"SERVICE & CARE",bn:"সেবা ও যত্ন"},
+   titulo:{es:"SERVICIO Y ATENCIÓN",pt:"SERVIÇO E ATENDIMENTO",en:"SERVICE & CARE"},
    items:{es:["Saludar al cliente en menos de 1 minuto","Confirmar la comanda repitiéndola","Servir primero bebidas sin alcohol y de mujeres","Nunca llenar de más: respetar las medidas","Retirar vasos vacíos y mantener la barra limpia"],
           pt:["Cumprimentar o cliente em menos de 1 minuto","Confirmar o pedido repetindo-o","Servir primeiro bebidas sem álcool e de senhoras","Nunca encher demais: respeitar as medidas","Retirar copos vazios e manter o balcão limpo"],
-          en:["Greet the guest within 1 minute","Confirm the order by repeating it","Serve non-alcoholic and ladies' drinks first","Never overpour: respect the measures","Clear empty glasses and keep the bar clean"],
-          bn:["১ মিনিটের মধ্যে অতিথিকে অভ্যর্থনা জানান","অর্ডার পুনরাবৃত্তি করে নিশ্চিত করুন","আগে নন-অ্যালকোহলিক ও নারীদের পানীয় দিন","কখনো বেশি ঢালবেন না: পরিমাপ মানুন","খালি গ্লাস সরান ও বার পরিষ্কার রাখুন"]}}
+          en:["Greet the guest within 1 minute","Confirm the order by repeating it","Serve non-alcoholic and ladies' drinks first","Never overpour: respect the measures","Clear empty glasses and keep the bar clean"]}}
 ];
 function seedDemoRecipes(){
   recipes.clear();
@@ -2954,6 +2924,16 @@ function almBuyPk(d){                         // packs a comprar (siempre pack e
   return falta > 1e-9 ? Math.ceil(falta - 1e-9) : 0;
 }
 function almBuyUn(d){ return almByUnit(d) ? almBuyPk(d) * almVals(d).pack : 0; }
+/* estado: agotado / falta comprar / sobra / ok */
+function almState(d){
+  const v = almVals(d);
+  if(!v.idealPk) return v.watch ? {txt:t("almTagWatch"), cls:"alm-watch"} : {txt:"—", cls:"alm-none"};
+  const s = almStockPk(d);
+  if(s <= 0)                 return {txt:t("almTagOut"),  cls:"alm-out"};
+  if(s < v.idealPk - 1e-9)   return {txt:t("almTagBuy"),  cls:"alm-falta"};
+  if(s > v.idealPk + 1e-9)   return {txt:t("almTagOver"), cls:"alm-over"};
+  return {txt:t("almTagOk"), cls:"alm-ok"};
+}
 
 async function almSave(id, patch){
   const cur = almacen.get(id) || {};
@@ -3010,8 +2990,8 @@ function renderAlmacen(){
     const items = CAT.filter(d=>d.cat===cat);
     if(!items.length) return;
     html += `<div class="alm-cat">${esc(cat)}</div>`;
-    html += `<table class="alm-tbl"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
-      <thead><tr><th>${t("almProd")}</th><th>${t("almIdeal")}</th><th>${t("almTenho")}</th><th>${t("almComprar")}</th></tr></thead><tbody>`;
+    html += `<table class="alm-tbl"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"></colgroup>
+      <thead><tr><th>${t("almProd")}</th><th>${t("almIdeal")}</th><th>${t("almTenho")}</th><th>${t("almComprar")}</th><th>${t("almEstado")}</th></tr></thead><tbody>`;
     items.forEach(d=>{
       const v = almVals(d), byUn = almByUnit(d), buyPk = almBuyPk(d), buyUn = almBuyUn(d);
       const del = (almEdit && admin) ? `<button class="alm-del" data-del="${d.id}" data-custom="${d.custom?1:0}">×</button>` : "";
@@ -3049,20 +3029,21 @@ function renderAlmacen(){
            </div>${byUn && v.stock ? `<div class="alm-sub">= ${(v.stock/v.pack).toFixed(1)} pk</div>` : ""}`;
 
       /* COMPRAR: la respuesta clara */
-      let buyCell;
-      if(!v.idealPk){
-        buyCell = v.watch ? `<span class="alm-tag alm-watch">${t("almTagWatch")}</span>` : `<span class="alm-dash">—</span>`;
-      } else if(buyPk>0){
-        buyCell = `<div class="alm-buyn">${buyPk} <i>pk</i></div>${buyUn?`<div class="alm-sub">${buyUn} ${t("almUnShort")}</div>`:""}`;
-      } else {
-        buyCell = `<span class="alm-tag alm-ok">${t("almTagOk")}</span>`;
-      }
+      const buyCell = (!v.idealPk)
+        ? `<span class="alm-dash">—</span>`
+        : (buyPk>0
+            ? `<div class="alm-buyn">${buyPk} <i>pk</i></div>${buyUn?`<div class="alm-sub">${buyUn} ${t("almUnShort")}</div>`:""}`
+            : `<span class="alm-zero">0</span>`);
+
+      /* ESTADO */
+      const st = almState(d);
 
       html += `<tr class="${buyPk>0?"need":""}">
         <td><div class="alm-pn">${del}${esc(d.nome)}</div><div class="alm-ps">${sub}</div></td>
         <td>${idealCell}</td>
         <td>${stockCell}</td>
         <td class="alm-bc">${buyCell}</td>
+        <td><span class="alm-tag ${st.cls}">${st.txt}</span></td>
       </tr>`;
     });
     html += `</tbody></table>`;
@@ -3097,30 +3078,36 @@ function almExportPDF(){
   almCats().forEach(cat=>{
     const items = CAT.filter(d=>d.cat===cat);
     if(!items.length) return;
-    rows.push([{content:cat, colSpan:5, styles:{fillColor:[23,19,20],textColor:[255,255,255],fontStyle:"bold"}}]);
+    rows.push([{content:cat, colSpan:6, styles:{fillColor:[23,19,20],textColor:[255,255,255],fontStyle:"bold"}}]);
     items.forEach(d=>{
       const v = almVals(d), byUn = almByUnit(d), buyPk = almBuyPk(d);
       const packTxt = d.cv ? t("almGrades") : (v.pack>1 ? `${v.pack} ${t("almUnShort")}` : (v.pack===1 ? "1" : "—"));
       const idealTxt = v.idealPk ? `${v.idealPk} pk${byUn?` (${almIdealUn(d)} un)`:""}` : "—";
       const stockTxt = d.cv ? `${v.cheia} / ${v.vazia}` : (byUn ? `${v.stock} un` : `${v.stock} pk`);
-      const buyTxt = !v.idealPk ? (v.watch ? t("almTagWatch") : "—")
-                    : (buyPk>0 ? `${buyPk} pk${byUn?` (${almBuyUn(d)} un)`:""}` : t("almTagOk"));
-      rows.push([d.nome, packTxt, idealTxt, stockTxt, buyTxt]);
+      const buyTxt = !v.idealPk ? "—" : (buyPk>0 ? `${buyPk} pk${byUn?` (${almBuyUn(d)} un)`:""}` : "0");
+      rows.push([d.nome, packTxt, idealTxt, stockTxt, buyTxt, almState(d).txt]);
     });
   });
   doc.autoTable({
     startY:28,
-    head:[[t("almProd"),t("almUnPack"),t("almIdeal"),t("almTenho"),t("almComprar")]],
+    head:[[t("almProd"),t("almUnPack"),t("almIdeal"),t("almTenho"),t("almComprar"),t("almEstado")]],
     body:rows, theme:"grid",
-    styles:{fontSize:8.5, cellPadding:2},
+    styles:{fontSize:8, cellPadding:1.8},
     headStyles:{fillColor:[51,51,51], textColor:[255,255,255]},
-    columnStyles:{0:{cellWidth:58},1:{halign:"center",cellWidth:20},2:{halign:"center",cellWidth:30},3:{halign:"center",cellWidth:26},4:{halign:"center",fontStyle:"bold"}},
+    columnStyles:{0:{cellWidth:48},1:{halign:"center",cellWidth:17},2:{halign:"center",cellWidth:27},3:{halign:"center",cellWidth:23},4:{halign:"center",cellWidth:28,fontStyle:"bold"},5:{halign:"center"}},
     didParseCell:function(c){
-      if(c.section==="body" && c.column.index===4){
+      if(c.section!=="body") return;
+      if(c.column.index===4){
         const v=String(c.cell.raw||"");
-        if(v===t("almTagOk")) c.cell.styles.textColor=[40,120,80];
-        else if(v===t("almTagWatch")) c.cell.styles.textColor=[150,110,20];
-        else if(v!=="—"){ c.cell.styles.textColor=[176,36,24]; c.cell.styles.fillColor=[250,238,236]; }
+        if(v!=="—" && v!=="0"){ c.cell.styles.textColor=[176,36,24]; }
+      }
+      if(c.column.index===5){
+        const v=String(c.cell.raw||"");
+        if(v===t("almTagOut")){ c.cell.styles.textColor=[176,36,24]; c.cell.styles.fontStyle="bold"; c.cell.styles.fillColor=[250,232,230]; }
+        else if(v===t("almTagBuy")){ c.cell.styles.textColor=[184,120,20]; c.cell.styles.fontStyle="bold"; }
+        else if(v===t("almTagOk")){ c.cell.styles.textColor=[40,120,80]; }
+        else if(v===t("almTagOver")){ c.cell.styles.textColor=[40,90,150]; }
+        else if(v===t("almTagWatch")){ c.cell.styles.textColor=[150,110,20]; }
       }
     }
   });
