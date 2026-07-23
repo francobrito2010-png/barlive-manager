@@ -446,7 +446,7 @@ const DEMO = false;
    DATA_NS: espacio de datos. Déjalo en "test_" para PROBAR en paralelo sin
    tocar los datos reales del bar. Cuando valides todo, ponlo en "" (vacío)
    para usar la base de producción (gf_productos, etc.).                     */
-const DATA_NS = "test_";
+const DATA_NS = "";
 const CURRENCY = "€";          /* símbolo de moneda para precios y valor de stock */
 const HISTORY_DAYS = 45;       /* el historial guarda ~mes y medio y se limpia solo */
 const PIN_SALT = "blive.barlive-manager.v2"; /* sal para cifrar los PIN (no la cambies tras crear PINs) */
@@ -1387,12 +1387,12 @@ async function initData(){
                           .filter(m=>m.ts.getTime() >= cutoff);
         renderHistory();
       });
-      db.collection(COL("gf_recetas")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
+      db.collection(COL("gf_recetas")).onSnapshot({includeMetadataChanges:true}, s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") recipes.delete(ch.doc.id); else recipes.set(ch.doc.id, ch.doc.data());
-      }); renderRecipes(); if(currentScreen==="prices") renderPrices();});
-      db.collection(COL("gf_manual")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
+      }); renderRecipes(); if(currentScreen==="prices") renderPrices(); seedRecipesIfEmpty(s);});
+      db.collection(COL("gf_manual")).onSnapshot({includeMetadataChanges:true}, s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") manual.delete(ch.doc.id); else manual.set(ch.doc.id, ch.doc.data());
-      }); renderManual();});
+      }); renderManual(); seedManualIfEmpty(s);});
       db.collection(COL("gf_compras")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") shopExtra.delete(ch.doc.id); else shopExtra.set(ch.doc.id, ch.doc.data());
       }); renderShopping(); renderStats();});
@@ -1608,6 +1608,41 @@ function seedDemoManual(){
   DEMO_MANUAL.forEach(m=>{
     manual.set(m.id, {titulo:(m.titulo[lang]||m.titulo.es), items:(m.items[lang]||m.items.es), orden:m.orden});
   });
+}
+/* ---- Siembra de primera vez (solo si la base está vacía de verdad) ----
+   Con Firebase real la app abre en blanco. Estas funciones cargan UNA vez el
+   manual de instrucciones y una carta de arranque, para que el bar no empiece
+   con pantallas vacías. Todo es editable y borrable desde la app. */
+let seededManual = false, seededRecipes = false;
+const STARTER_COCKTAILS = ["MOJITO","MARGARITA","NEGRONI","OLD FASHIONED","DAIQUIRI","PIÑA COLADA",
+  "APEROL SPRITZ","GIN TONIC","CUBA LIBRE","MOSCOW MULE","ESPRESSO MARTINI","CAIPIRINHA"];
+
+async function seedManualIfEmpty(snap){
+  if(seededManual || !db) return;
+  if(snap.metadata.fromCache) return;      // esperamos confirmación del servidor
+  seededManual = true;
+  if(!snap.empty) return;                  // ya hay manual: no tocamos nada
+  for(const m of DEMO_MANUAL){
+    const doc = {titulo:(m.titulo[lang]||m.titulo.es), items:(m.items[lang]||m.items.es), orden:m.orden};
+    manual.set(m.id, doc);
+    try{ await db.collection(COL("gf_manual")).doc(m.id).set(doc,{merge:true}); }catch(e){}
+  }
+  renderManual();
+}
+async function seedRecipesIfEmpty(snap){
+  if(seededRecipes || !db) return;
+  if(snap.metadata.fromCache) return;
+  seededRecipes = true;
+  if(!snap.empty) return;                  // ya hay carta: no tocamos nada
+  if(typeof COCKTAIL_LIB==="undefined") return;
+  for(const nm of STARTER_COCKTAILS){
+    const x = COCKTAIL_LIB.find(c=>c.n===nm); if(!x) continue;
+    const id = "lib_"+nm.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+    const doc = {nombre:x.n, copa:x.c, color:x.col, garnish:x.g||"", ing:x.i, pasos:x.p, srcLang:"es", precioVenta:8, coste:null};
+    recipes.set(id, doc);
+    try{ await db.collection(COL("gf_recetas")).doc(id).set(doc,{merge:true}); }catch(e){}
+  }
+  renderRecipes();
 }
 async function persist(col, id, data){ if(db) await db.collection(COL(col)).doc(id).set(data,{merge:true}); }
 async function persistDel(col, id){ if(db) await db.collection(COL(col)).doc(id).delete(); }
