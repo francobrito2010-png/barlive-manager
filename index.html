@@ -440,7 +440,7 @@ const AVATAR_COLORS = ["#E5392B","#E8A33D","#4FAE7F","#4F8FDE","#9B59B6","#F27FA
                    sin tocar Firebase. Nunca se ve en blanco. Ideal para enseñar.
                    PIN admin de la demo: 123456
    DEMO = false -> usa Firebase real (tus datos del bar).                       */
-const DEMO = true;
+const DEMO = false;
 
 /* ============ AJUSTES DE ESTA ACTUALIZACIÓN ============
    DATA_NS: espacio de datos. Déjalo en "test_" para PROBAR en paralelo sin
@@ -709,6 +709,10 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
   <div class="modal">
     <h3 data-i18n="nuevoProd">Producto nuevo</h3>
     <div class="code" id="regCode" style="display:none">—</div>
+    <div class="field" id="regLinkWrap" style="display:none">
+      <label data-i18n="vincularProd">¿Ya lo tienes en stock? Vincúlalo</label>
+      <select id="regLink"></select>
+    </div>
     <div class="field"><label data-i18n="nombre">Nombre</label><input id="regName" placeholder="Ej. JAMESON 700ML"></div>
     <div class="field-row">
       <div class="field"><label data-i18n="categoria">Categoría</label><select id="regCat"></select></div>
@@ -815,7 +819,8 @@ const I18N = {
     almEditar:"Editar ideales",almBloquear:"Bloquear ideales",
     almProd:"Producto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Llenas",almVazia:"Vacías",
     almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
-    almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",almGrades:"grades",
+    almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",
+    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"AGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
     
@@ -869,7 +874,8 @@ const I18N = {
     almEditar:"Editar ideais",almBloquear:"Bloquear ideais",
     almProd:"Produto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Cheias",almVazia:"Vazias",
     almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
-    almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",almGrades:"grades",
+    almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",
+    vincularProd:"Já o tens em stock? Liga-o",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"ESGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
     
@@ -924,7 +930,8 @@ const I18N = {
     almEditar:"Edit targets",almBloquear:"Lock targets",
     almProd:"Product",almIdeal:"Target",almComprar:"Buy",almCheia:"Full",almVazia:"Empty",
     almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
-    almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",almGrades:"crates",
+    almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",
+    vincularProd:"Already in stock? Link it",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
     almStock:"Stock",almEstado:"Status",almTagOut:"OUT",almTagBuy:"SHORT",almTagOver:"OVER",almTagOk:"OK",
     almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
     
@@ -1749,6 +1756,18 @@ function normName(s){
   return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/\b\d+\s*(ml|cl|l)\b/g," ").replace(/[^a-z0-9]+/g," ").trim();
 }
+/* Busca un producto por código de barras.
+   Antes solo se miraba el ID del documento: los productos añadidos a mano
+   (que llevan ID generado y su código en el campo "code") nunca se encontraban
+   y salían siempre como "producto nuevo". Ahora se miran las dos vías. */
+function findProductByCode(code){
+  if(!code) return null;
+  if(products.has(code)) return code;              // 1) el ID es el código
+  for(const [id,p] of products){                   // 2) el código está en el campo code
+    if(p && p.code && String(p.code) === String(code)) return id;
+  }
+  return null;
+}
 function findProductByName(name){
   const q = normName(name); if(!q) return null;
   const qw = new Set(q.split(" ").filter(w=>w.length>=3)); if(!qw.size) return null;
@@ -1764,7 +1783,8 @@ function findProductByName(name){
 async function handleCode(code){
   if(!code || busy) return;
   busy = true; beep(); pauseScan();
-  let prod = products.get(code);
+  const foundId = findProductByCode(code);
+  let prod = foundId ? products.get(foundId) : null;
   if(!prod){
     // ¿lo conocemos por nombre? (catálogo o base global) -> evita duplicar lo que ya está en stock
     let info = catalog.has(code) ? catalog.get(code) : null;
@@ -1788,7 +1808,7 @@ async function handleCode(code){
     openRegModal(code, info);
     busy = false; return;
   }
-  openMoveModal(code, prod);
+  openMoveModal(foundId, prod);
   busy = false;
 }
 $("startCamBtn").addEventListener("click", startScanner);
@@ -1841,6 +1861,19 @@ function openRegModal(code, prefill){
   if(code && !prefill && catalog.has(code)) prefill = catalog.get(code);
   $("regCode").style.display = code ? "block" : "none";
   $("regCode").textContent = code || "";
+  /* Selector para enlazar este código a un producto que ya está en stock */
+  const lw = $("regLinkWrap");
+  if(code && products.size){
+    const opts = [...products.entries()]
+      .filter(([id,p]) => !p.code)                     // los que aún no tienen código
+      .sort((a,b)=> (a[1].nombre||"").localeCompare(b[1].nombre||""));
+    if(opts.length){
+      $("regLink").innerHTML = `<option value="">${esc(t("crearNuevo"))}</option>` +
+        opts.map(([id,p])=>`<option value="${esc(id)}">${esc(p.nombre)}</option>`).join("");
+      $("regLink").value = "";
+      lw.style.display = "block";
+    } else lw.style.display = "none";
+  } else lw.style.display = "none";
   $("regName").value = prefill ? prefill.nombre : "";
   $("regCat").value = prefill ? prefill.categoria : "OTROS";
   $("regUnidad").value = (prefill && prefill.unidad) ? prefill.unidad : "unidad";
@@ -1853,6 +1886,21 @@ function openRegModal(code, prefill){
 }
 $("regCancel").addEventListener("click", ()=>{ $("regModalBg").classList.remove("open"); resumeScan(); });
 $("regSave").addEventListener("click", async ()=>{
+  /* Caso A: el usuario eligió un producto que ya existe -> le pegamos el código */
+  const linkId = ($("regLinkWrap").style.display!=="none") ? $("regLink").value : "";
+  if(linkId && products.has(linkId)){
+    const p = products.get(linkId);
+    p.code = currentCode;
+    products.set(linkId, p);
+    await persist("gf_productos", linkId, {code:currentCode});
+    if(currentCode) saveCatalog(currentCode, p.nombre, p.categoria);
+    $("regModalBg").classList.remove("open");
+    toast(`✓ ${t("codigoVinculado")}`,"ok");
+    renderAll();
+    openMoveModal(linkId, p);
+    return;
+  }
+  /* Caso B: producto realmente nuevo */
   const nombre = $("regName").value.trim().toUpperCase();
   if(!nombre){ toast(t("nombreReq"),"err"); return; }
   const id = currentCode || newId();
