@@ -82,8 +82,21 @@ textarea{resize:vertical;min-height:90px;line-height:1.5}
 .userchip{display:flex;align-items:center;gap:7px;padding:5px 12px 5px 5px;border:1px solid var(--line);border-radius:99px;background:rgba(0,0,0,.28);font-weight:800;font-size:12px;text-transform:uppercase}
 .userchip .av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff}
 .userchip.admin{border-color:rgba(232,163,61,.5)}
-.chip{font-family:var(--mono);font-size:10px;padding:7px 10px;border:1px solid var(--line);border-radius:99px;color:var(--muted);background:rgba(0,0,0,.25);text-transform:uppercase}
-.chip.on{color:var(--green);border-color:rgba(79,174,127,.4)}
+/* Badge SYNC: tamaño FIJO 40x40. Nunca cambia de texto ni de ancho, así la
+   cabecera no se mueve. Sólo cambia el color del punto interior. */
+.chip{width:40px;height:40px;flex:0 0 40px;border:1px solid var(--line);border-radius:50%;
+  background:rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;
+  font-size:0;line-height:0;padding:0;overflow:hidden}
+.chip::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--muted);
+  transition:background .18s ease, box-shadow .18s ease}
+.chip.on::before{background:var(--green);box-shadow:0 0 8px rgba(79,174,127,.55)}
+.chip.warn::before{background:var(--amber);box-shadow:0 0 8px rgba(214,154,45,.55)}
+.chip.off::before{background:var(--red);box-shadow:0 0 8px rgba(224,90,77,.5)}
+/* PIN de empleado: oculto por defecto, visible 6 s con el botón 👁 (solo admin) */
+.pin-val{font-family:var(--mono);letter-spacing:.12em}
+.pin-val.open{color:var(--amber);letter-spacing:.06em;font-weight:800}
+.pin-eye{background:none;border:none;padding:0 0 0 6px;font-size:13px;line-height:1;cursor:pointer;opacity:.75}
+.pin-eye:active{opacity:1}
 main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:600px;width:100%;margin:0 auto}
 .screen{display:none}
 .screen.active{display:block}
@@ -483,7 +496,7 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
     <div class="hdr-right">
       <div class="userchip" id="userChip"><span class="av" id="userAv">A</span><span id="userName">—</span></div>
       <button class="pill" id="langBtnApp">ES</button>
-      <div class="chip" id="syncChip">demo</div>
+      <div class="chip" id="syncChip" title="Estado de guardado"></div>
     </div>
   </div>
   <div class="stats" id="statsRow">
@@ -821,7 +834,7 @@ const I18N = {
     almProd:"Producto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Llenas",almVazia:"Vacías",
     almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",
-    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
+    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",verPin:"Ver PIN",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"AGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
     
@@ -876,7 +889,7 @@ const I18N = {
     almProd:"Produto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Cheias",almVazia:"Vazias",
     almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",
-    vincularProd:"Já o tens em stock? Liga-o",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
+    vincularProd:"Já o tens em stock? Liga-o",verPin:"Ver PIN",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"ESGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
     
@@ -932,7 +945,7 @@ const I18N = {
     almProd:"Product",almIdeal:"Target",almComprar:"Buy",almCheia:"Full",almVazia:"Empty",
     almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
     almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",
-    vincularProd:"Already in stock? Link it",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
+    vincularProd:"Already in stock? Link it",verPin:"Show PIN",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
     almStock:"Stock",almEstado:"Status",almTagOut:"OUT",almTagBuy:"SHORT",almTagOver:"OVER",almTagOk:"OK",
     almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
     
@@ -1193,8 +1206,9 @@ async function submitPin(){
     ok = (h===pinTarget.pinHash);
   }else if(pinTarget.pin){                                          // empleado antiguo en texto plano
     ok = (pinEntered===pinTarget.pin);
+    // Añadimos el hash pero conservamos el pin legible (el admin debe poder verlo)
     if(ok && db){ try{ db.collection(COL("gf_empleados")).doc(pinTarget.id)
-      .set({pinHash:h, pinLen:pinEntered.length, pin:firebase.firestore.FieldValue.delete()},{merge:true})
+      .set({pinHash:h, pinLen:pinEntered.length},{merge:true})
       .catch(()=>{}); }catch(e){} }
   }
   if(ok){ currentUser = pinTarget; enterApp(); }
@@ -1310,18 +1324,33 @@ async function pinHash(pin){
 }
 
 /* ---- Estado de conexión visible ---- */
-function setConn(state){ // 'sync' | 'pending' | 'offline'
+/* Badge SYNC — gris: inactivo · ámbar: guardando · verde: guardado · rojo: error.
+   No lleva texto: el ancho es fijo, así la cabecera nunca se mueve.
+   Tras mostrar verde o rojo vuelve solo a gris a los 1,8 s. */
+let connTimer = null;
+function setConn(state){ // 'sync' | 'pending' | 'offline' | 'error' | 'idle'
   const chip = $("syncChip"), banner = $("offlineBanner");
+  if(!chip) return;
+  clearTimeout(connTimer);
   chip.classList.remove("on","warn","off");
-  if(state==="offline"){
-    chip.textContent="offline"; chip.classList.add("off");
-    if(banner) banner.classList.add("show");
+  chip.textContent = "";                      // nunca texto: ancho fijo
+  if(state==="offline" || state==="error"){
+    chip.classList.add("off");
+    chip.title = state==="error" ? "Error al guardar" : "Sin conexión";
+    if(banner && state==="offline") banner.classList.add("show");
+    if(state==="error") connTimer = setTimeout(()=>setConn("idle"), 1800);
   }else if(state==="pending"){
-    chip.textContent="guardando…"; chip.classList.add("warn");
+    chip.classList.add("warn");
+    chip.title = "Guardando…";
     if(banner) banner.classList.remove("show");
-  }else{
-    chip.textContent="sync"; chip.classList.add("on");
+  }else if(state==="idle"){
+    chip.title = "En espera";
     if(banner) banner.classList.remove("show");
+  }else{                                      // 'sync' = guardado
+    chip.classList.add("on");
+    chip.title = "Guardado";
+    if(banner) banner.classList.remove("show");
+    connTimer = setTimeout(()=>setConn("idle"), 1800);
   }
 }
 function wireConnEvents(){
@@ -1382,11 +1411,11 @@ async function initData(){
         s.docChanges().forEach(ch=>{
           if(ch.type==="removed") products.delete(ch.doc.id); else products.set(ch.doc.id, ch.doc.data());
         });
-        // Estado de conexión en vivo
-        if(!navigator.onLine || s.metadata.fromCache) setConn("offline");
+        // Estado de conexión en vivo. Sólo marcamos sin-conexión o pendiente;
+        // el verde/gris lo gobierna el propio guardado, para que no parpadee.
+        if(!navigator.onLine) setConn("offline");
         else if(s.metadata.hasPendingWrites) setConn("pending");
-        else setConn("sync");
-        if($("app").style.display==="flex") renderAll();
+        renderAllSoon();   // amortiguado: evita repintar en cada eco del servidor
       });
       db.collection(COL("gf_movimientos")).orderBy("ts","desc").limit(400).onSnapshot(s=>{
         const cutoff = Date.now() - HISTORY_DAYS*86400000;
@@ -1483,7 +1512,7 @@ async function initData(){
     });
   }
   adminSec = {hash: await pinHash("123456"), len:6};   // demo: admin entra con 123456
-  const sc=$("syncChip"); sc.textContent="online"; sc.classList.remove("off","warn"); sc.classList.add("on");
+  setConn("sync");
   renderLogin();
 }
 
@@ -1677,18 +1706,22 @@ function reportWriteError(col, id, e){
 function persist(col, id, data){
   if(db){
     try{
+      setConn("pending");                                   // ámbar: guardando
       db.collection(COL(col)).doc(id).set(data,{merge:true})
-        .catch(e=>reportWriteError(col, id, e));
-    }catch(e){ reportWriteError(col, id, e); }
+        .then(()=>setConn("sync"))                          // verde: guardado
+        .catch(e=>{ setConn("error"); reportWriteError(col, id, e); });
+    }catch(e){ setConn("error"); reportWriteError(col, id, e); }
   }
   return Promise.resolve();
 }
 function persistDel(col, id){
   if(db){
     try{
+      setConn("pending");
       db.collection(COL(col)).doc(id).delete()
-        .catch(e=>reportWriteError(col, id, e));
-    }catch(e){ reportWriteError(col, id, e); }
+        .then(()=>setConn("sync"))
+        .catch(e=>{ setConn("error"); reportWriteError(col, id, e); });
+    }catch(e){ setConn("error"); reportWriteError(col, id, e); }
   }
   return Promise.resolve();
 }
@@ -1710,11 +1743,42 @@ function logMovement(id, prod, tipo, cantidad){
 function bumpStock(id, delta){
   if(!db) return Promise.resolve();
   try{
+    setConn("pending");
     db.collection(COL("gf_productos")).doc(id)
       .update({cantidad: firebase.firestore.FieldValue.increment(delta)})
+      .then(()=>setConn("sync"))
       .catch(e=>{ persist("gf_productos", id, products.get(id)); });
   }catch(e){ persist("gf_productos", id, products.get(id)); }
   return Promise.resolve();
+}
+/* Actualiza SOLO la fila del producto tocado, sin repintar las listas.
+   Repintar todo en cada +/− provocaba lag y hacía saltar el scroll. */
+function updateProductRow(id){
+  const p = products.get(id);
+  const row = document.querySelector('.prod[data-id="'+String(id).replace(/"/g,'\\"')+'"]');
+  if(row && p){
+    const qv = row.querySelector(".qv");
+    if(qv) qv.textContent = p.cantidad;
+    const low = isLow(p);
+    row.classList.toggle("low", low);
+    const nameEl = row.querySelector(".prod-name");
+    if(nameEl){
+      let badge = nameEl.querySelector(".low-badge");
+      if(low && !badge){
+        badge = document.createElement("span");
+        badge.className = "low-badge";
+        badge.textContent = t("pocoStock");
+        nameEl.appendChild(badge);
+      }else if(!low && badge){ badge.remove(); }
+    }
+  }
+  renderStats();          // contadores de cabecera (baratos)
+  updateLowCount();       // botón "⚠️ Stock (n)"
+}
+function updateLowCount(){
+  const el = $("lowCnt"); if(!el) return;
+  let n = 0; for(const [,p] of products) if(isLow(p)) n++;
+  el.textContent = n;
 }
 async function applyDelta(id, delta){
   const p = products.get(id); if(!p) return;
@@ -1722,8 +1786,8 @@ async function applyDelta(id, delta){
   p.cantidad = (p.cantidad||0) + delta;
   products.set(id,p);
   logMovement(id, p, delta>0?"entrada":"salida", Math.abs(delta));
-  await bumpStock(id, delta);
-  renderAll();
+  bumpStock(id, delta);
+  updateProductRow(id);      // antes: renderAll() -> repintaba 7 listas
 }
 async function applyMovement(id, prod, qty, tipo){
   let p = products.get(id), isNew = false;
@@ -2436,7 +2500,7 @@ function openEmpForm(id){
   const e = id ? employees.get(id) : null;
   $("empFormTitle").textContent = e ? t("editarEmp") : t("nuevoEmp");
   $("empName").value = e ? e.nombre : "";
-  $("empPin").value = "";
+  $("empPin").value = e ? (e.pin || "") : "";          // carga el PIN actual
   $("empPin").placeholder = e ? (lang==="pt"?"•••• (vazio = manter)":lang==="en"?"•••• (blank = keep)":"•••• (vacío = mantener)") : "0000";
   empFormColor = e ? (e.color||AVATAR_COLORS[0]) : AVATAR_COLORS[employees.size % AVATAR_COLORS.length];
   $("empDelete").style.display = id ? "inline-flex" : "none";
@@ -2449,28 +2513,25 @@ $("empSave").addEventListener("click", async ()=>{
   const pinRaw = $("empPin").value.trim();
   if(!nombre){ toast(t("nombreReq"),"err"); return; }
   const editing = !!empEditId;
-  let pinHashVal = editing ? (employees.get(empEditId)?.pinHash || null) : null;
-  let pinLenVal  = editing ? (employees.get(empEditId)?.pinLen || 4) : 4;
+  const prev = editing ? employees.get(empEditId) : null;
+  let pinHashVal = prev ? (prev.pinHash || null) : null;
+  let pinLenVal  = prev ? (prev.pinLen || 4) : 4;
+  let pinPlain   = prev ? (prev.pin || "") : "";      // copia legible para el admin
   if(pinRaw){
     if(!/^\d{4,6}$/.test(pinRaw)){ toast(t("pinReq"),"err"); return; }
     const h = await pinHash(pinRaw);
     // PIN único vs admin y demás empleados (por hash)
     if(adminSec ? h===adminSec.hash : pinRaw===ADMIN_PIN){ toast(t("pinDup"),"err"); return; }
     for(const [eid,e] of employees){ if(eid!==empEditId && (e.pinHash ? e.pinHash===h : e.pin===pinRaw)){ toast(t("pinDup"),"err"); return; } }
-    pinHashVal = h; pinLenVal = pinRaw.length;
+    pinHashVal = h; pinLenVal = pinRaw.length; pinPlain = pinRaw;
   }else if(!editing){ toast(t("pinReq"),"err"); return; }
   const id = empEditId || newId("e");
-  const orden = editing ? (employees.get(empEditId)?.orden ?? 99) : (employees.size + 1);
-  const emp = {nombre, pinHash:pinHashVal, pinLen:pinLenVal, color:empFormColor, orden};
+  const orden = editing ? (prev?.orden ?? 99) : (employees.size + 1);
+  // pinHash valida el login (no se toca). pin es la copia legible que ve el admin.
+  const emp = {nombre, pinHash:pinHashVal, pinLen:pinLenVal, pin:pinPlain, color:empFormColor, orden};
   employees.set(id, emp);
   // Guardado en segundo plano: la interfaz no espera (ver capa de guardado)
-  if(db){
-    try{
-      db.collection(COL("gf_empleados")).doc(id)
-        .set({...emp, pin: firebase.firestore.FieldValue.delete()},{merge:true})
-        .catch(e=>{ persist("gf_empleados", id, emp); reportWriteError("gf_empleados", id, e); });
-    }catch(e){ persist("gf_empleados", id, emp); }
-  }
+  persist("gf_empleados", id, emp);
   $("empModalBg").classList.remove("open");
   toast(`✓ ${t("prodGuardado")}`,"ok");
   renderEmployees(); renderLogin();
@@ -2493,13 +2554,35 @@ function renderEmployees(){
   html += arr.map(([id,e])=>`
     <div class="emp-row">
       <div class="avatar" style="width:44px;height:44px;font-size:18px;background:${esc(e.color||"#E5392B")}">${esc(initial(e.nombre))}</div>
-      <div class="info"><div class="en">${esc(e.nombre)}</div><div class="er">${esc(t("empleado"))} · PIN ${"•".repeat(e.pinLen||4)}</div></div>
+      <div class="info">
+        <div class="en">${esc(e.nombre)}</div>
+        <div class="er">${esc(t("empleado"))} · PIN
+          <span class="pin-val" data-pin-for="${esc(id)}">${"•".repeat(e.pinLen||4)}</span>
+          ${e.pin ? `<button class="pin-eye" data-eye="${esc(id)}" title="${esc(t("verPin"))}">👁</button>` : ""}
+        </div>
+      </div>
       <div class="emp-actions">
         <button data-edit="${esc(id)}">✎</button>
       </div>
     </div>`).join("");
   el.innerHTML = html;
   el.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEmpForm(b.dataset.edit)));
+  // Mostrar el PIN 6 segundos y volver a ocultarlo solo
+  el.querySelectorAll("[data-eye]").forEach(b=>b.addEventListener("click",()=>{
+    const id = b.dataset.eye, e = employees.get(id); if(!e || !e.pin) return;
+    const span = el.querySelector('[data-pin-for="'+id.replace(/"/g,'\\"')+'"]');
+    if(!span || span.dataset.shown==="1") return;
+    span.textContent = e.pin;
+    span.dataset.shown = "1";
+    span.classList.add("open");
+    b.textContent = "🙈";
+    setTimeout(()=>{
+      span.textContent = "•".repeat(e.pinLen||4);
+      span.dataset.shown = "0";
+      span.classList.remove("open");
+      b.textContent = "👁";
+    }, 6000);
+  }));
 }
 
 /* =================== BIBLIOTECA DE CÓCTELES (100) ===================
@@ -3299,6 +3382,15 @@ function almExportPDF(){
 }
 
 /* =================== Render all / init =================== */
+/* Repintado completo amortiguado: agrupa la ráfaga de avisos de Firestore
+   (y de toques rápidos en +/−) en un solo repintado. */
+let renderSoonTimer = null;
+function renderAllSoon(){
+  clearTimeout(renderSoonTimer);
+  renderSoonTimer = setTimeout(()=>{
+    if($("app").style.display==="flex") renderAll();
+  }, 320);
+}
 function renderAll(){
   renderStats(); renderShopping(); renderCats(); renderHistory(); renderRecipes(); renderManual(); renderEmployees();
   const chip = $("userChip");
