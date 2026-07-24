@@ -709,6 +709,7 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
   <div class="modal">
     <h3 data-i18n="nuevoProd">Producto nuevo</h3>
     <div class="code" id="regCode" style="display:none">—</div>
+    <div id="regNetStatus" style="display:none;font:600 11px var(--sans);color:var(--muted);margin:-4px 0 8px">…</div>
     <div class="field" id="regLinkWrap" style="display:none">
       <label data-i18n="vincularProd">¿Ya lo tienes en stock? Vincúlalo</label>
       <select id="regLink"></select>
@@ -820,7 +821,7 @@ const I18N = {
     almProd:"Producto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Llenas",almVazia:"Vacías",
     almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",
-    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
+    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"AGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
     
@@ -875,7 +876,7 @@ const I18N = {
     almProd:"Produto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Cheias",almVazia:"Vazias",
     almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",
-    vincularProd:"Já o tens em stock? Liga-o",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
+    vincularProd:"Já o tens em stock? Liga-o",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"ESGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
     
@@ -931,7 +932,7 @@ const I18N = {
     almProd:"Product",almIdeal:"Target",almComprar:"Buy",almCheia:"Full",almVazia:"Empty",
     almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
     almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",
-    vincularProd:"Already in stock? Link it",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
+    vincularProd:"Already in stock? Link it",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
     almStock:"Stock",almEstado:"Status",almTagOut:"OUT",almTagBuy:"SHORT",almTagOver:"OVER",almTagOk:"OK",
     almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
     
@@ -1172,7 +1173,9 @@ async function submitPin(){
     if(pinEntered===setupFirstPin){
       const hash = await pinHash(pinEntered);
       adminSec = {hash, len:pinLen};
-      try{ if(db) await db.collection(COL("gf_config")).doc("security").set(adminSec); }catch(e){}
+      // No esperamos a Firestore: si la red va mal, el PIN igual queda activo
+      if(db){ try{ db.collection(COL("gf_config")).doc("security").set(adminSec)
+        .catch(e=>reportWriteError("gf_config","security",e)); }catch(e){} }
       currentUser = ADMIN_USER; enterApp();
     }else{
       pinMode = "setup"; setupFirstPin = "";
@@ -1190,8 +1193,9 @@ async function submitPin(){
     ok = (h===pinTarget.pinHash);
   }else if(pinTarget.pin){                                          // empleado antiguo en texto plano
     ok = (pinEntered===pinTarget.pin);
-    if(ok && db){ try{ await db.collection(COL("gf_empleados")).doc(pinTarget.id)
-      .set({pinHash:h, pinLen:pinEntered.length, pin:firebase.firestore.FieldValue.delete()},{merge:true}); }catch(e){} }
+    if(ok && db){ try{ db.collection(COL("gf_empleados")).doc(pinTarget.id)
+      .set({pinHash:h, pinLen:pinEntered.length, pin:firebase.firestore.FieldValue.delete()},{merge:true})
+      .catch(()=>{}); }catch(e){} }
   }
   if(ok){ currentUser = pinTarget; enterApp(); }
   else{ badPin(lang==="pt" ? "PIN incorreto" : (lang==="en"?"Wrong PIN":"PIN incorrecto")); }
@@ -1329,7 +1333,7 @@ function wireConnEvents(){
 async function saveCatalog(code, nombre, categoria){
   if(!db || !code) return;
   catalog.set(code, {nombre, categoria});
-  try{ await db.collection(COL("gf_catalogo")).doc(code).set({nombre, categoria},{merge:true}); }catch(e){}
+  try{ db.collection(COL("gf_catalogo")).doc(code).set({nombre, categoria},{merge:true}).catch(()=>{}); }catch(e){}
 }
 
 /* ---- Limpieza automática del historial (ventana rodante) ---- */
@@ -1352,19 +1356,22 @@ async function initData(){
       await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js");
       await loadScript("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
       firebase.initializeApp(FIREBASE_CONFIG);
+      // Nada en el arranque puede quedarse colgado: si la red no responde,
+      // seguimos igualmente y la app abre. Los datos llegan cuando lleguen.
+      const conTope = (p, ms, alt=null) =>
+        Promise.race([ Promise.resolve(p).catch(()=>alt),
+                       new Promise(r=>setTimeout(()=>r(alt), ms)) ]);
       // Login anónimo: la app se identifica ante Firebase. Sin esto, con las
       // reglas de seguridad puestas, nadie de fuera puede tocar la base.
-      try{ await firebase.auth().signInAnonymously(); }
-      catch(e){ console.error("Auth anónimo falló:", e); toast("Activa Authentication → Anonymous en Firebase","err"); }
+      const auth = await conTope(firebase.auth().signInAnonymously(), 8000, "timeout");
+      if(auth==="timeout") console.warn("Auth tardó demasiado; se continúa.");
       db = firebase.firestore();
       // Persistencia offline: los cambios se guardan en el móvil y se envían al reconectar
-      try{ await db.enablePersistence({synchronizeTabs:true}); }catch(e){}
+      try{ await conTope(db.enablePersistence({synchronizeTabs:true}), 3000); }catch(e){}
       wireConnEvents();
       // PIN de administrador cifrado (se crea la primera vez)
-      try{
-        const cfg = await db.collection(COL("gf_config")).doc("security").get();
-        adminSec = cfg.exists ? cfg.data() : null;
-      }catch(e){ adminSec = null; }
+      const cfg = await conTope(db.collection(COL("gf_config")).doc("security").get(), 6000, null);
+      adminSec = (cfg && cfg.exists) ? cfg.data() : null;
       db.collection(COL("gf_catalogo")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") catalog.delete(ch.doc.id); else catalog.set(ch.doc.id, ch.doc.data());
       });});
@@ -1625,7 +1632,7 @@ async function seedManualIfEmpty(snap){
   for(const m of DEMO_MANUAL){
     const doc = {titulo:(m.titulo[lang]||m.titulo.es), items:(m.items[lang]||m.items.es), orden:m.orden};
     manual.set(m.id, doc);
-    try{ await db.collection(COL("gf_manual")).doc(m.id).set(doc,{merge:true}); }catch(e){}
+    try{ db.collection(COL("gf_manual")).doc(m.id).set(doc,{merge:true}).catch(()=>{}); }catch(e){}
   }
   renderManual();
 }
@@ -1640,12 +1647,51 @@ async function seedRecipesIfEmpty(snap){
     const id = "lib_"+nm.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
     const doc = {nombre:x.n, copa:x.c, color:x.col, garnish:x.g||"", ing:x.i, pasos:x.p, srcLang:"es", precioVenta:8, coste:null};
     recipes.set(id, doc);
-    try{ await db.collection(COL("gf_recetas")).doc(id).set(doc,{merge:true}); }catch(e){}
+    try{ db.collection(COL("gf_recetas")).doc(id).set(doc,{merge:true}).catch(()=>{}); }catch(e){}
   }
   renderRecipes();
 }
-async function persist(col, id, data){ if(db) await db.collection(COL(col)).doc(id).set(data,{merge:true}); }
-async function persistDel(col, id){ if(db) await db.collection(COL(col)).doc(id).delete(); }
+/* ================== CAPA DE GUARDADO ==================
+   REGLA DE ORO: la interfaz NUNCA espera a Firestore.
+
+   Firestore con persistencia offline confirma .set() sólo cuando responde el
+   SERVIDOR. Con mala cobertura esa promesa no falla: se queda colgada para
+   siempre. Si la interfaz la esperaba con await, el modal no cerraba y parecía
+   que la app no guardaba nada (usuarios, productos, PIN...).
+
+   Ahora: se guarda en memoria, se pinta al instante y el envío va por detrás.
+   El dato NO se pierde: Firestore lo mantiene en cola y lo sube al reconectar.
+   Estas funciones devuelven una promesa ya resuelta, así los `await persist(...)`
+   que hay repartidos por la app siguen funcionando sin bloquear.          */
+let writeErrors = 0;
+function reportWriteError(col, id, e){
+  console.error("Error al guardar:", col, id, e);
+  const code = e && e.code ? String(e.code) : "";
+  // Sólo avisamos de errores reales (permisos/config). La falta de red no es error.
+  if(code.includes("permission-denied")){
+    if(writeErrors++ < 1) toast(t("errPermisos"), "err");
+  }else if(code && !code.includes("unavailable")){
+    if(writeErrors++ < 2) toast(t("errGuardar"), "err");
+  }
+}
+function persist(col, id, data){
+  if(db){
+    try{
+      db.collection(COL(col)).doc(id).set(data,{merge:true})
+        .catch(e=>reportWriteError(col, id, e));
+    }catch(e){ reportWriteError(col, id, e); }
+  }
+  return Promise.resolve();
+}
+function persistDel(col, id){
+  if(db){
+    try{
+      db.collection(COL(col)).doc(id).delete()
+        .catch(e=>reportWriteError(col, id, e));
+    }catch(e){ reportWriteError(col, id, e); }
+  }
+  return Promise.resolve();
+}
 function logMovement(id, prod, tipo, cantidad){
   const mv = {code:id, nombre:prod.nombre, tipo, cantidad, ts:new Date(),
     byName: currentUser?currentUser.nombre:"—", byColor: currentUser?currentUser.color:"#999"};
@@ -1659,11 +1705,16 @@ function logMovement(id, prod, tipo, cantidad){
 /* =================== Stock =================== */
 // Escritura atómica: cada teléfono suma/resta sobre el valor real del servidor,
 // no sobre una copia. Así dos personas pueden escanear a la vez sin descuadrar.
-async function bumpStock(id, delta){
-  if(db){
-    try{ await db.collection(COL("gf_productos")).doc(id).update({cantidad: firebase.firestore.FieldValue.increment(delta)}); }
-    catch(e){ await persist("gf_productos", id, products.get(id)); }
-  }
+// No se espera la confirmación: la pantalla se refresca al momento y el envío
+// viaja por detrás (ver capa de guardado).
+function bumpStock(id, delta){
+  if(!db) return Promise.resolve();
+  try{
+    db.collection(COL("gf_productos")).doc(id)
+      .update({cantidad: firebase.firestore.FieldValue.increment(delta)})
+      .catch(e=>{ persist("gf_productos", id, products.get(id)); });
+  }catch(e){ persist("gf_productos", id, products.get(id)); }
+  return Promise.resolve();
 }
 async function applyDelta(id, delta){
   const p = products.get(id); if(!p) return;
@@ -1707,7 +1758,7 @@ function guessCategory(tags){
 async function lookupOFF(code){
   try{
     const ctrl = new AbortController();
-    const to = setTimeout(()=>ctrl.abort(), 6000);
+    const to = setTimeout(()=>ctrl.abort(), 2500);  // antes 6 s: congelaba el escaneo
     const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,brands,quantity,categories_tags`,{signal:ctrl.signal});
     clearTimeout(to);
     if(!r.ok) return null;
@@ -1821,30 +1872,51 @@ async function handleCode(code){
   const foundId = findProductByCode(code);
   let prod = foundId ? products.get(foundId) : null;
   if(!prod){
-    // ¿lo conocemos por nombre? (catálogo o base global) -> evita duplicar lo que ya está en stock
+    // 1) ¿Está en el catálogo compartido del bar? -> respuesta instantánea
     let info = catalog.has(code) ? catalog.get(code) : null;
-    if(info) toast(t("encontradoCat"),"ok");
-    else{
-      $("scanStatus").textContent = t("buscando");
-      info = await lookupOFF(code);
-      toast(info ? t("encontradoOFF") : t("noEncontrado"), info ? "ok" : "");
+    if(info){
+      toast(t("encontradoCat"),"ok");
+      const existId = info.nombre ? findProductByName(info.nombre) : null;
+      if(existId){ linkAndMove(existId, code); busy=false; return; }
+      openRegModal(code, info);
+      busy = false; return;
     }
-    if(info && info.nombre){
-      const existId = findProductByName(info.nombre);
-      if(existId){
-        const p = products.get(existId);
-        if(!p.code){ p.code = code; products.set(existId,p); await persist("gf_productos", existId, {code}); }
-        saveCatalog(code, p.nombre, p.categoria);
-        toast(t("yaEnStock"),"ok");
-        openMoveModal(existId, p);
-        busy = false; return;
+    // 2) Desconocido: abrimos YA el formulario y consultamos la base externa
+    //    por detrás. Antes se esperaban hasta 6 s con la pantalla congelada.
+    openRegModal(code, null);
+    busy = false;
+    $("regNetStatus").textContent = t("buscando");
+    $("regNetStatus").style.display = "block";
+    const info2 = await lookupOFF(code);
+    // Si el usuario ya guardó, canceló o cambió de código, no tocamos nada
+    const sigueAbierto = $("regModalBg").classList.contains("open");
+    if(currentCode !== code || !sigueAbierto) return;
+    $("regNetStatus").style.display = "none";
+    if(info2 && info2.nombre){
+      const existId = findProductByName(info2.nombre);
+      if(existId){                                    // ya lo tenemos en stock
+        $("regModalBg").classList.remove("open");
+        linkAndMove(existId, code);
+        return;
+      }
+      if(!$("regName").value.trim()){                 // rellenamos si no escribió nada aún
+        $("regName").value = info2.nombre;
+        if(info2.categoria) $("regCat").value = info2.categoria;
+        toast(t("encontradoOFF"),"ok");
       }
     }
-    openRegModal(code, info);
-    busy = false; return;
+    return;
   }
   openMoveModal(foundId, prod);
   busy = false;
+}
+/* Enlaza el código a un producto que ya está en stock y abre el movimiento */
+function linkAndMove(existId, code){
+  const p = products.get(existId); if(!p) return;
+  if(!p.code){ p.code = code; products.set(existId,p); persist("gf_productos", existId, {code}); }
+  saveCatalog(code, p.nombre, p.categoria);
+  toast(t("yaEnStock"),"ok");
+  openMoveModal(existId, p);
 }
 $("startCamBtn").addEventListener("click", startScanner);
 $("torchBtn").addEventListener("click", toggleTorch);
@@ -1896,6 +1968,7 @@ function openRegModal(code, prefill){
   if(code && !prefill && catalog.has(code)) prefill = catalog.get(code);
   $("regCode").style.display = code ? "block" : "none";
   $("regCode").textContent = code || "";
+  const ns=$("regNetStatus"); if(ns){ ns.style.display="none"; ns.textContent=""; }
   /* Selector para enlazar este código a un producto que ya está en stock */
   const lw = $("regLinkWrap");
   if(code && products.size){
@@ -1919,7 +1992,7 @@ function openRegModal(code, prefill){
   $("regModalBg").classList.add("open");
   if(!prefill) setTimeout(()=>$("regName").focus(),150);
 }
-$("regCancel").addEventListener("click", ()=>{ $("regModalBg").classList.remove("open"); resumeScan(); });
+$("regCancel").addEventListener("click", ()=>{ currentCode = null; $("regModalBg").classList.remove("open"); resumeScan(); });
 $("regSave").addEventListener("click", async ()=>{
   /* Caso A: el usuario eligió un producto que ya existe -> le pegamos el código */
   const linkId = ($("regLinkWrap").style.display!=="none") ? $("regLink").value : "";
@@ -2390,7 +2463,14 @@ $("empSave").addEventListener("click", async ()=>{
   const orden = editing ? (employees.get(empEditId)?.orden ?? 99) : (employees.size + 1);
   const emp = {nombre, pinHash:pinHashVal, pinLen:pinLenVal, color:empFormColor, orden};
   employees.set(id, emp);
-  if(db){ try{ await db.collection(COL("gf_empleados")).doc(id).set({...emp, pin: firebase.firestore.FieldValue.delete()},{merge:true}); }catch(e){ await persist("gf_empleados", id, emp); } }
+  // Guardado en segundo plano: la interfaz no espera (ver capa de guardado)
+  if(db){
+    try{
+      db.collection(COL("gf_empleados")).doc(id)
+        .set({...emp, pin: firebase.firestore.FieldValue.delete()},{merge:true})
+        .catch(e=>{ persist("gf_empleados", id, emp); reportWriteError("gf_empleados", id, e); });
+    }catch(e){ persist("gf_empleados", id, emp); }
+  }
   $("empModalBg").classList.remove("open");
   toast(`✓ ${t("prodGuardado")}`,"ok");
   renderEmployees(); renderLogin();
