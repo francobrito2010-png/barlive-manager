@@ -1918,17 +1918,27 @@ function findProductByCode(code){
   }
   return null;
 }
+/* Coincidencia por nombre — SOLO como sugerencia, nunca automática.
+   El código de barras es la identidad real del producto: dos códigos distintos
+   son dos productos distintos (Cheerios normal / miel / Apple comparten nombre
+   pero son productos diferentes). Antes, un parecido de nombre >=80% mandaba a
+   editar cantidad y NO dejaba crear el nuevo sabor. Ahora sólo devolvemos una
+   pista de "quizá sea este" y se le pregunta al usuario; nunca fusiona solo. */
 function findProductByName(name){
   const q = normName(name); if(!q) return null;
   const qw = new Set(q.split(" ").filter(w=>w.length>=3)); if(!qw.size) return null;
   let best=null, bestScore=0;
   for(const [id,p] of products){
+    if(p.code) continue;                 // si ya tiene código propio, no lo tocamos por nombre
     const nw = new Set(normName(p.nombre).split(" ").filter(w=>w.length>=3)); if(!nw.size) continue;
     let inter=0; qw.forEach(w=>{ if(nw.has(w)) inter++; });
-    const score = inter / Math.min(qw.size, nw.size);
+    // exigimos coincidencia EXACTA de todas las palabras, no un porcentaje:
+    // así "cheerios miel" ya no se confunde con "cheerios apple".
+    const igualExacto = (inter===qw.size && inter===nw.size);
+    const score = igualExacto ? 1 : 0;
     if(score>bestScore){ bestScore=score; best=id; }
   }
-  return bestScore>=0.8 ? best : null;   // 0.8 = casi el mismo nombre
+  return bestScore>=1 ? best : null;     // solo si el nombre es idéntico palabra por palabra
 }
 async function handleCode(code){
   if(!code || busy) return;
@@ -1940,8 +1950,9 @@ async function handleCode(code){
     let info = catalog.has(code) ? catalog.get(code) : null;
     if(info){
       toast(t("encontradoCat"),"ok");
-      const existId = info.nombre ? findProductByName(info.nombre) : null;
-      if(existId){ linkAndMove(existId, code); busy=false; return; }
+      // Abrimos el formulario con el nombre sugerido. Si hay un producto igual
+      // sin código, el desplegable "¿ya lo tienes?" deja vincularlo a mano.
+      // Nunca fusionamos solos: un código nuevo = producto nuevo por defecto.
       openRegModal(code, info);
       busy = false; return;
     }
@@ -1957,13 +1968,10 @@ async function handleCode(code){
     if(currentCode !== code || !sigueAbierto) return;
     $("regNetStatus").style.display = "none";
     if(info2 && info2.nombre){
-      const existId = findProductByName(info2.nombre);
-      if(existId){                                    // ya lo tenemos en stock
-        $("regModalBg").classList.remove("open");
-        linkAndMove(existId, code);
-        return;
-      }
-      if(!$("regName").value.trim()){                 // rellenamos si no escribió nada aún
+      // Rellenamos el nombre como sugerencia. NO fusionamos automáticamente
+      // aunque exista un nombre parecido: cada código es su propio producto.
+      // Si de verdad es el mismo, el desplegable "¿ya lo tienes?" lo vincula.
+      if(!$("regName").value.trim()){
         $("regName").value = info2.nombre;
         if(info2.categoria) $("regCat").value = info2.categoria;
         toast(t("encontradoOFF"),"ok");
