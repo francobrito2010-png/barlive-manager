@@ -106,6 +106,18 @@ textarea{resize:vertical;min-height:90px;line-height:1.5}
 .emp-adm-row input{width:20px;height:20px;accent-color:var(--amber)}
 /* Botones de la pantalla de equipo */
 .team-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+/* Botón mover de categoría en cada producto */
+.move-btn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;
+  width:30px;height:26px;font-size:14px;line-height:1;cursor:pointer;flex:none}
+.move-btn:active{border-color:var(--amber);color:var(--amber)}
+/* Modal mover: categoría actual + fichas de destino */
+.cur-cat{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;
+  font:700 13px var(--sans);color:var(--amber);letter-spacing:.02em}
+.cat-chips{display:flex;flex-wrap:wrap;gap:7px}
+.cat-chip{background:var(--surface2);border:1px solid var(--line);color:var(--text);border-radius:20px;
+  padding:8px 13px;font:600 12px var(--sans);cursor:pointer;transition:all .12s}
+.cat-chip.cur{opacity:.5}
+.cat-chip.sel{background:var(--red);border-color:var(--red);color:#fff;opacity:1;font-weight:800}
 main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:600px;width:100%;margin:0 auto}
 .screen{display:none}
 .screen.active{display:block}
@@ -772,6 +784,22 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
   </div>
 </div>
 
+<!-- ===== Modal MOVER DE CATEGORÍA ===== -->
+<div class="modal-bg" id="moveCatModalBg">
+  <div class="modal">
+    <h3 data-i18n="moverCat">Mover de categoría</h3>
+    <div id="moveCatName" class="code" style="font-size:14px;color:var(--text);opacity:1"></div>
+    <div class="field"><label data-i18n="categoriaActual">Categoría actual</label>
+      <div id="moveCatCurrent" class="cur-cat">—</div>
+    </div>
+    <div class="field"><label data-i18n="moverA">Mover a</label>
+      <div class="cat-chips" id="moveCatChips"></div>
+    </div>
+    <button class="btn btn-red btn-block" id="moveCatSave" data-i18n="guardarCambios">Guardar cambios</button>
+    <button class="cancel" id="moveCatCancel" data-i18n="cancelar">Cancelar</button>
+  </div>
+</div>
+
 <!-- ---------- MODAL RECETA ---------- -->
 <div class="modal-bg" id="recModalBg">
   <div class="modal">
@@ -848,7 +876,7 @@ const I18N = {
     almProd:"Producto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Llenas",almVazia:"Vacías",
     almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",
-    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",verPin:"Ver PIN",cargando:"Cargando…",cargandoConfig:"Cargando configuración…",hacerAdmin:"Dar permisos de administrador",cambiarPinAdmin:"Cambiar PIN admin",nuevoEmp:"Nuevo",pinCambiado:"PIN actualizado",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
+    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",verPin:"Ver PIN",cargando:"Cargando…",moverCat:"Mover de categoría",categoriaActual:"Categoría actual",moverA:"Mover a",prodMovido:"Producto movido",cargandoConfig:"Cargando configuración…",hacerAdmin:"Dar permisos de administrador",cambiarPinAdmin:"Cambiar PIN admin",nuevoEmp:"Nuevo",pinCambiado:"PIN actualizado",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"AGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
     
@@ -903,7 +931,7 @@ const I18N = {
     almProd:"Produto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Cheias",almVazia:"Vazias",
     almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",
-    vincularProd:"Já o tens em stock? Liga-o",verPin:"Ver PIN",cargando:"A carregar…",cargandoConfig:"A carregar configuração…",hacerAdmin:"Dar permissões de administrador",cambiarPinAdmin:"Mudar PIN admin",nuevoEmp:"Novo",pinCambiado:"PIN atualizado",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
+    vincularProd:"Já o tens em stock? Liga-o",verPin:"Ver PIN",cargando:"A carregar…",moverCat:"Mover de categoria",categoriaActual:"Categoria atual",moverA:"Mover para",prodMovido:"Produto movido",cargandoConfig:"A carregar configuração…",hacerAdmin:"Dar permissões de administrador",cambiarPinAdmin:"Mudar PIN admin",nuevoEmp:"Novo",pinCambiado:"PIN atualizado",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"ESGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
     
@@ -959,7 +987,7 @@ const I18N = {
     almProd:"Product",almIdeal:"Target",almComprar:"Buy",almCheia:"Full",almVazia:"Empty",
     almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
     almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",
-    vincularProd:"Already in stock? Link it",verPin:"Show PIN",cargando:"Loading…",cargandoConfig:"Loading settings…",hacerAdmin:"Grant administrator access",cambiarPinAdmin:"Change admin PIN",nuevoEmp:"New",pinCambiado:"PIN updated",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
+    vincularProd:"Already in stock? Link it",verPin:"Show PIN",cargando:"Loading…",moverCat:"Move category",categoriaActual:"Current category",moverA:"Move to",prodMovido:"Product moved",cargandoConfig:"Loading settings…",hacerAdmin:"Grant administrator access",cambiarPinAdmin:"Change admin PIN",nuevoEmp:"New",pinCambiado:"PIN updated",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
     almStock:"Stock",almEstado:"Status",almTagOut:"OUT",almTagBuy:"SHORT",almTagOver:"OVER",almTagOk:"OK",
     almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
     
@@ -2201,6 +2229,43 @@ function openMinModal(id){
   $("minInput").value = p.min ?? STOCK_MIN_DEFAULT;
   $("minModalBg").classList.add("open");
 }
+
+/* ===== Mover un producto de categoría (conserva stock, código y todo) ===== */
+let moveCatId = null, moveCatChoice = null;
+function openMoveCatModal(id){
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  const p = products.get(id); if(!p) return;
+  moveCatId = id;
+  const actual = CATS.includes(p.categoria) ? p.categoria : "OTROS";
+  moveCatChoice = actual;
+  $("moveCatName").textContent = p.nombre;
+  $("moveCatCurrent").textContent = actual;
+  // pintar una ficha por categoría; la actual queda marcada
+  $("moveCatChips").innerHTML = CATS.map(c=>
+    `<button class="cat-chip${c===actual?" cur":""}" data-cat="${esc(c)}">${esc(c)}</button>`
+  ).join("");
+  $("moveCatChips").querySelectorAll("[data-cat]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      moveCatChoice = b.dataset.cat;
+      $("moveCatChips").querySelectorAll(".cat-chip").forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel");
+    });
+  });
+  $("moveCatModalBg").classList.add("open");
+}
+$("moveCatCancel").addEventListener("click", ()=>$("moveCatModalBg").classList.remove("open"));
+$("moveCatSave").addEventListener("click", ()=>{
+  const p = products.get(moveCatId); if(!p){ $("moveCatModalBg").classList.remove("open"); return; }
+  const destino = moveCatChoice || p.categoria;
+  if(destino === p.categoria){ $("moveCatModalBg").classList.remove("open"); return; }
+  p.categoria = destino;                 // solo cambia la categoría
+  products.set(moveCatId, p);
+  persist("gf_productos", moveCatId, {categoria: destino});   // guardado puntual
+  $("moveCatModalBg").classList.remove("open");
+  openCats.add(destino);                 // abre la categoría destino para que lo veas llegar
+  toast(`✓ ${t("prodMovido")}`,"ok");
+  renderCats();
+});
 $("minCancel").addEventListener("click", ()=>$("minModalBg").classList.remove("open"));
 $("minSave").addEventListener("click", async ()=>{
   const p = products.get(minTargetId); if(!p) return;
@@ -2354,6 +2419,7 @@ function renderCats(){
                 ? `<button class="min-btn" data-act="cfg">⚙ ${esc(minLabel)}</button>`
                 : `<span class="min-btn plain">${esc(minLabel)}</span>`}
               ${p.code?`<span class="code">${esc(p.code)}</span>`:""}
+              ${isAdmin()?`<button class="move-btn" data-act="move" title="${esc(t("moverCat"))}">↔</button>`:""}
               ${isAdmin()?`<button class="del-btn" data-act="del" title="${esc(t("eliminarProd"))}">🗑</button>`:""}
             </div>
           </div>`;
@@ -2373,6 +2439,7 @@ function renderCats(){
     if(act==="inc") applyDelta(id, +1);
     else if(act==="dec") applyDelta(id, -1);
     else if(act==="cfg") openMinModal(id);
+    else if(act==="move") openMoveCatModal(id);
     else if(act==="del") deleteProduct(id);
   }));
 }
@@ -3533,3 +3600,4 @@ initData();
 </script>
 </body>
 </html>
+  
