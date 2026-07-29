@@ -167,6 +167,7 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .shop-item b{font-weight:700;flex:1;min-width:0}
 .shop-item span{color:var(--muted);font-family:var(--mono);font-size:11px;flex-shrink:0}
 .shop-item .rm{width:28px;height:28px;border-radius:8px;border:1px solid rgba(232,163,61,.4);font-size:13px;flex-shrink:0}
+.buy-intro{color:var(--muted);font:600 12px var(--sans);margin:14px 0 6px;text-align:center}
 .shop-add{display:flex;gap:8px;margin-top:12px}
 .shop-add input{padding:10px 12px;font-size:14px}
 .shop-add button{flex-shrink:0;width:46px;border-radius:12px;background:linear-gradient(135deg,var(--red),var(--red-deep));color:#fff;font-size:20px;font-weight:800}
@@ -557,6 +558,11 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
         <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M3 9l9-5 9 5v10H3z"/><path d="M3 9l9-5 9 5v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 9h18M9 20v-6h6v6"/></svg></div>
         <h2 data-i18n="tileAlmT">Almacén</h2><p data-i18n="tileAlm">Lo que hay y lo que falta</p>
       </button>
+      <button class="tile" data-go="compras">
+        <div class="glow"></div>
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.6" class="fillw"/><circle cx="18" cy="21" r="1.6" class="fillw"/><path d="M2.5 3h2l2.2 12.3a1.5 1.5 0 0 0 1.5 1.2h8.4a1.5 1.5 0 0 0 1.5-1.2L21 7H6"/></svg></div>
+        <h2 data-i18n="tileBuyT">Compras</h2><p data-i18n="tileBuy">Lo que hay que comprar</p>
+      </button>
       <button class="tile admin-only" data-go="library" id="libTile">
         <div class="glow"></div>
         <div class="ico"><svg viewBox="0 0 24 24"><path class="fillw" d="M4 3h6v18H4z"/><path d="M4 3h6v18H4zM10 3h5v18h-5z"/><path d="M15.5 4.2l4 17.3"/></svg></div>
@@ -582,7 +588,8 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
       <input id="stockSearch" data-i18n-ph="buscar" placeholder="Buscar producto...">
     </div>
     <div class="toolbar">
-      <button class="tbtn red" id="waBtn">📋 WhatsApp</button>
+      <button class="tbtn red" id="stockPdfBtn">⬇ PDF</button>
+      <button class="tbtn" id="waBtn">📋 WhatsApp</button>
       <button class="tbtn amber" id="lowBtn">⚠️ Stock (<span id="lowCnt">0</span>)</button>
       <button class="tbtn" id="histBtn">🕐 <span data-i18n="historico">Histórico</span></button>
       <span class="spacer"></span>
@@ -698,6 +705,16 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
       <button class="alm-btn" id="almPdfBtn">⬇ PDF</button>
     </div>
     <div id="almacenList"></div>
+  </div>
+
+  <!-- ===== COMPRAS (lista compartida, la misma de Stock) ===== -->
+  <div class="screen" id="screen-compras">
+    <div class="buy-intro" data-i18n="comprasIntro">Lista compartida. Cualquiera puede añadir o quitar.</div>
+    <div class="shop-add" style="margin-bottom:14px">
+      <input id="buyInput" data-i18n-ph="shopPh" placeholder="Añadir: limón, azúcar, servilletas…">
+      <button id="buyAddBtn">＋</button>
+    </div>
+    <div class="shop-list" id="buyList"></div>
   </div>
 </main>
 
@@ -864,7 +881,7 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
 /* =================== i18n =================== */
 const I18N = {
   es:{quienEres:"¿Quién eres?",volver:"← Volver",productos:"Productos",areponer:"A reponer",
-    buscar:"Buscar producto...",historico:"Histórico",comprasPend:"Compras pendientes",
+    buscar:"Buscar producto...",historico:"Histórico",comprasPend:"Compras pendientes",tileBuyT:"Compras",tileBuy:"Lo que hay que comprar",comprasIntro:"Lista compartida. Cualquiera puede añadir o quitar.",stockPdfTitle:"Stock de Botellas — B'LIVE",stockPdfSub:"Bar · Fecha:",stTengo:"Tengo",stComprar:"Comprar",stAgotado:"AGOTADO",stFalta:"FALTA",stOk:"OK",
     shopPh:"Añadir: limón, azúcar, servilletas…",entrada:"Entrada",salida:"Salida",iniciarCam:"Iniciar cámara",
     camHint:"Apunta al código de barras. Todo lo escaneado entra directo al stock.",
     codigoManual:"Código manual (ej. 5601234567890)",
@@ -919,7 +936,7 @@ const I18N = {
     stockBajoTit:"Productos en mínimo",vacioLow:"Todo el stock está por encima del mínimo. 💪",
     traduciendo:"traduciendo…",yaEnStock:"Ya está en tu stock — sumando"},
   pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
-    buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",
+    buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",tileBuyT:"Compras",tileBuy:"O que é preciso comprar",comprasIntro:"Lista partilhada. Qualquer um pode adicionar ou remover.",stockPdfTitle:"Stock de Garrafas — B'LIVE",stockPdfSub:"Bar · Data:",stTengo:"Tenho",stComprar:"Comprar",stAgotado:"ESGOTADO",stFalta:"FALTA",stOk:"OK",
     shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
     camHint:"Aponta ao código de barras. Tudo o que digitalizares entra direto no stock.",
     codigoManual:"Código manual (ex. 5601234567890)",
@@ -975,7 +992,7 @@ const I18N = {
     stockBajoTit:"Produtos no mínimo",vacioLow:"Todo o stock está acima do mínimo. 💪",
     traduciendo:"a traduzir…",yaEnStock:"Já está no teu stock — a somar"},
   en:{quienEres:"Who are you?",volver:"← Back",productos:"Products",areponer:"To restock",
-    buscar:"Search product...",historico:"History",comprasPend:"Shopping list",
+    buscar:"Search product...",historico:"History",comprasPend:"Shopping list",tileBuyT:"Shopping",tileBuy:"What needs buying",comprasIntro:"Shared list. Anyone can add or remove.",stockPdfTitle:"Bottle Stock — B'LIVE",stockPdfSub:"Bar · Date:",stTengo:"Have",stComprar:"Buy",stAgotado:"OUT",stFalta:"LOW",stOk:"OK",
     shopPh:"Add: lemon, sugar, napkins…",entrada:"Stock in",salida:"Stock out",iniciarCam:"Start camera",
     camHint:"Point at the barcode. Everything scanned goes straight to stock.",
     codigoManual:"Manual code (e.g. 5601234567890)",
@@ -1364,6 +1381,7 @@ function showScreen(name){
   $("fab").style.display = fabScreens[name] ? "flex" : "none";
   if(name==="prices") renderPrices();
   if(name==="almacen") renderAlmacen();
+  if(name==="compras") renderShopping();
   if(name==="library") renderLibrary();
   if(name==="stock") showPanel("stock");
   if(name!=="scan") stopScanner();
@@ -2285,18 +2303,26 @@ $("minDelete").addEventListener("click", async ()=>{
   renderAll();
 });
 
-/* =================== Compras manuales =================== */
-$("shopAddBtn").addEventListener("click", async ()=>{
-  const nombre = $("shopInput").value.trim();
+/* =================== Compras manuales (lista compartida) =================== */
+function addShopItem(nombre){
+  nombre = (nombre||"").trim();
   if(!nombre) return;
   const id = newId("c");
   shopExtra.set(id, {nombre});
-  await persist("gf_compras", id, {nombre});
+  persist("gf_compras", id, {nombre});
+  renderShopping(); renderStats();
+}
+$("shopAddBtn").addEventListener("click", ()=>{
+  addShopItem($("shopInput").value);
   $("shopInput").value = "";
   $("shopCard").classList.add("open");
-  renderShopping(); renderStats();
 });
 $("shopInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("shopAddBtn").click(); });
+$("buyAddBtn").addEventListener("click", ()=>{
+  addShopItem($("buyInput").value);
+  $("buyInput").value = "";
+});
+$("buyInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("buyAddBtn").click(); });
 async function removeShopItem(id){
   shopExtra.delete(id);
   await persistDel("gf_compras", id);
@@ -2304,6 +2330,68 @@ async function removeShopItem(id){
 }
 
 /* =================== WhatsApp =================== */
+/* ===== PDF del STOCK de botellas — una sola lista por categoría =====
+   Para mandar al jefe: lo que hay, lo agotado y lo que falta comprar. */
+function stockExportPDF(){
+  const { jsPDF } = window.jspdf || {};
+  if(!jsPDF){ toast("PDF…","err"); return; }
+  const doc = new jsPDF();
+  const loc = lang==="pt"?"pt-PT":(lang==="en"?"en-GB":"es-ES");
+  const hoje = new Date().toLocaleDateString(loc);
+  doc.setFillColor(23,19,20); doc.rect(0,0,210,22,"F");
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(16);
+  doc.text(t("stockPdfTitle"), 14, 14);
+  doc.setTextColor(150,150,150); doc.setFont("helvetica","normal"); doc.setFontSize(9);
+  doc.text(t("stockPdfSub") + " " + hoje, 14, 19);
+
+  // resumen arriba
+  const all = [...products.entries()];
+  const outN = all.filter(([,p])=>(p.cantidad||0)<=0).length;
+  const lowN = all.filter(([,p])=>isLow(p) && (p.cantidad||0)>0).length;
+  doc.setTextColor(40,40,40); doc.setFontSize(10);
+  doc.text(`${t("productos")}: ${all.length}    ·    ${t("stAgotado")}: ${outN}    ·    ${t("stFalta")}: ${lowN}`, 14, 30);
+
+  // filas agrupadas por categoría (mismo orden que la pantalla)
+  const rows = [];
+  const usadas = CATS.filter(c=>all.some(([,p])=>(p.categoria||"OTROS")===c));
+  const extra = [...new Set(all.map(([,p])=>p.categoria||"OTROS"))].filter(c=>!CATS.includes(c));
+  [...usadas, ...extra].forEach(cat=>{
+    const items = all.filter(([,p])=>(p.categoria||"OTROS")===cat)
+      .sort((a,b)=>(a[1].nombre||"").localeCompare(b[1].nombre||""));
+    if(!items.length) return;
+    rows.push([{content:cat, colSpan:4, styles:{fillColor:[23,19,20],textColor:[255,255,255],fontStyle:"bold"}}]);
+    items.forEach(([,p])=>{
+      const q = p.cantidad||0, min = p.min ?? STOCK_MIN_DEFAULT;
+      let estado, falta="";
+      if(q<=0){ estado=t("stAgotado"); falta=Math.max(min,1); }
+      else if(isLow(p)){ estado=t("stFalta"); falta=Math.max(0,min-q); }
+      else estado=t("stOk");
+      rows.push([p.nombre, String(q), estado, falta?String(falta):"—"]);
+    });
+  });
+
+  doc.autoTable({
+    startY:35,
+    head:[[t("almProd")||"Producto", t("stTengo"), t("almEstado")||"Estado", t("stComprar")]],
+    body:rows, theme:"grid",
+    styles:{fontSize:9, cellPadding:2.2},
+    headStyles:{fillColor:[51,51,51], textColor:[255,255,255]},
+    columnStyles:{0:{cellWidth:95},1:{halign:"center"},2:{halign:"center",fontStyle:"bold"},3:{halign:"center",fontStyle:"bold"}},
+    didParseCell:function(c){
+      if(c.section!=="body") return;
+      if(c.column.index===2){
+        const v=String(c.cell.raw||"");
+        if(v===t("stAgotado")){ c.cell.styles.textColor=[176,36,24]; c.cell.styles.fillColor=[250,232,230]; }
+        else if(v===t("stFalta")){ c.cell.styles.textColor=[184,120,20]; }
+        else if(v===t("stOk")){ c.cell.styles.textColor=[40,120,80]; }
+      }
+      if(c.column.index===3 && c.cell.raw!=="—"){ c.cell.styles.textColor=[176,36,24]; }
+    }
+  });
+  doc.save(`Stock_Botellas_BLIVE_${hoje.replace(/\//g,"-")}.pdf`);
+}
+$("stockPdfBtn").addEventListener("click", stockExportPDF);
+
 $("waBtn").addEventListener("click", ()=>{
   // La lista de compras es SOLO lo que el admin añade a mano
   const d = new Date();
@@ -2355,15 +2443,19 @@ function renderStats(){
   b.textContent = low;
 }
 function renderShopping(){
-  // SOLO lo que el admin añade a mano
+  // Lista compartida de compras. La misma fuente (shopExtra) se pinta en
+  // dos sitios: dentro de Stock y en el cuadro "Compras" del hub.
   $("shopCnt").textContent = shopExtra.size;
   let html = "";
   shopExtra.forEach((it,id)=>{
     html += `<div class="shop-item"><b>${esc(it.nombre)}</b><button class="rm" data-shop="${esc(id)}">✕</button></div>`;
   });
-  if(!html) html = `<div class="shop-item" style="color:var(--muted)"><b>${esc(t("vacioShop"))}</b></div>`;
-  $("shopList").innerHTML = html;
-  $("shopList").querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
+  const vacio = `<div class="shop-item" style="color:var(--muted)"><b>${esc(t("vacioShop"))}</b></div>`;
+  ["shopList","buyList"].forEach(cid=>{
+    const box = $(cid); if(!box) return;
+    box.innerHTML = html || vacio;
+    box.querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
+  });
 }
 function renderLow(){
   const items = lowItems();
@@ -3600,4 +3692,3 @@ initData();
 </script>
 </body>
 </html>
-  
