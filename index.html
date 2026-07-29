@@ -167,6 +167,21 @@ main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:60
 .shop-item b{font-weight:700;flex:1;min-width:0}
 .shop-item span{color:var(--muted);font-family:var(--mono);font-size:11px;flex-shrink:0}
 .shop-item .rm{width:28px;height:28px;border-radius:8px;border:1px solid rgba(232,163,61,.4);font-size:13px;flex-shrink:0}
+.buy-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+.buy-title{font:800 20px var(--sans);display:flex;align-items:center;gap:9px}
+.buy-cnt{background:var(--red);color:#fff;font:800 13px var(--mono);min-width:26px;height:26px;
+  border-radius:20px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px}
+.buy-empty{text-align:center;color:var(--muted);font:600 15px var(--sans);padding:36px 0}
+.buy-list{display:flex;flex-direction:column;gap:8px}
+.buy-item{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:12px 13px}
+.buy-check{flex:none;width:34px;height:34px;border-radius:50%;border:2px solid var(--green);
+  background:transparent;color:var(--green);font-size:16px;font-weight:800;cursor:pointer;transition:all .12s}
+.buy-check:active{background:var(--green);color:#fff}
+.buy-nm{flex:1;font:700 16px var(--sans);color:var(--text)}
+.buy-who{font:600 11px var(--sans);color:var(--muted);margin-left:4px}
+.buy-rm{flex:none;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 6px}
+.buy-rm:active{color:var(--red)}
 .buy-intro{color:var(--muted);font:600 12px var(--sans);margin:14px 0 6px;text-align:center}
 .shop-add{display:flex;gap:8px;margin-top:12px}
 .shop-add input{padding:10px 12px;font-size:14px}
@@ -709,12 +724,16 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
 
   <!-- ===== COMPRAS (lista compartida, la misma de Stock) ===== -->
   <div class="screen" id="screen-compras">
-    <div class="buy-intro" data-i18n="comprasIntro">Lista compartida. Cualquiera puede añadir o quitar.</div>
-    <div class="shop-add" style="margin-bottom:14px">
+    <div class="buy-head">
+      <div class="buy-title">🛒 <span data-i18n="tileBuyT">Compras</span> <span class="buy-cnt" id="buyCnt">0</span></div>
+      <button class="tbtn red" id="buyWaBtn">📋 WhatsApp</button>
+    </div>
+    <div class="buy-intro" data-i18n="comprasIntro2">Todos pueden ver y editar. Si se acaba algo, agrégalo. Cuando lo compres, márcalo hecho.</div>
+    <div class="shop-add" style="margin:12px 0 16px">
       <input id="buyInput" data-i18n-ph="shopPh" placeholder="Añadir: limón, azúcar, servilletas…">
       <button id="buyAddBtn">＋</button>
     </div>
-    <div class="shop-list" id="buyList"></div>
+    <div class="buy-list" id="buyList"></div>
   </div>
 </main>
 
@@ -881,7 +900,7 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
 /* =================== i18n =================== */
 const I18N = {
   es:{quienEres:"¿Quién eres?",volver:"← Volver",productos:"Productos",areponer:"A reponer",
-    buscar:"Buscar producto...",historico:"Histórico",comprasPend:"Compras pendientes",tileBuyT:"Compras",tileBuy:"Lo que hay que comprar",comprasIntro:"Lista compartida. Cualquiera puede añadir o quitar.",stockPdfTitle:"Stock de Botellas — B'LIVE",stockPdfSub:"Bar · Fecha:",stTengo:"Tengo",stComprar:"Comprar",stAgotado:"AGOTADO",stFalta:"FALTA",stOk:"OK",
+    buscar:"Buscar producto...",historico:"Histórico",comprasPend:"Compras pendientes",tileBuyT:"Compras",tileBuy:"Lo que hay que comprar",comprasIntro2:"Todos pueden ver y editar. Si se acaba algo, agrégalo. Cuando lo compres, márcalo hecho.",marcarComprado:"Marcar comprado",comprado:"comprado",quitar:"Quitar",stockPdfTitle:"Stock de Botellas — B'LIVE",stockPdfSub:"Bar · Fecha:",stTengo:"Tengo",stComprar:"Comprar",stAgotado:"AGOTADO",stFalta:"FALTA",stOk:"OK",
     shopPh:"Añadir: limón, azúcar, servilletas…",entrada:"Entrada",salida:"Salida",iniciarCam:"Iniciar cámara",
     camHint:"Apunta al código de barras. Todo lo escaneado entra directo al stock.",
     codigoManual:"Código manual (ej. 5601234567890)",
@@ -936,7 +955,7 @@ const I18N = {
     stockBajoTit:"Productos en mínimo",vacioLow:"Todo el stock está por encima del mínimo. 💪",
     traduciendo:"traduciendo…",yaEnStock:"Ya está en tu stock — sumando"},
   pt:{quienEres:"Quem és?",volver:"← Voltar",productos:"Produtos",areponer:"A repor",
-    buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",tileBuyT:"Compras",tileBuy:"O que é preciso comprar",comprasIntro:"Lista partilhada. Qualquer um pode adicionar ou remover.",stockPdfTitle:"Stock de Garrafas — B'LIVE",stockPdfSub:"Bar · Data:",stTengo:"Tenho",stComprar:"Comprar",stAgotado:"ESGOTADO",stFalta:"FALTA",stOk:"OK",
+    buscar:"Pesquisar produto...",historico:"Histórico",comprasPend:"Compras pendentes",tileBuyT:"Compras",tileBuy:"O que é preciso comprar",comprasIntro2:"Todos podem ver e editar. Se acabar algo, adiciona. Quando comprares, marca como feito.",marcarComprado:"Marcar comprado",comprado:"comprado",quitar:"Remover",stockPdfTitle:"Stock de Garrafas — B'LIVE",stockPdfSub:"Bar · Data:",stTengo:"Tenho",stComprar:"Comprar",stAgotado:"ESGOTADO",stFalta:"FALTA",stOk:"OK",
     shopPh:"Adicionar: limão, açúcar, guardanapos…",entrada:"Entrada",salida:"Saída",iniciarCam:"Iniciar câmara",
     camHint:"Aponta ao código de barras. Tudo o que digitalizares entra direto no stock.",
     codigoManual:"Código manual (ex. 5601234567890)",
@@ -992,7 +1011,7 @@ const I18N = {
     stockBajoTit:"Produtos no mínimo",vacioLow:"Todo o stock está acima do mínimo. 💪",
     traduciendo:"a traduzir…",yaEnStock:"Já está no teu stock — a somar"},
   en:{quienEres:"Who are you?",volver:"← Back",productos:"Products",areponer:"To restock",
-    buscar:"Search product...",historico:"History",comprasPend:"Shopping list",tileBuyT:"Shopping",tileBuy:"What needs buying",comprasIntro:"Shared list. Anyone can add or remove.",stockPdfTitle:"Bottle Stock — B'LIVE",stockPdfSub:"Bar · Date:",stTengo:"Have",stComprar:"Buy",stAgotado:"OUT",stFalta:"LOW",stOk:"OK",
+    buscar:"Search product...",historico:"History",comprasPend:"Shopping list",tileBuyT:"Shopping",tileBuy:"What needs buying",comprasIntro2:"Everyone can view and edit. If something runs out, add it. When you buy it, mark it done.",marcarComprado:"Mark as bought",comprado:"bought",quitar:"Remove",stockPdfTitle:"Bottle Stock — B'LIVE",stockPdfSub:"Bar · Date:",stTengo:"Have",stComprar:"Buy",stAgotado:"OUT",stFalta:"LOW",stOk:"OK",
     shopPh:"Add: lemon, sugar, napkins…",entrada:"Stock in",salida:"Stock out",iniciarCam:"Start camera",
     camHint:"Point at the barcode. Everything scanned goes straight to stock.",
     codigoManual:"Manual code (e.g. 5601234567890)",
@@ -2308,8 +2327,9 @@ function addShopItem(nombre){
   nombre = (nombre||"").trim();
   if(!nombre) return;
   const id = newId("c");
-  shopExtra.set(id, {nombre});
-  persist("gf_compras", id, {nombre});
+  const it = {nombre, byName: currentUser ? currentUser.nombre : "", ts: Date.now()};
+  shopExtra.set(id, it);
+  persist("gf_compras", id, it);
   renderShopping(); renderStats();
 }
 $("shopAddBtn").addEventListener("click", ()=>{
@@ -2323,6 +2343,7 @@ $("buyAddBtn").addEventListener("click", ()=>{
   $("buyInput").value = "";
 });
 $("buyInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("buyAddBtn").click(); });
+$("buyWaBtn").addEventListener("click", ()=>$("waBtn").click());   // mismo texto de compras a WhatsApp
 async function removeShopItem(id){
   shopExtra.delete(id);
   await persistDel("gf_compras", id);
@@ -2443,19 +2464,52 @@ function renderStats(){
   b.textContent = low;
 }
 function renderShopping(){
-  // Lista compartida de compras. La misma fuente (shopExtra) se pinta en
-  // dos sitios: dentro de Stock y en el cuadro "Compras" del hub.
-  $("shopCnt").textContent = shopExtra.size;
-  let html = "";
-  shopExtra.forEach((it,id)=>{
-    html += `<div class="shop-item"><b>${esc(it.nombre)}</b><button class="rm" data-shop="${esc(id)}">✕</button></div>`;
-  });
-  const vacio = `<div class="shop-item" style="color:var(--muted)"><b>${esc(t("vacioShop"))}</b></div>`;
-  ["shopList","buyList"].forEach(cid=>{
-    const box = $(cid); if(!box) return;
-    box.innerHTML = html || vacio;
-    box.querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
-  });
+  // Lista compartida de compras. Misma fuente (shopExtra), dos vistas:
+  //  - buyList  = cuadro Compras (principal): marcar comprado + quitar
+  //  - shopList = dentro de Stock (secundaria): versión simple
+  const n = shopExtra.size;
+  if($("shopCnt")) $("shopCnt").textContent = n;
+  if($("buyCnt"))  $("buyCnt").textContent = n;
+
+  // --- vista principal (cuadro Compras): con botón "comprado" ---
+  const buy = $("buyList");
+  if(buy){
+    if(!n){
+      buy.innerHTML = `<div class="buy-empty">🎉 <span data-i18n="vacioShop">${esc(t("vacioShop"))}</span></div>`;
+    }else{
+      let html = "";
+      shopExtra.forEach((it,id)=>{
+        const quien = it.byName ? `<span class="buy-who">· ${esc(it.byName)}</span>` : "";
+        html += `<div class="buy-item">
+          <button class="buy-check" data-buydone="${esc(id)}" title="${esc(t("marcarComprado"))}">✓</button>
+          <div class="buy-nm">${esc(it.nombre)}${quien}</div>
+          <button class="buy-rm" data-shop="${esc(id)}" title="${esc(t("quitar"))}">✕</button>
+        </div>`;
+      });
+      buy.innerHTML = html;
+      buy.querySelectorAll("[data-buydone]").forEach(b=>b.addEventListener("click",()=>markBought(b.dataset.buydone)));
+      buy.querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
+    }
+  }
+
+  // --- vista simple (dentro de Stock) ---
+  const shop = $("shopList");
+  if(shop){
+    let html = "";
+    shopExtra.forEach((it,id)=>{
+      html += `<div class="shop-item"><b>${esc(it.nombre)}</b><button class="rm" data-shop="${esc(id)}">✕</button></div>`;
+    });
+    shop.innerHTML = html || `<div class="shop-item" style="color:var(--muted)"><b>${esc(t("vacioShop"))}</b></div>`;
+    shop.querySelectorAll("[data-shop]").forEach(b=>b.addEventListener("click",()=>removeShopItem(b.dataset.shop)));
+  }
+}
+/* Marcar comprado = lo saca de la lista (con un toast de confirmación) */
+async function markBought(id){
+  const it = shopExtra.get(id);
+  shopExtra.delete(id);
+  await persistDel("gf_compras", id);
+  renderShopping(); renderStats();
+  if(it) toast(`✓ ${esc(it.nombre)} — ${t("comprado")}`,"ok");
 }
 function renderLow(){
   const items = lowItems();
