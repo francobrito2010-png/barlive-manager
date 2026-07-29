@@ -97,6 +97,15 @@ textarea{resize:vertical;min-height:90px;line-height:1.5}
 .pin-val.open{color:var(--amber);letter-spacing:.06em;font-weight:800}
 .pin-eye{background:none;border:none;padding:0 0 0 6px;font-size:13px;line-height:1;cursor:pointer;opacity:.75}
 .pin-eye:active{opacity:1}
+/* Login: cargando (todo aparece junto, no de a uno) */
+.login-loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:40px 0;color:var(--muted);font:600 13px var(--sans)}
+.login-loading .spin{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--red);border-radius:50%;animation:blspin .8s linear infinite}
+@keyframes blspin{to{transform:rotate(360deg)}}
+/* Interruptor de administrador en el formulario de empleado */
+.emp-adm-row{display:flex;align-items:center;gap:10px;margin:4px 0 14px;font:600 13px var(--sans);color:var(--text);cursor:pointer}
+.emp-adm-row input{width:20px;height:20px;accent-color:var(--amber)}
+/* Botones de la pantalla de equipo */
+.team-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 main{flex:1;padding:0 18px calc(40px + env(safe-area-inset-bottom));max-width:600px;width:100%;margin:0 auto}
 .screen{display:none}
 .screen.active{display:block}
@@ -637,6 +646,10 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
 
   <!-- ===== EMPLEADOS ===== -->
   <div class="screen" id="screen-team">
+    <div class="team-actions">
+      <button class="tbtn" id="addEmpBtn">＋ <span data-i18n="nuevoEmp">Nuevo</span></button>
+      <button class="tbtn amber" id="changeAdminPinBtn">🔑 <span data-i18n="cambiarPinAdmin">Cambiar PIN admin</span></button>
+    </div>
     <div id="empList" style="margin-top:14px"></div>
   </div>
 
@@ -810,6 +823,7 @@ const UNIDADES = ["unidad","botella","caja","garrafa","lata","pack"]; /* tipos d
     <div class="field"><label data-i18n="nombre">Nombre</label><input id="empName" placeholder="Ej. JUAN"></div>
     <div class="field"><label data-i18n="pinEmp">PIN (4 a 6 dígitos)</label><input id="empPin" inputmode="numeric" maxlength="6" placeholder="0000"></div>
     <div class="field"><label data-i18n="colorAvatar">Color del cuadrito</label><div class="color-opts" id="empColors"></div></div>
+    <label class="emp-adm-row"><input type="checkbox" id="empIsAdmin"><span data-i18n="hacerAdmin">Dar permisos de administrador</span></label>
     <button class="btn btn-red btn-block" id="empSave" data-i18n="guardar">Guardar</button>
     <div class="modal-actions"><button class="btn btn-danger" id="empDelete" data-i18n="eliminarEmp">Eliminar empleado</button></div>
     <button class="cancel" id="empCancel" data-i18n="cancelar">Cancelar</button>
@@ -834,7 +848,7 @@ const I18N = {
     almProd:"Producto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Llenas",almVazia:"Vacías",
     almIdealPk:"Ideal (packs)",almTenho:"Tengo",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"por unidad",
-    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",verPin:"Ver PIN",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
+    vincularProd:"¿Ya lo tienes en stock? Vincúlalo",verPin:"Ver PIN",cargando:"Cargando…",cargandoConfig:"Cargando configuración…",hacerAdmin:"Dar permisos de administrador",cambiarPinAdmin:"Cambiar PIN admin",nuevoEmp:"Nuevo",pinCambiado:"PIN actualizado",errPermisos:"Sin permiso para guardar. Revisa las reglas de Firebase.",errGuardar:"No se pudo guardar en la nube. Se reintentará solo.",crearNuevo:"— Crear producto nuevo —",codigoVinculado:"Código vinculado al producto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"AGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ VIGILAR",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada que comprar. Todo completo.",
     
@@ -889,7 +903,7 @@ const I18N = {
     almProd:"Produto",almIdeal:"Ideal",almComprar:"Comprar",almCheia:"Cheias",almVazia:"Vazias",
     almIdealPk:"Ideal (packs)",almTenho:"Tenho",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Unidades por pack",
     almSemPack:"⚠ definir un/pack",almPorUnidade:"à unidade",
-    vincularProd:"Já o tens em stock? Liga-o",verPin:"Ver PIN",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
+    vincularProd:"Já o tens em stock? Liga-o",verPin:"Ver PIN",cargando:"A carregar…",cargandoConfig:"A carregar configuração…",hacerAdmin:"Dar permissões de administrador",cambiarPinAdmin:"Mudar PIN admin",nuevoEmp:"Novo",pinCambiado:"PIN atualizado",errPermisos:"Sem permissão para guardar. Verifica as regras do Firebase.",errGuardar:"Não foi possível guardar na nuvem. Vai tentar de novo sozinho.",crearNuevo:"— Criar produto novo —",codigoVinculado:"Código ligado ao produto",almGrades:"grades",
     almStock:"Stock",almEstado:"Estado",almTagOut:"ESGOTADO",almTagBuy:"FALTA",almTagOver:"SOBRA",almTagOk:"OK",
     almTagWatch:"⚠ ATENÇÃO",almPdfLista:"LISTA DE COMPRAS",almNadaComprar:"Nada a comprar. Está tudo completo.",
     
@@ -945,7 +959,7 @@ const I18N = {
     almProd:"Product",almIdeal:"Target",almComprar:"Buy",almCheia:"Full",almVazia:"Empty",
     almIdealPk:"Target (packs)",almTenho:"Have",almUnShort:"un",almUnPack:"un/pack",almUnPackL:"Units per pack",
     almSemPack:"\u26a0 set un/pack",almPorUnidade:"per unit",
-    vincularProd:"Already in stock? Link it",verPin:"Show PIN",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
+    vincularProd:"Already in stock? Link it",verPin:"Show PIN",cargando:"Loading…",cargandoConfig:"Loading settings…",hacerAdmin:"Grant administrator access",cambiarPinAdmin:"Change admin PIN",nuevoEmp:"New",pinCambiado:"PIN updated",errPermisos:"No permission to save. Check your Firebase rules.",errGuardar:"Could not save to the cloud. It will retry automatically.",crearNuevo:"— Create new product —",codigoVinculado:"Barcode linked to product",almGrades:"crates",
     almStock:"Stock",almEstado:"Status",almTagOut:"OUT",almTagBuy:"SHORT",almTagOver:"OVER",almTagOk:"OK",
     almTagWatch:"\u26a0 WATCH",almPdfLista:"SHOPPING LIST",almNadaComprar:"Nothing to buy. All stocked.",
     
@@ -1121,14 +1135,39 @@ $("loginSub").textContent = BRAND.sub;
 
 /* =================== LOGIN =================== */
 let pinTarget = null, pinEntered = "";
+let empLoaded = false;      // true cuando ya llegó el bloque de empleados
 function renderLogin(){
   const grid = $("usersGrid");
+  if(!grid) return;
+  // Mientras la base aún carga (config del admin o empleados), mostramos un
+  // esqueleto y NO pintamos cuadros a medias. Así no ves "aparecer de a uno":
+  // cuando está todo listo, salen todos a la vez.
+  const cargando = (!DEMO && db && (adminConfigPending || !empLoaded));
+  if(cargando){
+    grid.innerHTML = `<div class="login-loading">
+        <div class="spin"></div><span>${esc(t("cargando"))}</span>
+      </div>`;
+    return;
+  }
+  // Admins: el admin principal + cualquier empleado con rol "admin"
+  const admins = [...employees.entries()].filter(([id,e])=>e.role==="admin")
+    .sort((a,b)=>(a[1].orden??99)-(b[1].orden??99));
+  const staff  = [...employees.entries()].filter(([id,e])=>e.role!=="admin")
+    .sort((a,b)=>(a[1].orden??99)-(b[1].orden??99));
+
   let html = `<button class="user-tile admin-tile" data-user="__admin__">
       <div class="avatar" style="background:${ADMIN_USER.color}">${esc(initial(ADMIN_USER.nombre))}</div>
       <div class="uname">${esc(ADMIN_USER.nombre)}</div>
       <div class="urole">${esc(t("admin"))}</div>
     </button>`;
-  [...employees.entries()].sort((a,b)=>(a[1].orden??99)-(b[1].orden??99)).forEach(([id,e])=>{
+  admins.forEach(([id,e])=>{
+    html += `<button class="user-tile admin-tile" data-user="${esc(id)}">
+      <div class="avatar" style="background:${esc(e.color||"#E8A33D")}">${esc(initial(e.nombre))}</div>
+      <div class="uname">${esc(e.nombre)}</div>
+      <div class="urole">${esc(t("admin"))}</div>
+    </button>`;
+  });
+  staff.forEach(([id,e])=>{
     html += `<button class="user-tile" data-user="${esc(id)}">
       <div class="avatar" style="background:${esc(e.color||"#E5392B")}">${esc(initial(e.nombre))}</div>
       <div class="uname">${esc(e.nombre)}</div>
@@ -1139,18 +1178,28 @@ function renderLogin(){
   grid.querySelectorAll("[data-user]").forEach(b=>b.addEventListener("click",()=>openPin(b.dataset.user)));
 }
 let pinMode = "verify", pinLen = 4, setupFirstPin = "";
+let changingAdminPin = false;   // true cuando el admin cambia su PIN desde dentro
 function drawPinDots(n){ $("pinDots").innerHTML = Array.from({length:n}, ()=>'<div class="pin-dot"></div>').join(""); }
 function pinHint(){
-  if(pinMode==="setup") return lang==="pt"?"CRIAR PIN ADMIN (6)":lang==="en"?"CREATE ADMIN PIN (6)":"CREAR PIN ADMIN (6)";
+  if(pinMode==="setup") return changingAdminPin
+    ? (lang==="pt"?"NOVO PIN ADMIN (6)":lang==="en"?"NEW ADMIN PIN (6)":"NUEVO PIN ADMIN (6)")
+    : (lang==="pt"?"CRIAR PIN ADMIN (6)":lang==="en"?"CREATE ADMIN PIN (6)":"CREAR PIN ADMIN (6)");
   if(pinMode==="setup-confirm") return lang==="pt"?"REPETE O PIN":lang==="en"?"REPEAT PIN":"REPITE EL PIN";
   return pinTarget.nombre;
 }
 function openPin(userId){
   const u = userId==="__admin__" ? ADMIN_USER : employees.get(userId);
   if(!u) return;
-  pinTarget = userId==="__admin__" ? ADMIN_USER : { id:userId, ...u, role:"empleado" };
+  pinTarget = userId==="__admin__" ? ADMIN_USER : { id:userId, ...u, role:(u.role==="admin"?"admin":"empleado") };
   pinEntered = ""; setupFirstPin = "";
   if(userId==="__admin__"){
+    // Si todavía no sabemos si hay PIN guardado, esperamos: NUNCA pedimos
+    // "crear PIN" sin estar seguros de que no existe (evita el doble PIN
+    // fantasma tras un rato con la app cerrada).
+    if(adminConfigPending && !adminSec){
+      toast(t("cargandoConfig"), "");
+      return;
+    }
     pinMode = adminSec ? "verify" : "setup";     // primera vez: crear PIN admin
     pinLen  = adminSec ? (adminSec.len||6) : 6;
   }else{
@@ -1166,6 +1215,13 @@ function openPin(userId){
   $("loginPin").style.display = "flex";
 }
 $("pinBack").addEventListener("click", ()=>{
+  if(changingAdminPin){
+    changingAdminPin = false;
+    $("loginPin").style.display = "none";
+    $("loginScreen").style.display = "none";
+    $("app").style.display = "flex";
+    return;
+  }
   $("loginPin").style.display = "none";
   $("loginSelect").style.display = "block";
 });
@@ -1189,7 +1245,16 @@ async function submitPin(){
       // No esperamos a Firestore: si la red va mal, el PIN igual queda activo
       if(db){ try{ db.collection(COL("gf_config")).doc("security").set(adminSec)
         .catch(e=>reportWriteError("gf_config","security",e)); }catch(e){} }
-      currentUser = ADMIN_USER; enterApp();
+      if(changingAdminPin){
+        // Venimos de "Cambiar PIN admin" estando ya dentro: volvemos a la app
+        changingAdminPin = false;
+        $("loginPin").style.display = "none";
+        $("loginScreen").style.display = "none";
+        $("app").style.display = "flex";
+        toast(`✓ ${t("pinCambiado")}`,"ok");
+      }else{
+        currentUser = ADMIN_USER; enterApp();
+      }
     }else{
       pinMode = "setup"; setupFirstPin = "";
       $("pinWho").textContent = pinHint();
@@ -1305,6 +1370,7 @@ $("fab").addEventListener("click",()=>{
 /* Namespace de colecciones: en modo prueba antepone "test_" a todo */
 const COL = name => DATA_NS + name;
 let adminSec = null;        // {hash, len} del PIN admin (Firestore gf_config/security)
+let adminConfigPending = false; // true mientras aún no confirmamos si hay PIN guardado
 let catalog = new Map();    // code -> {nombre, categoria} (base compartida de licores)
 
 /* ---- Dinero ---- */
@@ -1398,15 +1464,32 @@ async function initData(){
       // Persistencia offline: los cambios se guardan en el móvil y se envían al reconectar
       try{ await conTope(db.enablePersistence({synchronizeTabs:true}), 3000); }catch(e){}
       wireConnEvents();
-      // PIN de administrador cifrado (se crea la primera vez)
-      const cfg = await conTope(db.collection(COL("gf_config")).doc("security").get(), 6000, null);
-      adminSec = (cfg && cfg.exists) ? cfg.data() : null;
+      // PIN de administrador cifrado (se crea la primera vez).
+      // IMPORTANTE: si la lectura tarda, NO asumimos que no hay PIN — eso hacía
+      // que tras un rato cerrada la app pidiera crear el PIN otra vez.
+      // Damos más margen y, si aun así no llega, esperamos en segundo plano
+      // en vez de tratar la app como "sin configurar".
+      let cfg = await conTope(db.collection(COL("gf_config")).doc("security").get(), 9000, "SLOW");
+      if(cfg==="SLOW"){
+        adminConfigPending = true;                    // aún no sabemos: no ofrecer "crear PIN"
+        db.collection(COL("gf_config")).doc("security").get()
+          .then(d=>{ adminConfigPending=false; adminSec=(d&&d.exists)?d.data():null; renderLogin(); })
+          .catch(()=>{ adminConfigPending=false; renderLogin(); });
+      }else{
+        adminConfigPending = false;
+        adminSec = (cfg && cfg.exists) ? cfg.data() : null;
+      }
       db.collection(COL("gf_catalogo")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") catalog.delete(ch.doc.id); else catalog.set(ch.doc.id, ch.doc.data());
       });});
-      db.collection(COL("gf_empleados")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
-        if(ch.type==="removed") employees.delete(ch.doc.id); else employees.set(ch.doc.id, ch.doc.data());
-      }); renderLogin(); if($("app").style.display==="flex") renderEmployees();});
+      db.collection(COL("gf_empleados")).onSnapshot(s=>{
+        s.docChanges().forEach(ch=>{
+          if(ch.type==="removed") employees.delete(ch.doc.id); else employees.set(ch.doc.id, ch.doc.data());
+        });
+        empLoaded = true;                 // ya llegó el bloque completo de empleados
+        renderLogin();                    // se pinta todo junto, no uno a uno
+        if($("app").style.display==="flex") renderEmployees();
+      });
       db.collection(COL("gf_productos")).onSnapshot({includeMetadataChanges:true}, s=>{
         s.docChanges().forEach(ch=>{
           if(ch.type==="removed") products.delete(ch.doc.id); else products.set(ch.doc.id, ch.doc.data());
@@ -2511,11 +2594,31 @@ function openEmpForm(id){
   $("empPin").value = e ? (e.pin || "") : "";          // carga el PIN actual
   $("empPin").placeholder = e ? (lang==="pt"?"•••• (vazio = manter)":lang==="en"?"•••• (blank = keep)":"•••• (vacío = mantener)") : "0000";
   empFormColor = e ? (e.color||AVATAR_COLORS[0]) : AVATAR_COLORS[employees.size % AVATAR_COLORS.length];
+  $("empIsAdmin").checked = e ? (e.role==="admin") : false;
   $("empDelete").style.display = id ? "inline-flex" : "none";
   buildEmpColors();
   $("empModalBg").classList.add("open");
 }
 $("empCancel").addEventListener("click", ()=>$("empModalBg").classList.remove("open"));
+$("addEmpBtn").addEventListener("click", ()=>openEmpForm(null));
+/* Cambiar el PIN del administrador principal, en cualquier momento.
+   Reusa el mismo teclado de PIN: pide el nuevo dos veces (crear + repetir). */
+$("changeAdminPinBtn").addEventListener("click", ()=>{
+  if(!isAdmin()){ toast(t("soloAdmin"),"err"); return; }
+  pinTarget = ADMIN_USER;
+  pinEntered = ""; setupFirstPin = "";
+  pinMode = "setup"; pinLen = 6;          // "setup" -> pide nuevo y luego repetir
+  changingAdminPin = true;
+  $("pinAvatar").style.background = ADMIN_USER.color;
+  $("pinAvatar").textContent = initial(ADMIN_USER.nombre);
+  $("pinWho").textContent = pinHint();
+  $("pinError").textContent = "";
+  drawPinDots(pinLen);
+  $("loginSelect").style.display = "none";
+  $("loginPin").style.display = "flex";
+  $("app").style.display = "none";
+  $("loginScreen").style.display = "flex";
+});
 $("empSave").addEventListener("click", async ()=>{
   const nombre = $("empName").value.trim().toUpperCase();
   const pinRaw = $("empPin").value.trim();
@@ -2535,8 +2638,9 @@ $("empSave").addEventListener("click", async ()=>{
   }else if(!editing){ toast(t("pinReq"),"err"); return; }
   const id = empEditId || newId("e");
   const orden = editing ? (prev?.orden ?? 99) : (employees.size + 1);
+  const role = $("empIsAdmin").checked ? "admin" : "empleado";
   // pinHash valida el login (no se toca). pin es la copia legible que ve el admin.
-  const emp = {nombre, pinHash:pinHashVal, pinLen:pinLenVal, pin:pinPlain, color:empFormColor, orden};
+  const emp = {nombre, pinHash:pinHashVal, pinLen:pinLenVal, pin:pinPlain, color:empFormColor, orden, role};
   employees.set(id, emp);
   // Guardado en segundo plano: la interfaz no espera (ver capa de guardado)
   persist("gf_empleados", id, emp);
