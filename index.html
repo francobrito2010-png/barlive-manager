@@ -1529,21 +1529,21 @@ async function initData(){
       // Persistencia offline: los cambios se guardan en el móvil y se envían al reconectar
       try{ await conTope(db.enablePersistence({synchronizeTabs:true}), 3000); }catch(e){}
       wireConnEvents();
-      // PIN de administrador cifrado (se crea la primera vez).
-      // IMPORTANTE: si la lectura tarda, NO asumimos que no hay PIN — eso hacía
-      // que tras un rato cerrada la app pidiera crear el PIN otra vez.
-      // Damos más margen y, si aun así no llega, esperamos en segundo plano
-      // en vez de tratar la app como "sin configurar".
-      let cfg = await conTope(db.collection(COL("gf_config")).doc("security").get(), 9000, "SLOW");
-      if(cfg==="SLOW"){
-        adminConfigPending = true;                    // aún no sabemos: no ofrecer "crear PIN"
-        db.collection(COL("gf_config")).doc("security").get()
-          .then(d=>{ adminConfigPending=false; adminSec=(d&&d.exists)?d.data():null; renderLogin(); })
-          .catch(()=>{ adminConfigPending=false; renderLogin(); });
-      }else{
-        adminConfigPending = false;
-        adminSec = (cfg && cfg.exists) ? cfg.data() : null;
-      }
+      // PIN de administrador (gf_config/security) EN TIEMPO REAL.
+      // Antes se leía una sola vez con get(): con la caché offline podía llegar
+      // primero vacía y quedar como "sin PIN", pidiéndolo de nuevo desde cero.
+      // Con onSnapshot llega solo, se corrige solo y se sincroniza al instante
+      // en todos los teléfonos. Mientras no confirme el servidor, esperamos.
+      adminConfigPending = true;
+      db.collection(COL("gf_config")).doc("security")
+        .onSnapshot({includeMetadataChanges:true}, snap=>{
+          // Ignoramos la primera respuesta si viene SOLO de caché sin datos:
+          // esperamos la confirmación del servidor para no falsear "sin PIN".
+          if(snap.metadata.fromCache && !snap.exists) return;
+          adminConfigPending = false;
+          adminSec = snap.exists ? snap.data() : null;
+          renderLogin();
+        }, err=>{ adminConfigPending = false; renderLogin(); });
       db.collection(COL("gf_catalogo")).onSnapshot(s=>{s.docChanges().forEach(ch=>{
         if(ch.type==="removed") catalog.delete(ch.doc.id); else catalog.set(ch.doc.id, ch.doc.data());
       });});
