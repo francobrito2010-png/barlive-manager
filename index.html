@@ -1154,7 +1154,7 @@ const GLASS_COLORS = [
   ["ambar","#C97B2D"],["cafe","#5C4033"],["crema","#F2E8D5"],["hielo","#D7E2EA"],
   ["negro","#2B2B2B"]
 ];
-const COPAS = ["highball","rocks","martini","coupe","vino","flute","shot"];
+const COPAS = ["highball","rocks","martini","coupe","vino","flute","shot","jarra05","jarra1","jarra2"];
 const GLASS_SHAPES = {
   highball:{ outline:"M34 10 L39 106 Q39 110 44 110 L56 110 Q61 110 61 106 L66 10",
              liquid:"M37.7 38 L40.6 104 Q40.7 106 44 106 L56 106 Q59.3 106 59.4 104 L62.3 38 Z", stem:false },
@@ -1165,7 +1165,14 @@ const GLASS_SHAPES = {
   vino:{ outline:"M30 16 Q27 54 50 60 Q73 54 70 16", liquid:"M31.6 33 Q31 51 50 56 Q69 51 68.4 33 Z", stem:true },
   flute:{ outline:"M40 12 Q37 58 50 62 Q63 58 60 12", liquid:"M41.4 26 Q40.4 55 50 58 Q59.6 55 58.6 26 Z", stem:true },
   shot:{ outline:"M37 58 L41 106 Q41 110 45 110 L55 110 Q59 110 59 106 L63 58",
-         liquid:"M40.4 72 L43.6 104 Q43.7 106 45 106 L55 106 Q56.3 106 56.4 104 L59.6 72 Z", stem:false }
+         liquid:"M40.4 72 L43.6 104 Q43.7 106 45 106 L55 106 Q56.3 106 56.4 104 L59.6 72 Z", stem:false },
+  // Jarras: mismo estilo, con asa. Tamaño creciente (0,5 < 1 < 2 L).
+  jarra05:{ outline:"M40 46 L42 104 Q42 108 46 108 L58 108 Q62 108 62 104 L64 46 Z M64 58 Q74 58 74 70 Q74 82 64 82",
+            liquid:"M42.3 60 L43.9 103 Q43.9 105 46 105 L58 105 Q60.1 105 60.1 103 L61.7 60 Z", stem:false, jar:true },
+  jarra1:{ outline:"M35 30 L38 106 Q38 110 43 110 L61 110 Q66 110 66 106 L69 30 Z M69 46 Q82 46 82 63 Q82 80 69 80",
+           liquid:"M37.6 48 L40.1 104 Q40.2 107 43 107 L61 107 Q63.8 107 63.9 104 L66.4 48 Z", stem:false, jar:true },
+  jarra2:{ outline:"M30 14 L34 108 Q34 112 39 112 L65 112 Q70 112 70 108 L74 14 Z M74 34 Q90 34 90 56 Q90 78 74 78",
+           liquid:"M32.9 36 L36 106 Q36.1 109 39 109 L65 109 Q67.9 109 68 106 L71.1 36 Z", stem:false, jar:true }
 };
 function lighten(hex, amt){
   const n = parseInt(hex.slice(1),16);
@@ -1180,14 +1187,16 @@ function glassSVG(copa, color, garnish){
     ? `<line x1="50" y1="60" x2="50" y2="102" stroke="rgba(255,255,255,.85)" stroke-width="2.2"/>
        <line x1="35" y1="106" x2="65" y2="106" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round"/>`
     : "";
-  const garn = garnish ? `<text x="71" y="20" font-size="17" text-anchor="middle">${esc(garnish)}</text>` : "";
-  return `<svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  const garn = garnish ? `<text x="${s.jar?"58":"71"}" y="20" font-size="17" text-anchor="middle">${esc(garnish)}</text>` : "";
+  // Las jarras usan un viewBox más ancho (por el asa) y así se ven más grandes/anchas.
+  const vb = s.jar ? "0 0 104 120" : "0 0 100 120";
+  return `<svg viewBox="${vb}" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="${lighten(color,55)}" stop-opacity=".95"/>
       <stop offset="1" stop-color="${color}"/>
     </linearGradient></defs>
     <path d="${s.liquid}" fill="url(#${gid})"/>
-    <path d="${s.outline}" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+    <path d="${s.outline}" stroke="rgba(255,255,255,.85)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
     ${stem}${garn}
   </svg>`;
 }
@@ -2608,12 +2617,17 @@ $("expBtn").addEventListener("click", ()=>{ CATS.forEach(c=>openCats.add(c)); re
 $("colBtn").addEventListener("click", ()=>{ openCats.clear(); renderCats(); });
 
 /* =================== Recetario =================== */
+const COPA_LABEL = {
+  highball:"Highball", rocks:"Rocks", martini:"Martini", coupe:"Coupe",
+  vino:"Vino", flute:"Flute", shot:"Shot",
+  jarra05:"Jarra ½L", jarra1:"Jarra 1L", jarra2:"Jarra 2L"
+};
 let recFormCopa = "highball", recFormColor = GLASS_COLORS[0][1];
 function buildRecFormPickers(){
   $("copaOpts").innerHTML = COPAS.map(c=>`
     <button type="button" class="copa-opt${c===recFormCopa?" sel":""}" data-copa="${c}">
       ${glassSVG(c, recFormColor, "")}
-      <span>${c}</span>
+      <span>${esc(COPA_LABEL[c]||c)}</span>
     </button>`).join("");
   $("swatches").innerHTML = GLASS_COLORS.map(([n,hex])=>`
     <button type="button" class="swatch${hex===recFormColor?" sel":""}" data-color="${hex}" title="${n}" style="background:${hex}"></button>`).join("");
@@ -2915,8 +2929,20 @@ function renderEmployees(){
    Solo el ADMIN la ve. Con "Añadir a la carta" el cóctel pasa al Recetario
    que ven los trabajadores.
    n=nombre c=copa col=color g=garnish k=categoría i=ingredientes p=pasos */
-const LIB_CATS = ["TODOS","RON","GIN","VODKA","WHISKY","TEQUILA","APERITIVO","ESPUMANTE","CREMOSOS","TROPICAL","SIN ALCOHOL"];
+const LIB_CATS = ["TODOS","SANGRÍA","RON","GIN","VODKA","WHISKY","TEQUILA","APERITIVO","ESPUMANTE","CREMOSOS","TROPICAL","SIN ALCOHOL"];
 const COCKTAIL_LIB = [
+{n:"SANGRÍA DE VINO TINTO",c:"jarra1",col:"#7E1E2B",g:"🍷",k:"SANGRÍA",
+ i:["750 ml vino tinto","60 ml brandy","30 ml licor de naranja","2 cdas de azúcar","1 naranja en rodajas","1 manzana en cubos","1 limón en rodajas","200 ml gaseosa o soda","Hielo"],
+ p:["En la jarra, mezclar el vino, el brandy, el licor de naranja y el azúcar","Añadir la fruta troceada y remover","Reposar en frío al menos 2 horas (mejor de un día para otro)","Al servir, añadir hielo y completar con gaseosa","Servir con algo de fruta en cada copa"]},
+{n:"SANGRÍA DE VINO BLANCO",c:"jarra1",col:"#E9D8A6",g:"🍏",k:"SANGRÍA",
+ i:["750 ml vino blanco seco","60 ml licor de melocotón","2 cdas de azúcar","1 manzana verde en cubos","1 melocotón en gajos","1 limón en rodajas","Hojas de menta","200 ml gaseosa","Hielo"],
+ p:["Mezclar en la jarra el vino, el licor de melocotón y el azúcar","Incorporar la fruta y la menta","Enfriar mínimo 2 horas","Añadir hielo y gaseosa justo antes de servir","Decorar con menta fresca"]},
+{n:"SANGRÍA DE FRUTOS ROJOS",c:"jarra1",col:"#9B1B4B",g:"🍓",k:"SANGRÍA",
+ i:["750 ml vino tinto joven","60 ml licor de frutos rojos","30 ml brandy","2 cdas de azúcar","150 g fresas en mitades","100 g arándanos y frambuesas","1 naranja en rodajas","200 ml gaseosa","Hielo"],
+ p:["Mezclar el vino, el licor de frutos rojos, el brandy y el azúcar","Añadir los frutos rojos y la naranja","Macerar en frío al menos 2 horas","Servir con hielo y completar con gaseosa","Coronar con frutos rojos frescos"]},
+{n:"SANGRÍA DE MARACUYÁ",c:"jarra1",col:"#F4A521",g:"🥭",k:"SANGRÍA",
+ i:["750 ml vino blanco o espumante","120 ml pulpa de maracuyá","45 ml licor de naranja","2 cdas de azúcar","1 naranja en rodajas","Pulpa de 2 maracuyás","200 ml gaseosa de lima-limón","Hielo"],
+ p:["Mezclar el vino, la pulpa de maracuyá, el licor y el azúcar","Añadir la naranja y la pulpa con semillas","Enfriar 2 horas para integrar sabores","Servir con hielo y completar con gaseosa","Decorar con una cucharada de maracuyá por copa"]},
 {n:"MOJITO",c:"highball",col:"#7FD8BE",g:"🌿",k:"RON",
  i:["50 ml ron blanco","25 ml zumo de lima","2 cdtas de azúcar","8 hojas de hierbabuena","Soda","Hielo picado"],
  p:["Poner la hierbabuena, el azúcar y la lima en el vaso","Macerar suave: presionar, no triturar","Llenar con hielo picado y añadir el ron","Remover de abajo hacia arriba","Completar con soda y decorar con hierbabuena"]},
